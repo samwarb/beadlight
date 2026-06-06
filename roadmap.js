@@ -1,87 +1,110 @@
-const STATUS_ORDER = [
-  { key: "under-consideration", label: "Under consideration", note: "Ideas being explored" },
-  { key: "planned", label: "Planned", note: "Likely to be built" },
-  { key: "in-progress", label: "In progress", note: "Currently being worked on" },
-  { key: "released", label: "Released", note: "Already live" },
-  { key: "not-planned", label: "Not planned", note: "Not on the roadmap right now" }
+const ROADMAP_STATUSES = [
+  ["under-consideration", "Under consideration"],
+  ["planned", "Planned"],
+  ["in-progress", "In progress"],
+  ["released", "Released"],
+  ["not-planned", "Not planned"]
 ];
 
-function getClient() {
+let roadmapClient;
+
+function initRoadmapClient() {
   const config = window.BEADLIGHT_SUPABASE || {};
+
   if (!config.url || !config.anonKey || config.url.includes("PASTE_YOUR")) {
-    throw new Error("Supabase is not configured yet. Add your project URL and anon key to beadlight/supabase-config.js.");
+    showRoadmapError("Roadmap is not configured yet.");
+    return null;
   }
+
   return window.supabase.createClient(config.url, config.anonKey);
 }
 
-async function loadRoadmap() {
-  const client = getClient();
-  const { data, error } = await client
-    .from("roadmap_items")
-    .select("id,title,summary,status,tag,priority,sort_order,created_at,updated_at")
-    .eq("is_public", true)
-    .order("sort_order", { ascending: true })
-    .order("created_at", { ascending: false });
+async function initRoadmap() {
+  roadmapClient = initRoadmapClient();
 
-  if (error) throw error;
-  return data || [];
+  if (!roadmapClient) return;
+
+  await loadRoadmap();
 }
 
-function renderRoadmap(items) {
+async function loadRoadmap() {
   const board = document.getElementById("roadmapBoard");
-  const meta = document.getElementById("roadmapMeta");
+
   if (!board) return;
 
-  board.innerHTML = STATUS_ORDER.map(status => {
-    const filtered = items.filter(item => item.status === status.key);
-    return `
-      <article class="roadmap-column">
-        <div class="roadmap-column-header">
-          <div>
-            <h2>${status.label}</h2>
-            <p>${status.note}</p>
-          </div>
-          <span>${filtered.length}</span>
-        </div>
-        <div class="roadmap-list">
-          ${filtered.length ? filtered.map(renderItem).join("") : `<div class="empty-state">Nothing here yet.</div>`}
-        </div>
-      </article>`;
-  }).join("");
+  board.innerHTML = `<div class="empty-state">Loading roadmap…</div>`;
 
-  if (meta) {
-    const latest = items.map(i => i.updated_at || i.created_at).filter(Boolean).sort().pop();
-    meta.textContent = latest ? `Last updated ${formatDate(latest)}` : `${items.length} roadmap items`;
+  const { data, error } = await roadmapClient
+    .from("roadmap_items")
+    .select("id,title,summary,status,tag,priority,sprint_due,created_at,updated_at")
+    .eq("is_public", true)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    showRoadmapError("Could not load roadmap: " + error.message);
+    return;
   }
+
+  const items = data || [];
+
+  board.innerHTML = ROADMAP_STATUSES.map(([statusValue, statusLabel]) => {
+    const statusItems = items.filter((item) => item.status === statusValue);
+
+    return `
+      <section class="roadmap-column">
+        <div class="roadmap-column-head">
+          <h2>${escapeHtml(statusLabel)}</h2>
+          <span>${statusItems.length}</span>
+        </div>
+
+        <div class="roadmap-list">
+          ${
+            statusItems.length
+              ? statusItems.map(renderRoadmapItem).join("")
+              : `<div class="empty-state small">No items yet.</div>`
+          }
+        </div>
+      </section>
+    `;
+  }).join("");
 }
 
-function renderItem(item) {
+function renderRoadmapItem(item) {
+  const tag = item.tag || "Feature";
+  const priority = item.priority || "Medium";
+  const sprintDue = item.sprint_due || "Not assigned";
+
   return `
-    <div class="roadmap-item">
-      <div class="roadmap-item-top">
-        <strong>${escapeHtml(item.title || "Untitled")}</strong>
-        ${item.priority ? `<span>${escapeHtml(item.priority)}</span>` : ""}
+    <article class="roadmap-card">
+      <div class="roadmap-card-meta">
+        <span>${escapeHtml(tag)}</span>
+        <span>${escapeHtml(priority)}</span>
+        <span>${escapeHtml(sprintDue)}</span>
       </div>
+
+      <h3>${escapeHtml(item.title || "Untitled item")}</h3>
+
       <p>${escapeHtml(item.summary || "")}</p>
-      ${item.tag ? `<small>${escapeHtml(item.tag)}</small>` : ""}
-    </div>`;
+    </article>
+  `;
 }
 
-function formatDate(value) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+function showRoadmapError(message) {
+  const board = document.getElementById("roadmapBoard");
+
+  if (!board) return;
+
+  board.innerHTML = `<div class="empty-state error-text">${escapeHtml(message)}</div>`;
 }
 
 function escapeHtml(value) {
-  return String(value).replace(/[&<>'"]/g, char => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
+  return String(value).replace(/[&<>'"]/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "'": "&#39;",
+    '"': "&quot;"
   }[char]));
 }
 
-loadRoadmap().then(renderRoadmap).catch(error => {
-  const board = document.getElementById("roadmapBoard");
-  const meta = document.getElementById("roadmapMeta");
-  if (meta) meta.textContent = "Roadmap could not be loaded.";
-  if (board) board.innerHTML = `<div class="roadmap-error">${escapeHtml(error.message)}</div>`;
-});
+initRoadmap();
