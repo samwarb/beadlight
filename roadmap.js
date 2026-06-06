@@ -17,6 +17,13 @@ const STATUS_ORDER = {
 let roadmapClient;
 let allRoadmapItems = [];
 
+let currentSort = {
+  key: "status",
+  direction: "asc"
+};
+
+document.addEventListener("DOMContentLoaded", initRoadmap);
+
 function initRoadmapClient() {
   const config = window.BEADLIGHT_SUPABASE || {};
 
@@ -76,6 +83,7 @@ function setupFilterListeners() {
 
   [search, statusFilter, tagFilter, priorityFilter, sprintFilter].forEach((control) => {
     if (!control) return;
+
     control.addEventListener("input", renderFilteredRoadmap);
     control.addEventListener("change", renderFilteredRoadmap);
   });
@@ -171,20 +179,7 @@ function getSprintValues(items) {
 
 function renderFilteredRoadmap() {
   const filteredItems = getFilteredItems();
-
-  const sortedItems = [...filteredItems].sort((a, b) => {
-    const statusA = STATUS_ORDER[a.status] || 99;
-    const statusB = STATUS_ORDER[b.status] || 99;
-
-    if (statusA !== statusB) return statusA - statusB;
-
-    const sprintA = getSprintSortValue(a.sprint_due);
-    const sprintB = getSprintSortValue(b.sprint_due);
-
-    if (sprintA !== sprintB) return sprintA - sprintB;
-
-    return String(a.title || "").localeCompare(String(b.title || ""));
-  });
+  const sortedItems = sortItems(filteredItems);
 
   const board = document.getElementById("roadmapBoard");
 
@@ -192,6 +187,7 @@ function renderFilteredRoadmap() {
 
   board.innerHTML = renderRoadmapSummary(filteredItems) + renderRoadmapTable(sortedItems);
 
+  setupSortButtons();
   updateResultCount(filteredItems.length, allRoadmapItems.length);
 }
 
@@ -226,6 +222,65 @@ function getFilteredItems() {
 
     return matchesSearch && matchesStatus && matchesTag && matchesPriority && matchesSprint;
   });
+}
+
+function sortItems(items) {
+  return [...items].sort((a, b) => {
+    const key = currentSort.key;
+    const direction = currentSort.direction === "asc" ? 1 : -1;
+
+    let valueA;
+    let valueB;
+
+    if (key === "title") {
+      valueA = String(a.title || "").toLowerCase();
+      valueB = String(b.title || "").toLowerCase();
+      return valueA.localeCompare(valueB) * direction;
+    }
+
+    if (key === "status") {
+      valueA = STATUS_ORDER[a.status] || 99;
+      valueB = STATUS_ORDER[b.status] || 99;
+      return (valueA - valueB) * direction;
+    }
+
+    if (key === "tag") {
+      valueA = String(a.tag || "").toLowerCase();
+      valueB = String(b.tag || "").toLowerCase();
+      return valueA.localeCompare(valueB) * direction;
+    }
+
+    if (key === "priority") {
+      valueA = getPrioritySortValue(a.priority);
+      valueB = getPrioritySortValue(b.priority);
+      return (valueA - valueB) * direction;
+    }
+
+    if (key === "sprint_due") {
+      valueA = getSprintSortValue(a.sprint_due);
+      valueB = getSprintSortValue(b.sprint_due);
+      return (valueA - valueB) * direction;
+    }
+
+    if (key === "summary") {
+      valueA = String(a.summary || "").toLowerCase();
+      valueB = String(b.summary || "").toLowerCase();
+      return valueA.localeCompare(valueB) * direction;
+    }
+
+    return 0;
+  });
+}
+
+function getPrioritySortValue(priority) {
+  const order = {
+    urgent: 1,
+    high: 2,
+    medium: 3,
+    low: 4
+  };
+
+  return order[String(priority || "").toLowerCase()] || 99;
 }
 
 function clearFilters() {
@@ -292,12 +347,41 @@ function renderRoadmapTable(items) {
       <table class="roadmap-table">
         <thead>
           <tr>
-            <th>Item</th>
-            <th>Status</th>
-            <th>Tag</th>
-            <th>Priority</th>
-            <th>Sprint due</th>
-            <th>Summary</th>
+            <th>
+              <button class="sort-button" type="button" data-sort="title">
+                Item ${getSortIndicator("title")}
+              </button>
+            </th>
+
+            <th>
+              <button class="sort-button" type="button" data-sort="status">
+                Status ${getSortIndicator("status")}
+              </button>
+            </th>
+
+            <th>
+              <button class="sort-button" type="button" data-sort="tag">
+                Tag ${getSortIndicator("tag")}
+              </button>
+            </th>
+
+            <th>
+              <button class="sort-button" type="button" data-sort="priority">
+                Priority ${getSortIndicator("priority")}
+              </button>
+            </th>
+
+            <th>
+              <button class="sort-button" type="button" data-sort="sprint_due">
+                Sprint due ${getSortIndicator("sprint_due")}
+              </button>
+            </th>
+
+            <th>
+              <button class="sort-button" type="button" data-sort="summary">
+                Summary ${getSortIndicator("summary")}
+              </button>
+            </th>
           </tr>
         </thead>
 
@@ -307,6 +391,33 @@ function renderRoadmapTable(items) {
       </table>
     </section>
   `;
+}
+
+function setupSortButtons() {
+  document.querySelectorAll("[data-sort]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const sortKey = button.dataset.sort;
+
+      if (currentSort.key === sortKey) {
+        currentSort.direction = currentSort.direction === "asc" ? "desc" : "asc";
+      } else {
+        currentSort.key = sortKey;
+        currentSort.direction = "asc";
+      }
+
+      renderFilteredRoadmap();
+    });
+  });
+}
+
+function getSortIndicator(key) {
+  if (currentSort.key !== key) {
+    return `<span class="sort-indicator">↕</span>`;
+  }
+
+  return currentSort.direction === "asc"
+    ? `<span class="sort-indicator active">↑</span>`
+    : `<span class="sort-indicator active">↓</span>`;
 }
 
 function renderRoadmapRow(item) {
@@ -381,6 +492,8 @@ function slugify(value) {
 }
 
 function showRoadmapError(message) {
+  setCurrentSprintLabel();
+
   const board = document.getElementById("roadmapBoard");
 
   if (!board) return;
@@ -401,5 +514,3 @@ function escapeHtml(value) {
 function escapeAttr(value) {
   return escapeHtml(value).replace(/`/g, "&#96;");
 }
-
-initRoadmap();
