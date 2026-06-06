@@ -1,1 +1,206 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Beadlight Support</title><link rel="stylesheet" href="../styles.css"><link rel="icon" href="../assets/beadlight-icon.png"></head><body><header class="site-header"><a class="brand" href="../"><img src="../assets/beadlight-icon.png" alt=""><span>Beadlight</span></a><nav><a href="../#features">Features</a><a href="../roadmap/">Roadmap</a><a href="../support/">Support</a><a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight/id6773049841">Download</a></nav></header><main class="section-shell" style="padding:72px 0 120px;"><section class="brand-card"><p class="eyebrow">Beadlight</p><h1 style="font-size:clamp(3rem,7vw,5rem);">Support</h1><p>This page is ready for your content. Edit <strong>/beadlight/support/index.html</strong> in your GitHub Pages repo.</p><a class="primary-button" href="../">Back to homepage</a></section></main></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Beadlight Support</title>
+  <meta name="description" content="Contact Beadlight support or send a suggestion.">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="icon" href="../assets/beadlight-icon.png">
+</head>
+
+<body>
+  <div class="page-glow"></div>
+
+  <header class="site-header">
+    <a class="brand" href="../">
+      <img src="../assets/beadlight-icon.png" alt="">
+      <span>Beadlight</span>
+    </a>
+
+    <nav>
+      <a href="../">Home</a>
+      <a href="../roadmap/">Roadmap</a>
+      <a href="../support/" aria-current="page">Support</a>
+      <a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight/id6773049841">Download</a>
+    </nav>
+  </header>
+
+  <main class="section-shell support-page">
+    <section class="roadmap-hero">
+      <p class="eyebrow">Support & suggestions</p>
+      <h1>How can we help?</h1>
+      <p class="lead">
+        Send a support request, report a bug, or suggest an improvement for Beadlight.
+      </p>
+    </section>
+
+    <section class="support-layout">
+      <form id="supportForm" class="support-form-card">
+        <div class="form-head">
+          <h2>Send a ticket</h2>
+          <p>
+            Fill in the details below and your ticket will be sent to
+            <strong>beadlight@merciandigital.co.uk</strong>.
+          </p>
+        </div>
+
+        <div class="support-form-grid">
+          <label>
+            Your name
+            <input id="ticketName" name="name" type="text" placeholder="Your name" required>
+          </label>
+
+          <label>
+            Your email
+            <input id="ticketEmail" name="email" type="email" placeholder="you@example.com" required>
+          </label>
+
+          <label>
+            Ticket type
+            <select id="ticketType" name="type" required>
+              <option value="">Select one</option>
+              <option value="Support needed">Support needed</option>
+              <option value="Suggestion">Suggestion</option>
+              <option value="Bug report">Bug report</option>
+              <option value="Feature request">Feature request</option>
+              <option value="Subscription / purchase issue">Subscription / purchase issue</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+
+          <label>
+            Priority
+            <select id="ticketPriority" name="priority" required>
+              <option value="Normal">Normal</option>
+              <option value="Low">Low</option>
+              <option value="High">High</option>
+              <option value="Urgent">Urgent</option>
+            </select>
+          </label>
+
+          <label class="wide">
+            Subject
+            <input id="ticketSubject" name="subject" type="text" placeholder="Briefly describe the issue or idea" required>
+          </label>
+
+          <label class="wide">
+            Message
+            <textarea id="ticketMessage" name="message" rows="8" placeholder="Tell us what happened, what you expected, or what you would like to see added." required></textarea>
+          </label>
+
+          <label class="wide">
+            Device / app details
+            <input id="ticketDevice" name="device" type="text" placeholder="e.g. iPhone 15, iOS 18, Beadlight version if known">
+          </label>
+        </div>
+
+        <div class="support-actions">
+          <button id="supportSubmitBtn" class="primary-button" type="submit">Send ticket</button>
+          <button class="secondary-button" type="reset">Clear form</button>
+        </div>
+
+        <p id="supportStatus" class="support-status">
+          Your ticket will be sent securely through Beadlight support.
+        </p>
+      </form>
+
+      <aside class="support-info-card">
+        <p class="eyebrow">Before sending</p>
+        <h2>Helpful details to include</h2>
+
+        <ul>
+          <li>What you were trying to do</li>
+          <li>What went wrong or what you expected</li>
+          <li>Your device model and iOS version</li>
+          <li>Whether it relates to guided audio, mysteries, subscriptions, or the roadmap</li>
+        </ul>
+
+        <div class="support-direct-email">
+          <span>Email directly</span>
+          <a href="mailto:beadlight@merciandigital.co.uk">beadlight@merciandigital.co.uk</a>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© Beadlight</p>
+
+    <div>
+      <a href="../privacy/">Privacy</a>
+      <a href="../roadmap/">Roadmap</a>
+      <a href="../admin/">Admin</a>
+    </div>
+  </footer>
+
+  <script>
+    const SUPPORT_FUNCTION_URL = "https://ibfdpdjknxcbvuqmvimz.supabase.co/functions/v1/dynamic-endpoint";
+
+    const supportForm = document.getElementById("supportForm");
+    const supportStatus = document.getElementById("supportStatus");
+    const supportSubmitBtn = document.getElementById("supportSubmitBtn");
+
+    supportForm.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const payload = {
+        name: document.getElementById("ticketName").value.trim(),
+        email: document.getElementById("ticketEmail").value.trim(),
+        type: document.getElementById("ticketType").value,
+        priority: document.getElementById("ticketPriority").value,
+        subject: document.getElementById("ticketSubject").value.trim(),
+        message: document.getElementById("ticketMessage").value.trim(),
+        device: document.getElementById("ticketDevice").value.trim()
+      };
+
+      if (!payload.name || !payload.email || !payload.type || !payload.subject || !payload.message) {
+        showSupportStatus("Please complete all required fields before sending.", true);
+        return;
+      }
+
+      supportSubmitBtn.disabled = true;
+      supportSubmitBtn.textContent = "Sending…";
+      showSupportStatus("Sending your ticket…", false);
+
+      try {
+        const response = await fetch(SUPPORT_FUNCTION_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        let result = {};
+
+        try {
+          result = await response.json();
+        } catch (jsonError) {
+          result = {};
+        }
+
+        if (!response.ok) {
+          throw new Error(result.error || result.message || "Could not send ticket.");
+        }
+
+        supportForm.reset();
+        showSupportStatus("Ticket sent. Thank you — we’ll review it as soon as possible.", false);
+      } catch (error) {
+        showSupportStatus(
+          error.message || "Something went wrong. Please email beadlight@merciandigital.co.uk directly.",
+          true
+        );
+      } finally {
+        supportSubmitBtn.disabled = false;
+        supportSubmitBtn.textContent = "Send ticket";
+      }
+    });
+
+    function showSupportStatus(message, isError) {
+      supportStatus.textContent = message;
+      supportStatus.classList.toggle("error-text", isError);
+    }
+  </script>
+</body>
+</html>
