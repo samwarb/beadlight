@@ -11,7 +11,7 @@
   <style>
     /*
       Homepage-only additions.
-      This keeps your existing site structure, navigation, footer, and page links intact.
+      Existing links, navigation, footer, styles.css and icon paths are preserved.
     */
 
     .home-hero-clean {
@@ -41,21 +41,21 @@
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: minmax(0, 0.95fr) minmax(340px, 0.72fr);
+      grid-template-columns: minmax(0, 0.95fr) minmax(320px, 0.72fr);
       gap: clamp(28px, 5vw, 72px);
       align-items: center;
     }
 
-    .hero-visual {
+    .hero-carousel {
       position: relative;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 520px;
+      min-height: 560px;
       isolation: isolate;
     }
 
-    .hero-visual::before {
+    .hero-carousel::before {
       content: "";
       position: absolute;
       inset: 8% -4% 7% -4%;
@@ -68,7 +68,7 @@
       opacity: 0.96;
     }
 
-    .hero-visual::after {
+    .hero-carousel::after {
       content: "";
       position: absolute;
       inset: 0;
@@ -80,15 +80,102 @@
       mix-blend-mode: soft-light;
     }
 
-    .hero-visual img {
+    .carousel-frame {
+      position: relative;
       width: min(100%, 430px);
-      height: auto;
-      display: block;
-      filter:
-        drop-shadow(0 32px 44px rgba(61, 39, 16, 0.11))
-        saturate(0.96)
-        contrast(0.98)
-        brightness(1.015);
+      aspect-ratio: 1242 / 2688;
+      border-radius: 34px;
+      overflow: hidden;
+      background: rgba(247, 239, 227, 0.28);
+      box-shadow: 0 32px 44px rgba(61, 39, 16, 0.11);
+    }
+
+    .carousel-frame img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transform: scale(1.012);
+      animation: beadlightCarousel 5s infinite;
+      filter: saturate(0.98) contrast(0.99) brightness(1.01);
+    }
+
+    .carousel-frame img:nth-child(1) { animation-delay: 0s; }
+    .carousel-frame img:nth-child(2) { animation-delay: 1s; }
+    .carousel-frame img:nth-child(3) { animation-delay: 2s; }
+    .carousel-frame img:nth-child(4) { animation-delay: 3s; }
+    .carousel-frame img:nth-child(5) { animation-delay: 4s; }
+
+    @keyframes beadlightCarousel {
+      0% {
+        opacity: 0;
+        transform: scale(1.012);
+      }
+
+      4% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      18% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      22% {
+        opacity: 0;
+        transform: scale(0.994);
+      }
+
+      100% {
+        opacity: 0;
+        transform: scale(0.994);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .carousel-frame img {
+        animation: none;
+      }
+
+      .carousel-frame img:first-child {
+        opacity: 1;
+      }
+    }
+
+    .carousel-dots {
+      position: absolute;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 7px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255, 250, 242, 0.58);
+      border: 1px solid rgba(183, 121, 24, 0.16);
+      backdrop-filter: blur(14px);
+    }
+
+    .carousel-dots span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(183, 121, 24, 0.34);
+      animation: beadlightDots 5s infinite;
+    }
+
+    .carousel-dots span:nth-child(1) { animation-delay: 0s; }
+    .carousel-dots span:nth-child(2) { animation-delay: 1s; }
+    .carousel-dots span:nth-child(3) { animation-delay: 2s; }
+    .carousel-dots span:nth-child(4) { animation-delay: 3s; }
+    .carousel-dots span:nth-child(5) { animation-delay: 4s; }
+
+    @keyframes beadlightDots {
+      0%, 20% { background: rgba(183, 121, 24, 0.95); transform: scale(1.25); }
+      21%, 100% { background: rgba(183, 121, 24, 0.34); transform: scale(1); }
     }
 
     .hero-points span:last-child {
@@ -105,19 +192,20 @@
         max-width: 760px;
       }
 
-      .hero-visual {
+      .hero-carousel {
         min-height: auto;
         margin-top: 12px;
       }
 
-      .hero-visual img {
+      .carousel-frame {
         width: min(100%, 460px);
       }
     }
 
     @media (max-width: 640px) {
-      .hero-visual img {
+      .carousel-frame {
         width: min(100%, 380px);
+        border-radius: 28px;
       }
     }
   </style>
@@ -171,8 +259,22 @@
           </div>
         </div>
 
-        <div class="hero-visual" aria-label="Beadlight shown in light and dark mode on iPhone">
-          <img src="beadlight-dark-mode-showcase-blended-v2.png" alt="Beadlight app shown in light and dark mode on iPhone">
+        <div class="hero-carousel" aria-label="Beadlight app screenshots carousel">
+          <div class="carousel-frame">
+            <img src="beadlight-screenshot-calm-guidance.jpeg" alt="Beadlight calm guidance screenshot">
+            <img src="beadlight-screenshot-hands-free.jpeg" alt="Beadlight hands-free prayer screenshot">
+            <img src="beadlight-screenshot-return-to-prayer.jpeg" alt="Beadlight peaceful prayer screenshot">
+            <img src="beadlight-screenshot-mysteries.jpeg" alt="Beadlight mysteries selection screenshot">
+            <img src="beadlight-screenshot-dark-mode.png" alt="Beadlight light and dark mode screenshot">
+          </div>
+
+          <div class="carousel-dots" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
         </div>
       </div>
     </section>
