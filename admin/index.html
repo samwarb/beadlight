@@ -107,6 +107,24 @@
       color: rgba(255, 255, 255, 0.68);
     }
 
+    .admin-header-logout {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 0 16px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: inherit;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .admin-header-logout:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
     @media (max-width: 860px) {
       .analytics-grid,
       .analytics-tables {
@@ -135,6 +153,7 @@
       <a href="../support/">Support</a>
       <a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight/id6773049841">Download</a>
     </nav>
+    <button class="admin-header-logout hidden" id="headerSignOutBtn" type="button">Log out</button>
   </header>
 
   <main class="section-shell admin-page">

@@ -33,6 +33,7 @@ const editorPanel = document.getElementById("editorPanel");
 const loginStatus = document.getElementById("loginStatus");
 const adminStatus = document.getElementById("adminStatus");
 const editor = document.getElementById("itemsEditor");
+const headerSignOutBtn = document.getElementById("headerSignOutBtn");
 const analyticsStatus = document.getElementById("analyticsStatus");
 const analyticsTotals = document.getElementById("analyticsTotals");
 const analyticsDaily = document.getElementById("analyticsDaily");
@@ -63,6 +64,7 @@ async function init() {
 
   if (loginBtn) loginBtn.addEventListener("click", sendMagicLink);
   if (signOutBtn) signOutBtn.addEventListener("click", signOut);
+  if (headerSignOutBtn) headerSignOutBtn.addEventListener("click", signOut);
   if (addBtn) addBtn.addEventListener("click", addItem);
   if (refreshAnalyticsBtn) refreshAnalyticsBtn.addEventListener("click", loadAnalytics);
 
@@ -88,6 +90,8 @@ async function init() {
   client.auth.onAuthStateChange(async (_event, session) => {
     if (session) {
       await showEditor();
+    } else {
+      showLogin();
     }
   });
 }
@@ -121,9 +125,16 @@ async function sendMagicLink() {
 async function showEditor() {
   if (loginPanel) loginPanel.classList.add("hidden");
   if (editorPanel) editorPanel.classList.remove("hidden");
+  if (headerSignOutBtn) headerSignOutBtn.classList.remove("hidden");
 
   await loadAnalytics();
   await loadItems();
+}
+
+function showLogin() {
+  if (editorPanel) editorPanel.classList.add("hidden");
+  if (loginPanel) loginPanel.classList.remove("hidden");
+  if (headerSignOutBtn) headerSignOutBtn.classList.add("hidden");
 }
 
 async function loadAnalytics() {
@@ -619,8 +630,7 @@ async function deleteItem(id) {
 async function signOut() {
   await client.auth.signOut();
 
-  if (editorPanel) editorPanel.classList.add("hidden");
-  if (loginPanel) loginPanel.classList.remove("hidden");
+  showLogin();
 
   setLoginStatus("Signed out.");
 }
