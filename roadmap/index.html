@@ -36,54 +36,57 @@
         A transparent look at the features, fixes, and improvements being considered,
         planned, worked on, released, or not currently planned.
       </p>
-
-      <div class="roadmap-legend">
-        <span>Under consideration</span>
-        <span>Planned</span>
-        <span>In progress</span>
-        <span>Released</span>
-        <span>Not planned</span>
-      </div>
     </section>
 
-    <section class="roadmap-intro-card">
-      <div>
-        <h2>Roadmap status guide</h2>
-        <p>
-          Items may move between statuses as priorities change, feedback comes in,
-          or technical work is completed.
-        </p>
+    <section class="roadmap-filter-panel" aria-label="Roadmap filters">
+      <div class="filter-head">
+        <div>
+          <h2>Filter roadmap</h2>
+          <p>Search or narrow the list by status, tag, priority, or sprint.</p>
+        </div>
+
+        <button id="clearFiltersBtn" class="secondary-button" type="button">Clear filters</button>
       </div>
 
-      <div class="roadmap-status-guide">
-        <div>
-          <strong>Under consideration</strong>
-          <span>Ideas being reviewed.</span>
-        </div>
+      <div class="roadmap-filters">
+        <label>
+          Search
+          <input id="roadmapSearch" type="search" placeholder="Search item or summary">
+        </label>
 
-        <div>
-          <strong>Planned</strong>
-          <span>Features or fixes intended for a future sprint.</span>
-        </div>
+        <label>
+          Status
+          <select id="statusFilter">
+            <option value="">All statuses</option>
+          </select>
+        </label>
 
-        <div>
-          <strong>In progress</strong>
-          <span>Currently being worked on.</span>
-        </div>
+        <label>
+          Tag
+          <select id="tagFilter">
+            <option value="">All tags</option>
+          </select>
+        </label>
 
-        <div>
-          <strong>Released</strong>
-          <span>Live or completed.</span>
-        </div>
+        <label>
+          Priority
+          <select id="priorityFilter">
+            <option value="">All priorities</option>
+          </select>
+        </label>
 
-        <div>
-          <strong>Not planned</strong>
-          <span>Not being worked on at the moment.</span>
-        </div>
+        <label>
+          Sprint due
+          <select id="sprintFilter">
+            <option value="">All sprints</option>
+          </select>
+        </label>
       </div>
+
+      <p id="filterResultCount" class="filter-result-count">Loading roadmap…</p>
     </section>
 
-    <section class="roadmap-board-section" aria-label="Beadlight roadmap board">
+    <section class="roadmap-board-section" aria-label="Beadlight roadmap table">
       <div id="roadmapBoard" class="roadmap-board">
         <div class="empty-state">Loading roadmap…</div>
       </div>
