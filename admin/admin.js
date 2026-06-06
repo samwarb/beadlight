@@ -21,6 +21,8 @@ const PRIORITIES = [
   ["Low", "Low"]
 ];
 
+const STATUSES_WITHOUT_SPRINT = ["under-consideration", "not-planned"];
+
 const ADMIN_REDIRECT_URL = "https://beadlight.merciandigital.co.uk/admin/";
 
 let client;
@@ -148,8 +150,11 @@ function renderEditor() {
 }
 
 function renderEditorItem(item) {
+  const status = item.status || "under-consideration";
+  const sprintDisabled = shouldDisableSprint(status);
+
   const statusOptions = STATUSES.map(([value, label]) => {
-    return `<option value="${value}" ${item.status === value ? "selected" : ""}>${label}</option>`;
+    return `<option value="${value}" ${status === value ? "selected" : ""}>${label}</option>`;
   }).join("");
 
   const savedTag = item.tag || "Feature";
@@ -165,8 +170,8 @@ function renderEditorItem(item) {
     return `<option value="${value}" ${item.priority === value ? "selected" : ""}>${label}</option>`;
   }).join("");
 
-  const sprintText = item.sprint_due || getCurrentSprintText();
-  const weekValue = sprintTextToWeekInputValue(sprintText);
+  const sprintText = sprintDisabled ? "N/A" : item.sprint_due || getCurrentSprintText();
+  const weekValue = sprintDisabled ? "" : sprintTextToWeekInputValue(sprintText);
 
   return `
     <article class="editor-card" data-id="${escapeAttr(item.id)}">
@@ -204,7 +209,12 @@ function renderEditorItem(item) {
 
         <label>
           Sprint due
-          <input data-field="sprint_week" type="week" value="${escapeAttr(weekValue)}">
+          <input
+            data-field="sprint_week"
+            type="week"
+            value="${escapeAttr(weekValue)}"
+            ${sprintDisabled ? "disabled" : ""}
+          >
         </label>
 
         <label>
@@ -241,7 +251,6 @@ function handleEditorChange(event) {
     if (!card) return;
 
     const customTagWrap = card.querySelector("[data-custom-tag-wrap]");
-
     if (!customTagWrap) return;
 
     if (changed.value === "Other") {
@@ -253,18 +262,46 @@ function handleEditorChange(event) {
     return;
   }
 
+  if (changed.dataset.field === "status") {
+    const card = changed.closest(".editor-card");
+    if (!card) return;
+
+    updateSprintControlsForStatus(card, changed.value);
+    return;
+  }
+
   if (changed.dataset.field === "sprint_week") {
     const card = changed.closest(".editor-card");
     if (!card) return;
 
     const sprintLabel = card.querySelector('[data-field="sprint_due"]');
-
     if (!sprintLabel) return;
 
     sprintLabel.value = weekInputValueToSprintText(changed.value);
-
     return;
   }
+}
+
+function updateSprintControlsForStatus(card, status) {
+  const sprintWeek = card.querySelector('[data-field="sprint_week"]');
+  const sprintLabel = card.querySelector('[data-field="sprint_due"]');
+
+  if (!sprintWeek || !sprintLabel) return;
+
+  if (shouldDisableSprint(status)) {
+    sprintWeek.value = "";
+    sprintWeek.disabled = true;
+    sprintLabel.value = "N/A";
+    return;
+  }
+
+  sprintWeek.disabled = false;
+
+  if (!sprintWeek.value) {
+    sprintWeek.value = getCurrentWeekInputValue();
+  }
+
+  sprintLabel.value = weekInputValueToSprintText(sprintWeek.value);
 }
 
 async function handleEditorClick(event) {
@@ -302,6 +339,7 @@ function getCardValues(id) {
     return input ? input.value : "";
   };
 
+  const status = get("status");
   const selectedTag = get("tag_select");
   const otherTag = get("tag_other").trim();
 
@@ -311,12 +349,14 @@ function getCardValues(id) {
     finalTag = otherTag || "Other";
   }
 
+  const sprintDue = shouldDisableSprint(status) ? "N/A" : get("sprint_due").trim();
+
   return {
     title: get("title").trim(),
-    status: get("status"),
+    status,
     tag: finalTag,
     priority: get("priority"),
-    sprint_due: get("sprint_due").trim(),
+    sprint_due: sprintDue,
     summary: get("summary").trim(),
     is_public: true
   };
@@ -368,8 +408,6 @@ async function saveItem(id) {
 async function addItem() {
   setAdminStatus("Adding item…");
 
-  const currentSprint = getCurrentSprintText();
-
   const { data, error } = await client
     .from("roadmap_items")
     .insert({
@@ -378,7 +416,7 @@ async function addItem() {
       status: "under-consideration",
       tag: "Feature",
       priority: "Medium",
-      sprint_due: currentSprint,
+      sprint_due: "N/A",
       is_public: true
     })
     .select();
@@ -439,6 +477,10 @@ async function signOut() {
   setLoginStatus("Signed out.");
 }
 
+function shouldDisableSprint(status) {
+  return STATUSES_WITHOUT_SPRINT.includes(status);
+}
+
 function getCurrentSprintText() {
   const now = new Date();
   const year = now.getFullYear();
@@ -464,7 +506,7 @@ function weekInputValueToSprintText(value) {
 }
 
 function sprintTextToWeekInputValue(value) {
-  if (!value) {
+  if (!value || value === "N/A") {
     return getCurrentWeekInputValue();
   }
 
