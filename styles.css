@@ -1030,3 +1030,223 @@ footer div { display: flex; gap: 16px; }
   opacity: 1;
   color: #a86423;
 }
+/* ================================
+   Beadlight Support Page - Final
+   ================================ */
+
+.support-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 76px 24px 100px;
+}
+
+.support-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 760px);
+  margin-bottom: 34px;
+}
+
+.support-hero h1 {
+  margin: 0 0 22px;
+  max-width: 760px;
+  font-size: clamp(3.4rem, 8vw, 6.8rem);
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  color: #202431;
+}
+
+.support-hero .lead {
+  max-width: 690px;
+  margin: 0;
+  color: rgba(31, 36, 48, 0.72);
+  font-size: 1.16rem;
+  line-height: 1.7;
+}
+
+.support-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.support-form-card,
+.support-info-card {
+  border-radius: 34px;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  box-shadow: 0 24px 70px rgba(61, 45, 18, 0.11);
+  backdrop-filter: blur(20px);
+}
+
+.form-head {
+  margin-bottom: 24px;
+}
+
+.form-head h2,
+.support-info-card h2 {
+  margin: 0 0 10px;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  color: #202431;
+}
+
+.form-head p,
+.support-info-card p {
+  margin: 0;
+  color: rgba(31, 36, 48, 0.68);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.support-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.support-form-grid label {
+  display: grid;
+  gap: 8px;
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: rgba(31, 36, 48, 0.58);
+}
+
+.support-form-grid label.wide {
+  grid-column: 1 / -1;
+}
+
+.support-form-grid input,
+.support-form-grid select,
+.support-form-grid textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 18px;
+  border: 1px solid rgba(177, 122, 35, 0.18);
+  background: rgba(255, 252, 244, 0.92);
+  color: #202431;
+  padding: 14px 15px;
+  font: inherit;
+  font-size: 0.98rem;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: normal;
+  outline: none;
+}
+
+.support-form-grid select {
+  appearance: auto;
+}
+
+.support-form-grid textarea {
+  min-height: 170px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.support-form-grid input:focus,
+.support-form-grid select:focus,
+.support-form-grid textarea:focus {
+  border-color: rgba(217, 154, 40, 0.72);
+  box-shadow: 0 0 0 4px rgba(217, 154, 40, 0.14);
+}
+
+.support-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.support-actions .primary-button,
+.support-actions .secondary-button {
+  min-height: 48px;
+}
+
+.supportSubmitBtn:disabled,
+#supportSubmitBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.support-status {
+  margin: 18px 0 0;
+  color: rgba(31, 36, 48, 0.66);
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.support-status.error-text,
+.error-text {
+  color: #b91c1c !important;
+}
+
+.support-info-card {
+  position: sticky;
+  top: 24px;
+}
+
+.support-info-card ul {
+  display: grid;
+  gap: 12px;
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.support-info-card li {
+  position: relative;
+  padding: 14px 16px 14px 42px;
+  border-radius: 18px;
+  background: rgba(255, 252, 244, 0.82);
+  border: 1px solid rgba(177, 122, 35, 0.13);
+  color: rgba(31, 36, 48, 0.72);
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.support-info-card li::before {
+  content: "✦";
+  position: absolute;
+  left: 17px;
+  top: 14px;
+  color: #d99a28;
+  font-weight: 900;
+}
+
+@media (max-width: 960px) {
+  .support-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .support-info-card {
+    position: static;
+  }
+}
+
+@media (max-width: 680px) {
+  .support-page {
+    padding: 54px 18px 80px;
+  }
+
+  .support-hero h1 {
+    font-size: clamp(3rem, 15vw, 4.4rem);
+  }
+
+  .support-form-card,
+  .support-info-card {
+    padding: 22px;
+    border-radius: 28px;
+  }
+
+  .support-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
