@@ -54,69 +54,75 @@
     .hero-carousel::before {
       content: "";
       position: absolute;
-      inset: 4% -10% 2% -10%;
-      z-index: -3;
+      inset: 4% -8% 2% -8%;
+      z-index: -2;
       background:
-        radial-gradient(circle at 38% 32%, rgba(255, 250, 242, 0.95), transparent 38%),
-        radial-gradient(circle at 66% 44%, rgba(183, 121, 24, 0.18), transparent 36%),
-        radial-gradient(circle at 50% 76%, rgba(232, 210, 177, 0.42), transparent 44%);
-      filter: blur(52px);
+        radial-gradient(circle at 48% 34%, rgba(255, 247, 236, 0.92), transparent 42%),
+        radial-gradient(circle at 70% 47%, rgba(183, 121, 24, 0.18), transparent 40%),
+        radial-gradient(circle at 64% 82%, rgba(232, 210, 177, 0.38), transparent 46%);
+      filter: blur(46px);
       opacity: 0.98;
     }
 
-    .hero-carousel::after {
+    .carousel-shell {
+      position: relative;
+      width: min(100%, 470px);
+      padding: 18px;
+      border-radius: 46px;
+      background:
+        linear-gradient(145deg, rgba(255, 252, 246, 0.92), rgba(238, 219, 188, 0.70));
+      border: 1px solid rgba(183, 121, 24, 0.24);
+      box-shadow:
+        0 34px 70px rgba(61, 39, 16, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.78);
+    }
+
+    .carousel-shell::before {
       content: "";
       position: absolute;
-      inset: 0 -7%;
-      z-index: -2;
+      inset: 8px;
+      border-radius: 38px;
+      border: 1px solid rgba(255, 255, 255, 0.62);
       pointer-events: none;
-      background:
-        linear-gradient(90deg, rgba(247, 239, 227, 0.96), transparent 15%, transparent 85%, rgba(247, 239, 227, 0.72)),
-        linear-gradient(180deg, rgba(255, 250, 242, 0.72), transparent 13%, transparent 84%, rgba(247, 239, 227, 0.88));
-      mix-blend-mode: soft-light;
+      z-index: 4;
+    }
+
+    .carousel-shell::after {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border-radius: 34px;
+      pointer-events: none;
+      z-index: 5;
+      box-shadow:
+        inset 0 0 0 1px rgba(183, 121, 24, 0.16),
+        inset 0 20px 36px rgba(255, 255, 255, 0.16),
+        inset 0 -26px 42px rgba(63, 39, 13, 0.08);
     }
 
     .carousel-frame {
       position: relative;
-      width: min(100%, 430px);
+      width: 100%;
       aspect-ratio: 1242 / 2688;
-      border-radius: 38px;
-      background: transparent;
+      border-radius: 30px;
+      background: #f7efe3;
       transform-style: preserve-3d;
       overflow: visible;
-      -webkit-mask-image:
-        radial-gradient(ellipse at center, black 61%, rgba(0,0,0,0.88) 72%, rgba(0,0,0,0.45) 84%, transparent 100%);
-      mask-image:
-        radial-gradient(ellipse at center, black 61%, rgba(0,0,0,0.88) 72%, rgba(0,0,0,0.45) 84%, transparent 100%);
-    }
-
-    .carousel-frame::before {
-      content: "";
-      position: absolute;
-      inset: -7%;
-      z-index: 0;
-      border-radius: 52px;
-      background:
-        radial-gradient(circle at 48% 36%, rgba(255, 247, 236, 0.74), transparent 44%),
-        radial-gradient(circle at 54% 72%, rgba(231, 208, 172, 0.28), transparent 40%);
-      filter: blur(22px);
-      pointer-events: none;
     }
 
     .carousel-slide {
       position: absolute;
       inset: 0;
-      z-index: 1;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: 38px;
+      border-radius: 30px;
       opacity: 0;
       visibility: hidden;
       transform-origin: center center;
       backface-visibility: hidden;
-      box-shadow: 0 22px 38px rgba(61, 39, 16, 0.075);
-      filter: saturate(0.96) contrast(0.985) brightness(1.015);
+      box-shadow: none;
+      filter: saturate(0.99) contrast(1) brightness(1);
       transition:
         transform 650ms cubic-bezier(.2, .72, .18, 1),
         opacity 220ms ease,
@@ -192,7 +198,7 @@
     .carousel-dots {
       position: absolute;
       left: 50%;
-      bottom: 18px;
+      bottom: 26px;
       transform: translateX(-50%);
       z-index: 8;
       display: flex;
@@ -248,16 +254,32 @@
         margin-top: 12px;
       }
 
-      .carousel-frame {
-        width: min(100%, 460px);
+      .carousel-shell {
+        width: min(100%, 500px);
       }
     }
 
     @media (max-width: 640px) {
       .carousel-frame,
       .carousel-slide {
-        border-radius: 30px;
-      }
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 30px;
+      opacity: 0;
+      visibility: hidden;
+      transform-origin: center center;
+      backface-visibility: hidden;
+      box-shadow: none;
+      filter: saturate(0.99) contrast(1) brightness(1);
+      transition:
+        transform 650ms cubic-bezier(.2, .72, .18, 1),
+        opacity 220ms ease,
+        visibility 650ms ease;
+      will-change: transform, opacity;
+    }
 
       .carousel-frame {
         width: min(100%, 380px);
@@ -315,12 +337,14 @@
         </div>
 
         <div class="hero-carousel" aria-label="Beadlight app screenshots carousel">
-          <div class="carousel-frame" id="beadlightCarousel">
-            <img class="carousel-slide is-active" src="beadlight-screenshot-calm-guidance.jpeg" alt="Beadlight calm guidance screenshot">
-            <img class="carousel-slide" src="beadlight-screenshot-hands-free.jpeg" alt="Beadlight hands-free prayer screenshot">
-            <img class="carousel-slide" src="beadlight-screenshot-return-to-prayer.jpeg" alt="Beadlight peaceful prayer screenshot">
-            <img class="carousel-slide" src="beadlight-screenshot-mysteries.jpeg" alt="Beadlight mysteries selection screenshot">
-            <img class="carousel-slide" src="beadlight-screenshot-dark-mode.png" alt="Beadlight light and dark mode screenshot">
+          <div class="carousel-shell">
+            <div class="carousel-frame" id="beadlightCarousel">
+              <img class="carousel-slide is-active" src="beadlight-screenshot-calm-guidance.jpeg" alt="Beadlight calm guidance screenshot">
+              <img class="carousel-slide" src="beadlight-screenshot-hands-free.jpeg" alt="Beadlight hands-free prayer screenshot">
+              <img class="carousel-slide" src="beadlight-screenshot-return-to-prayer.jpeg" alt="Beadlight peaceful prayer screenshot">
+              <img class="carousel-slide" src="beadlight-screenshot-mysteries.jpeg" alt="Beadlight mysteries selection screenshot">
+              <img class="carousel-slide" src="beadlight-screenshot-dark-mode.png" alt="Beadlight light and dark mode screenshot">
+            </div>
           </div>
 
           <div class="carousel-dots" aria-label="Carousel controls">
