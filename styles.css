@@ -998,3 +998,35 @@ footer div { display: flex; gap: 16px; }
   color: rgba(31, 36, 48, 0.62);
   font-size: 0.92rem;
 }
+/* ================================
+   Roadmap Sort Buttons
+   ================================ */
+
+.sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  cursor: pointer;
+}
+
+.sort-button:hover {
+  color: #a86423;
+}
+
+.sort-indicator {
+  font-size: 0.8rem;
+  opacity: 0.45;
+}
+
+.sort-indicator.active {
+  opacity: 1;
+  color: #a86423;
+}
