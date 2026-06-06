@@ -26,22 +26,24 @@
     </nav>
   </header>
 
-  <main class="section-shell support-page">
-    <section class="roadmap-hero">
-      <p class="eyebrow">Support & suggestions</p>
-      <h1>How can we help?</h1>
-      <p class="lead">
-        Send a support request, report a bug, or suggest an improvement for Beadlight.
-      </p>
+  <main class="support-page">
+    <section class="support-hero">
+      <div>
+        <p class="eyebrow">Support & suggestions</p>
+        <h1>How can we help?</h1>
+        <p class="lead">
+          Send a support request, report a bug, or suggest an improvement for Beadlight.
+        </p>
+      </div>
     </section>
 
     <section class="support-layout">
       <form id="supportForm" class="support-form-card">
         <div class="form-head">
-          <h2>Send a ticket</h2>
+          <p class="eyebrow">Send a ticket</p>
+          <h2>Tell us what you need</h2>
           <p>
-            Fill in the details below and your ticket will be sent to
-            <strong>beadlight@merciandigital.co.uk</strong>.
+            Fill in the details below and your ticket will be sent to Beadlight support.
           </p>
         </div>
 
@@ -86,7 +88,7 @@
 
           <label class="wide">
             Message
-            <textarea id="ticketMessage" name="message" rows="8" placeholder="Tell us what happened, what you expected, or what you would like to see added." required></textarea>
+            <textarea id="ticketMessage" name="message" rows="7" placeholder="Tell us what happened, what you expected, or what you would like to see added." required></textarea>
           </label>
 
           <label class="wide">
@@ -107,7 +109,11 @@
 
       <aside class="support-info-card">
         <p class="eyebrow">Before sending</p>
-        <h2>Helpful details to include</h2>
+        <h2>Helpful details</h2>
+
+        <p>
+          The more detail you include, the easier it is to understand the issue or suggestion.
+        </p>
 
         <ul>
           <li>What you were trying to do</li>
@@ -115,11 +121,6 @@
           <li>Your device model and iOS version</li>
           <li>Whether it relates to guided audio, mysteries, subscriptions, or the roadmap</li>
         </ul>
-
-        <div class="support-direct-email">
-          <span>Email directly</span>
-          <a href="mailto:beadlight@merciandigital.co.uk">beadlight@merciandigital.co.uk</a>
-        </div>
       </aside>
     </section>
   </main>
@@ -188,7 +189,7 @@
         showSupportStatus("Ticket sent. Thank you — we’ll review it as soon as possible.", false);
       } catch (error) {
         showSupportStatus(
-          error.message || "Something went wrong. Please email beadlight@merciandigital.co.uk directly.",
+          error.message || "Something went wrong. Please try again later.",
           true
         );
       } finally {
