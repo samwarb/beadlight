@@ -15,6 +15,7 @@ const STATUS_ORDER = {
 };
 
 let roadmapClient;
+let allRoadmapItems = [];
 
 function initRoadmapClient() {
   const config = window.BEADLIGHT_SUPABASE || {};
@@ -32,7 +33,27 @@ async function initRoadmap() {
 
   if (!roadmapClient) return;
 
+  setupFilterListeners();
   await loadRoadmap();
+}
+
+function setupFilterListeners() {
+  const search = document.getElementById("roadmapSearch");
+  const statusFilter = document.getElementById("statusFilter");
+  const tagFilter = document.getElementById("tagFilter");
+  const priorityFilter = document.getElementById("priorityFilter");
+  const sprintFilter = document.getElementById("sprintFilter");
+  const clearFiltersBtn = document.getElementById("clearFiltersBtn");
+
+  [search, statusFilter, tagFilter, priorityFilter, sprintFilter].forEach((control) => {
+    if (!control) return;
+    control.addEventListener("input", renderFilteredRoadmap);
+    control.addEventListener("change", renderFilteredRoadmap);
+  });
+
+  if (clearFiltersBtn) {
+    clearFiltersBtn.addEventListener("click", clearFilters);
+  }
 }
 
 async function loadRoadmap() {
@@ -53,9 +74,75 @@ async function loadRoadmap() {
     return;
   }
 
-  const items = data || [];
+  allRoadmapItems = data || [];
 
-  const sortedItems = [...items].sort((a, b) => {
+  populateFilters(allRoadmapItems);
+  renderFilteredRoadmap();
+}
+
+function populateFilters(items) {
+  populateStatusFilter();
+  populateSelect("tagFilter", getUniqueValues(items, "tag"), "All tags");
+  populateSelect("priorityFilter", getPriorityValues(items), "All priorities");
+  populateSelect("sprintFilter", getSprintValues(items), "All sprints");
+}
+
+function populateStatusFilter() {
+  const statusFilter = document.getElementById("statusFilter");
+
+  if (!statusFilter) return;
+
+  statusFilter.innerHTML = `
+    <option value="">All statuses</option>
+    ${ROADMAP_STATUSES.map(([value, label]) => {
+      return `<option value="${escapeAttr(value)}">${escapeHtml(label)}</option>`;
+    }).join("")}
+  `;
+}
+
+function populateSelect(id, values, defaultLabel) {
+  const select = document.getElementById(id);
+
+  if (!select) return;
+
+  select.innerHTML = `
+    <option value="">${escapeHtml(defaultLabel)}</option>
+    ${values.map((value) => {
+      return `<option value="${escapeAttr(value)}">${escapeHtml(value)}</option>`;
+    }).join("")}
+  `;
+}
+
+function getUniqueValues(items, key) {
+  return [...new Set(
+    items
+      .map((item) => item[key])
+      .filter(Boolean)
+      .map((value) => String(value).trim())
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b));
+}
+
+function getPriorityValues(items) {
+  const priorityOrder = ["Urgent", "High", "Medium", "Low"];
+  const found = getUniqueValues(items, "priority");
+
+  return priorityOrder.filter((priority) => found.includes(priority))
+    .concat(found.filter((priority) => !priorityOrder.includes(priority)));
+}
+
+function getSprintValues(items) {
+  const found = getUniqueValues(items, "sprint_due");
+
+  return found.sort((a, b) => {
+    return getSprintSortValue(a) - getSprintSortValue(b);
+  });
+}
+
+function renderFilteredRoadmap() {
+  const filteredItems = getFilteredItems();
+
+  const sortedItems = [...filteredItems].sort((a, b) => {
     const statusA = STATUS_ORDER[a.status] || 99;
     const statusB = STATUS_ORDER[b.status] || 99;
 
@@ -64,10 +151,84 @@ async function loadRoadmap() {
     const sprintA = getSprintSortValue(a.sprint_due);
     const sprintB = getSprintSortValue(b.sprint_due);
 
-    return sprintA - sprintB;
+    if (sprintA !== sprintB) return sprintA - sprintB;
+
+    return String(a.title || "").localeCompare(String(b.title || ""));
   });
 
-  board.innerHTML = renderRoadmapSummary(items) + renderRoadmapTable(sortedItems);
+  const board = document.getElementById("roadmapBoard");
+
+  if (!board) return;
+
+  board.innerHTML = renderRoadmapSummary(filteredItems) + renderRoadmapTable(sortedItems);
+
+  updateResultCount(filteredItems.length, allRoadmapItems.length);
+}
+
+function getFilteredItems() {
+  const searchValue = getControlValue("roadmapSearch").toLowerCase();
+  const statusValue = getControlValue("statusFilter");
+  const tagValue = getControlValue("tagFilter");
+  const priorityValue = getControlValue("priorityFilter");
+  const sprintValue = getControlValue("sprintFilter");
+
+  return allRoadmapItems.filter((item) => {
+    const title = String(item.title || "").toLowerCase();
+    const summary = String(item.summary || "").toLowerCase();
+    const tag = String(item.tag || "");
+    const priority = String(item.priority || "");
+    const sprint = String(item.sprint_due || "");
+    const status = String(item.status || "");
+
+    const matchesSearch =
+      !searchValue ||
+      title.includes(searchValue) ||
+      summary.includes(searchValue) ||
+      tag.toLowerCase().includes(searchValue) ||
+      priority.toLowerCase().includes(searchValue) ||
+      sprint.toLowerCase().includes(searchValue) ||
+      getStatusLabel(status).toLowerCase().includes(searchValue);
+
+    const matchesStatus = !statusValue || status === statusValue;
+    const matchesTag = !tagValue || tag === tagValue;
+    const matchesPriority = !priorityValue || priority === priorityValue;
+    const matchesSprint = !sprintValue || sprint === sprintValue;
+
+    return matchesSearch && matchesStatus && matchesTag && matchesPriority && matchesSprint;
+  });
+}
+
+function clearFilters() {
+  setControlValue("roadmapSearch", "");
+  setControlValue("statusFilter", "");
+  setControlValue("tagFilter", "");
+  setControlValue("priorityFilter", "");
+  setControlValue("sprintFilter", "");
+
+  renderFilteredRoadmap();
+}
+
+function getControlValue(id) {
+  const control = document.getElementById(id);
+  return control ? control.value : "";
+}
+
+function setControlValue(id, value) {
+  const control = document.getElementById(id);
+  if (control) control.value = value;
+}
+
+function updateResultCount(filteredCount, totalCount) {
+  const count = document.getElementById("filterResultCount");
+
+  if (!count) return;
+
+  if (filteredCount === totalCount) {
+    count.textContent = `Showing all ${totalCount} roadmap item${totalCount === 1 ? "" : "s"}.`;
+    return;
+  }
+
+  count.textContent = `Showing ${filteredCount} of ${totalCount} roadmap item${totalCount === 1 ? "" : "s"}.`;
 }
 
 function renderRoadmapSummary(items) {
@@ -91,7 +252,7 @@ function renderRoadmapSummary(items) {
 
 function renderRoadmapTable(items) {
   if (!items.length) {
-    return `<div class="empty-state">No roadmap items yet.</div>`;
+    return `<div class="empty-state">No roadmap items match these filters.</div>`;
   }
 
   const rows = items.map(renderRoadmapRow).join("");
