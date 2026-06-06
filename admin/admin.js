@@ -165,6 +165,9 @@ function renderEditorItem(item) {
     return `<option value="${value}" ${item.priority === value ? "selected" : ""}>${label}</option>`;
   }).join("");
 
+  const sprintText = item.sprint_due || getCurrentSprintText();
+  const weekValue = sprintTextToWeekInputValue(sprintText);
+
   return `
     <article class="editor-card" data-id="${escapeAttr(item.id)}">
       <div class="admin-grid">
@@ -201,7 +204,12 @@ function renderEditorItem(item) {
 
         <label>
           Sprint due
-          <input data-field="sprint_due" value="${escapeAttr(item.sprint_due || "2026 Sprint 23")}" placeholder="e.g. 2026 Sprint 23">
+          <input data-field="sprint_week" type="week" value="${escapeAttr(weekValue)}">
+        </label>
+
+        <label>
+          Sprint label
+          <input data-field="sprint_due" value="${escapeAttr(sprintText)}" readonly>
         </label>
 
         <label class="wide">
@@ -226,19 +234,36 @@ function renderEditorItem(item) {
 function handleEditorChange(event) {
   const changed = event.target;
 
-  if (!changed || changed.dataset.field !== "tag_select") return;
+  if (!changed) return;
 
-  const card = changed.closest(".editor-card");
-  if (!card) return;
+  if (changed.dataset.field === "tag_select") {
+    const card = changed.closest(".editor-card");
+    if (!card) return;
 
-  const customTagWrap = card.querySelector("[data-custom-tag-wrap]");
+    const customTagWrap = card.querySelector("[data-custom-tag-wrap]");
 
-  if (!customTagWrap) return;
+    if (!customTagWrap) return;
 
-  if (changed.value === "Other") {
-    customTagWrap.classList.remove("hidden");
-  } else {
-    customTagWrap.classList.add("hidden");
+    if (changed.value === "Other") {
+      customTagWrap.classList.remove("hidden");
+    } else {
+      customTagWrap.classList.add("hidden");
+    }
+
+    return;
+  }
+
+  if (changed.dataset.field === "sprint_week") {
+    const card = changed.closest(".editor-card");
+    if (!card) return;
+
+    const sprintLabel = card.querySelector('[data-field="sprint_due"]');
+
+    if (!sprintLabel) return;
+
+    sprintLabel.value = weekInputValueToSprintText(changed.value);
+
+    return;
   }
 }
 
@@ -343,6 +368,8 @@ async function saveItem(id) {
 async function addItem() {
   setAdminStatus("Adding item…");
 
+  const currentSprint = getCurrentSprintText();
+
   const { data, error } = await client
     .from("roadmap_items")
     .insert({
@@ -351,7 +378,7 @@ async function addItem() {
       status: "under-consideration",
       tag: "Feature",
       priority: "Medium",
-      sprint_due: "2026 Sprint 23",
+      sprint_due: currentSprint,
       is_public: true
     })
     .select();
@@ -410,6 +437,66 @@ async function signOut() {
   if (loginPanel) loginPanel.classList.remove("hidden");
 
   setLoginStatus("Signed out.");
+}
+
+function getCurrentSprintText() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const week = getIsoWeekNumber(now);
+
+  return `${year} Sprint ${week}`;
+}
+
+function weekInputValueToSprintText(value) {
+  if (!value || !value.includes("-W")) {
+    return getCurrentSprintText();
+  }
+
+  const parts = value.split("-W");
+  const year = parts[0];
+  const week = Number(parts[1]);
+
+  if (!year || !week) {
+    return getCurrentSprintText();
+  }
+
+  return `${year} Sprint ${week}`;
+}
+
+function sprintTextToWeekInputValue(value) {
+  if (!value) {
+    return getCurrentWeekInputValue();
+  }
+
+  const match = String(value).match(/(\d{4})\s*Sprint\s*(\d{1,2})/i);
+
+  if (!match) {
+    return getCurrentWeekInputValue();
+  }
+
+  const year = match[1];
+  const week = String(match[2]).padStart(2, "0");
+
+  return `${year}-W${week}`;
+}
+
+function getCurrentWeekInputValue() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const week = String(getIsoWeekNumber(now)).padStart(2, "0");
+
+  return `${year}-W${week}`;
+}
+
+function getIsoWeekNumber(date) {
+  const tempDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNumber = tempDate.getUTCDay() || 7;
+
+  tempDate.setUTCDate(tempDate.getUTCDate() + 4 - dayNumber);
+
+  const yearStart = new Date(Date.UTC(tempDate.getUTCFullYear(), 0, 1));
+
+  return Math.ceil((((tempDate - yearStart) / 86400000) + 1) / 7);
 }
 
 function setLoginStatus(message, isError = false) {
