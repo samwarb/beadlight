@@ -6,6 +6,125 @@
   <title>Beadlight Roadmap Admin</title>
   <link rel="stylesheet" href="../styles.css">
   <link rel="icon" href="../assets/beadlight-icon.png">
+  <style>
+    .analytics-panel {
+      display: grid;
+      gap: 18px;
+      margin-bottom: 28px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .analytics-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .analytics-head h2,
+    .analytics-table-card h3 {
+      margin: 0;
+    }
+
+    .analytics-head p {
+      margin: 8px 0 0;
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .analytics-card,
+    .analytics-table-card {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .analytics-card {
+      padding: 16px;
+    }
+
+    .analytics-card strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .analytics-card span {
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 0.9rem;
+    }
+
+    .analytics-tables {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+      gap: 12px;
+    }
+
+    .analytics-table-card {
+      overflow: hidden;
+    }
+
+    .analytics-table-card h3 {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 1rem;
+    }
+
+    .analytics-table-scroll {
+      overflow-x: auto;
+    }
+
+    .analytics-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 460px;
+    }
+
+    .analytics-table th,
+    .analytics-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .analytics-table th {
+      color: rgba(255, 255, 255, 0.62);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .analytics-empty {
+      padding: 16px;
+      color: rgba(255, 255, 255, 0.68);
+    }
+
+    @media (max-width: 860px) {
+      .analytics-grid,
+      .analytics-tables {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .analytics-head {
+        display: grid;
+      }
+
+      .analytics-grid,
+      .analytics-tables {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="page-glow"></div>
@@ -38,6 +157,32 @@
     </section>
 
     <section class="admin-panel hidden" id="editorPanel">
+      <section class="analytics-panel" aria-labelledby="analyticsTitle">
+        <div class="analytics-head">
+          <div>
+            <h2 id="analyticsTitle">Prayer analytics</h2>
+            <p>Anonymous prayer progress from Beadlight app sessions.</p>
+          </div>
+          <button class="secondary-button" id="refreshAnalyticsBtn" type="button">Refresh stats</button>
+        </div>
+
+        <div class="analytics-grid" id="analyticsTotals" aria-live="polite"></div>
+
+        <div class="analytics-tables">
+          <article class="analytics-table-card">
+            <h3>Recent daily activity</h3>
+            <div id="analyticsDaily"></div>
+          </article>
+
+          <article class="analytics-table-card">
+            <h3>Mystery sets</h3>
+            <div id="analyticsMysteries"></div>
+          </article>
+        </div>
+
+        <div id="analyticsStatus" class="admin-status"></div>
+      </section>
+
       <div class="editor-head">
         <div>
           <h2>Roadmap items</h2>
