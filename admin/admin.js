@@ -27,6 +27,7 @@ const ADMIN_REDIRECT_URL = "https://beadlight.merciandigital.co.uk/admin/";
 
 let client;
 let items = [];
+let currentAdminEmail = null;
 
 const loginPanel = document.getElementById("loginPanel");
 const editorPanel = document.getElementById("editorPanel");
@@ -84,12 +85,12 @@ async function init() {
   }
 
   if (session) {
-    await showEditor();
+    await showEditor(session);
   }
 
   client.auth.onAuthStateChange(async (_event, session) => {
     if (session) {
-      await showEditor();
+      await showEditor(session);
     } else {
       showLogin();
     }
@@ -105,7 +106,26 @@ async function sendMagicLink() {
     return;
   }
 
-  setLoginStatus("Sending magic link…");
+  setLoginStatus("Checking admin access...");
+
+  let isAdmin = false;
+
+  try {
+    isAdmin = await isAuthorizedAdminEmail(email);
+  } catch (error) {
+    setLoginStatus(
+      error.message || "Could not verify admin access. Please try again later.",
+      true
+    );
+    return;
+  }
+
+  if (!isAdmin) {
+    setLoginStatus("Unauthorised user.", true);
+    return;
+  }
+
+  setLoginStatus("Sending magic link...");
 
   const { error } = await client.auth.signInWithOtp({
     email,
@@ -122,7 +142,38 @@ async function sendMagicLink() {
   setLoginStatus("Magic link sent. Check your email, then open the newest link.");
 }
 
-async function showEditor() {
+async function showEditor(session) {
+  const email = session && session.user ? session.user.email : "";
+
+  if (!email) {
+    await client.auth.signOut();
+    showLogin();
+    setLoginStatus("Unauthorised user.", true);
+    return;
+  }
+
+  let isAdmin = false;
+
+  try {
+    isAdmin = await isAuthorizedAdminEmail(email);
+  } catch (error) {
+    await client.auth.signOut();
+    showLogin();
+    setLoginStatus(
+      error.message || "Could not verify admin access. Please try again later.",
+      true
+    );
+    return;
+  }
+
+  if (!isAdmin) {
+    await client.auth.signOut();
+    showLogin();
+    setLoginStatus("Unauthorised user.", true);
+    return;
+  }
+
+  currentAdminEmail = normalizeEmail(email);
   if (loginPanel) loginPanel.classList.add("hidden");
   if (editorPanel) editorPanel.classList.remove("hidden");
   if (headerSignOutBtn) headerSignOutBtn.classList.remove("hidden");
@@ -132,9 +183,28 @@ async function showEditor() {
 }
 
 function showLogin() {
+  currentAdminEmail = null;
   if (editorPanel) editorPanel.classList.add("hidden");
   if (loginPanel) loginPanel.classList.remove("hidden");
   if (headerSignOutBtn) headerSignOutBtn.classList.add("hidden");
+}
+
+async function isAuthorizedAdminEmail(email) {
+  const normalizedEmail = normalizeEmail(email);
+
+  if (!normalizedEmail) return false;
+
+  const { data, error } = await client.rpc("is_admin_email", {
+    check_email: normalizedEmail
+  });
+
+  if (error) {
+    throw new Error(
+      "Admin access check is not configured yet. Add the is_admin_email SQL function in Supabase."
+    );
+  }
+
+  return data === true;
 }
 
 async function loadAnalytics() {
@@ -522,6 +592,11 @@ function getCardValues(id) {
 }
 
 async function saveItem(id) {
+  if (!currentAdminEmail) {
+    setAdminStatus("Unauthorised user.", true);
+    return;
+  }
+
   const values = getCardValues(id);
 
   if (!values) {
@@ -565,6 +640,11 @@ async function saveItem(id) {
 }
 
 async function addItem() {
+  if (!currentAdminEmail) {
+    setAdminStatus("Unauthorised user.", true);
+    return;
+  }
+
   setAdminStatus("Adding item…");
 
   const { data, error } = await client
@@ -598,6 +678,11 @@ async function addItem() {
 }
 
 async function deleteItem(id) {
+  if (!currentAdminEmail) {
+    setAdminStatus("Unauthorised user.", true);
+    return;
+  }
+
   const confirmed = confirm("Delete this roadmap item?");
 
   if (!confirmed) return;
@@ -752,6 +837,10 @@ function escapeHtml(value) {
 
 function escapeAttr(value) {
   return escapeHtml(value).replace(/`/g, "&#96;");
+}
+
+function normalizeEmail(value) {
+  return String(value || "").trim().toLowerCase();
 }
 
 init();
