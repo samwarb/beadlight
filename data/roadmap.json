@@ -1,0 +1,53 @@
+{
+  "updated": "2026-06-06",
+  "items": [
+    {
+      "id": "android-app",
+      "title": "Android version",
+      "status": "in-progress",
+      "summary": "Bring Beadlight to Android so more people can pray with the app.",
+      "tag": "Platform",
+      "priority": "High"
+    },
+    {
+      "id": "audio-guided-mode",
+      "title": "Expanded guided audio mode",
+      "status": "planned",
+      "summary": "Improve the guided Rosary experience with clearer pacing and richer audio support.",
+      "tag": "Guided prayer",
+      "priority": "High"
+    },
+    {
+      "id": "prayer-stats",
+      "title": "Prayer completion stats",
+      "status": "planned",
+      "summary": "Track completed Rosaries and total prayers prayed through Beadlight.",
+      "tag": "Progress",
+      "priority": "Medium"
+    },
+    {
+      "id": "daily-reminder",
+      "title": "Daily prayer reminders",
+      "status": "under-consideration",
+      "summary": "Gentle reminders to help people build a consistent Rosary habit.",
+      "tag": "Habit",
+      "priority": "Medium"
+    },
+    {
+      "id": "intention-journal",
+      "title": "Prayer intentions journal",
+      "status": "under-consideration",
+      "summary": "A private place to keep intentions before starting a Rosary.",
+      "tag": "Prayer life",
+      "priority": "Low"
+    },
+    {
+      "id": "social-feed",
+      "title": "Public social feed",
+      "status": "wont-do",
+      "summary": "Beadlight is intended to remain calm, focused, and distraction-free.",
+      "tag": "Product direction",
+      "priority": "Low"
+    }
+  ]
+}

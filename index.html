@@ -3,16 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Beadlight — A peaceful Rosary companion</title>
-  <meta name="description" content="Beadlight is a calm, bead-by-bead Rosary app with guided audio, peaceful background sound, and a simple prayer experience." />
-  <meta property="og:title" content="Beadlight — A peaceful Rosary companion" />
-  <meta property="og:description" content="Pray the Rosary bead by bead with a calm, focused app designed for beginners and regular prayer." />
+  <title>Beadlight — A calmer way to pray the Rosary</title>
+  <meta name="description" content="Beadlight is a calm Rosary companion with guided mode, mystery selection, prayer progress, and a peaceful Catholic design." />
+  <meta property="og:title" content="Beadlight — A calmer way to pray the Rosary" />
+  <meta property="og:description" content="Choose your mysteries, follow each bead, and stay focused in prayer with Beadlight." />
   <meta property="og:image" content="assets/beadlight-icon.png" />
-  <meta name="theme-color" content="#f2e2c6" />
+  <meta name="theme-color" content="#f3e4c8" />
   <link rel="icon" href="assets/beadlight-icon.png" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div class="page-glow" aria-hidden="true"></div>
   <header class="site-header">
     <a class="brand" href="./" aria-label="Beadlight home">
       <img src="assets/beadlight-icon.png" alt="" />
@@ -21,6 +22,7 @@
 
     <nav aria-label="Primary navigation">
       <a href="#features">Features</a>
+      <a href="#screenshots">Screenshots</a>
       <a href="roadmap/">Roadmap</a>
       <a href="support/">Support</a>
       <a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight/id6773049841">Download</a>
@@ -30,88 +32,87 @@
   <main>
     <section class="hero section-shell">
       <div class="hero-copy">
-        <p class="eyebrow">A calmer way to pray the Rosary</p>
-        <h1>Bead by bead, prayer by prayer.</h1>
-        <p class="lead">Beadlight helps you pray the Rosary with a gentle, focused interface, guided audio, and peaceful background sound — whether you are learning or returning to prayer.</p>
+        <p class="eyebrow">A peaceful Catholic prayer companion</p>
+        <h1>A calmer way to pray the Rosary.</h1>
+        <p class="lead">Choose your mysteries, follow each bead, and stay focused in prayer with a simple guided Rosary app designed to feel quiet, warm, and distraction-free.</p>
 
         <div class="hero-actions">
           <a class="primary-button" href="https://apps.apple.com/gb/app/beadlight/id6773049841" aria-label="Download Beadlight on the App Store">Download on the App Store</a>
-          <a class="secondary-button" href="#how-it-works">See how it works</a>
+          <a class="secondary-button" href="#features">Explore features</a>
         </div>
 
-        <div class="trust-row" aria-label="Beadlight highlights">
-          <span>✦ Guided Mode</span>
-          <span>✦ Peaceful audio</span>
-          <span>✦ Beginner friendly</span>
+        <div class="mini-stats" aria-label="Beadlight highlights">
+          <div><strong>4</strong><span>Mystery sets</span></div>
+          <div><strong>Audio</strong><span>Guided mode</span></div>
+          <div><strong>Calm</strong><span>Focused design</span></div>
         </div>
       </div>
 
       <div class="phone-stage" aria-label="Beadlight app preview">
-        <div class="glow glow-one"></div>
-        <div class="phone">
-          <div class="phone-top"></div>
-          <div class="app-screen">
-            <div class="sun-cross" aria-hidden="true">
-              <span class="sun">☼</span>
-              <span class="cross">✝</span>
-            </div>
-            <p class="screen-kicker">Choose your mysteries</p>
-            <h2>Joyful Mysteries</h2>
-            <p class="screen-copy">The Annunciation, the Visitation, the Nativity, the Presentation, and the Finding in the Temple.</p>
-
-            <div class="mystery-grid">
-              <div class="mystery-card active"><span>Joyful</span><small>Today’s suggestion</small></div>
-              <div class="mystery-card"><span>Luminous</span><small>Light of Christ</small></div>
-              <div class="mystery-card"><span>Sorrowful</span><small>The Passion</small></div>
-              <div class="mystery-card"><span>Glorious</span><small>The Resurrection</small></div>
-            </div>
-
-            <div class="rosary-loop" aria-hidden="true">
-              <span></span><span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span><span></span>
-            </div>
-            <button class="screen-button">Start Rosary</button>
+        <div class="halo"></div>
+        <div class="rosary-arc" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="phone-card">
+          <div class="screen-shot-wrap">
+            <img src="assets/app-preview.png" alt="Beadlight app screen showing Joyful Mysteries selection" />
           </div>
+          <div class="floating-chip chip-top">Today’s Rosary</div>
+          <div class="floating-chip chip-bottom">Guided Mode available</div>
         </div>
       </div>
     </section>
 
     <section id="features" class="section-shell feature-section">
       <div class="section-heading">
-        <p class="eyebrow">Designed to feel quiet, warm, and simple</p>
-        <h2>A prayer app that stays out of the way.</h2>
+        <p class="eyebrow">Simple, focused, prayer-first</p>
+        <h2>Everything needed. Nothing noisy.</h2>
+        <p>Beadlight keeps the experience clear: select a mystery, begin the Rosary, and move through each prayer without visual clutter.</p>
       </div>
 
       <div class="feature-grid">
-        <article class="feature-card">
+        <article class="feature-card feature-dark">
           <div class="feature-icon">✝</div>
-          <h3>Bead-by-bead flow</h3>
-          <p>Move through the Rosary clearly, with each prayer and mystery presented in a calm, readable layout.</p>
+          <h3>Guided Rosary</h3>
+          <p>Follow each prayer clearly, with optional audio guidance when you want a hands-free prayer experience.</p>
         </article>
         <article class="feature-card">
+          <div class="feature-icon">◌</div>
+          <h3>Bead progress</h3>
+          <p>See where you are in the Rosary, bead by bead, so you can stay focused rather than keep count.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">☼</div>
+          <h3>Mystery selection</h3>
+          <p>Choose Joyful, Luminous, Sorrowful, or Glorious Mysteries with a simple daily suggestion.</p>
+        </article>
+        <article class="feature-card sage-card">
           <div class="feature-icon">♪</div>
-          <h3>Guided audio</h3>
-          <p>Use Guided Mode to hear the prayers aloud and keep your focus when you want a hands-free experience.</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon">☔</div>
-          <h3>Peaceful backgrounds</h3>
-          <p>Pray with optional rain, piano, or Gregorian chant ambience for a more reflective atmosphere.</p>
+          <h3>Peaceful audio</h3>
+          <p>Use gentle background sound to create a calmer prayer space when you need fewer distractions.</p>
         </article>
       </div>
     </section>
 
-    <section id="how-it-works" class="section-shell split-section">
-      <div class="brand-card">
-        <p class="eyebrow">How it works</p>
-        <h2>Choose. Start. Pray.</h2>
-        <p>Select the mysteries, start the Rosary, then follow the prayer card and beads as you move through each step.</p>
+    <section id="screenshots" class="section-shell showcase-section">
+      <div class="showcase-copy">
+        <p class="eyebrow">Built around calm focus</p>
+        <h2>Warm visuals, clear prayers, and less friction.</h2>
+        <p>The design uses parchment tones, soft gold, and large readable cards so the app feels reverent without becoming complicated.</p>
+        <a class="text-link" href="roadmap/">View the roadmap →</a>
       </div>
-      <div class="steps">
-        <div class="step"><span>1</span><p>Pick Joyful, Luminous, Sorrowful, or Glorious Mysteries.</p></div>
-        <div class="step"><span>2</span><p>Read each prayer or turn on Guided Mode for audio.</p></div>
-        <div class="step"><span>3</span><p>Continue bead by bead, with a peaceful screen that keeps you focused.</p></div>
+      <div class="showcase-card">
+        <div class="quote-mark">“</div>
+        <p>Built for people who want a beautiful Rosary app without clutter, noise, or unnecessary features.</p>
+        <div class="bead-row" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
       </div>
+    </section>
+
+    <section class="section-shell steps-section">
+      <div class="step"><span>1</span><p><strong>Choose</strong> the mysteries you want to pray.</p></div>
+      <div class="step"><span>2</span><p><strong>Start</strong> the Rosary and follow each prayer.</p></div>
+      <div class="step"><span>3</span><p><strong>Pray</strong> bead by bead with a calm screen and optional guidance.</p></div>
     </section>
 
     <section class="section-shell final-cta">

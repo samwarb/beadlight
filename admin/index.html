@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Beadlight Roadmap Admin</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="icon" href="../assets/beadlight-icon.png">
+</head>
+<body>
+  <div class="page-glow"></div>
+  <header class="site-header">
+    <a class="brand" href="../"><img src="../assets/beadlight-icon.png" alt=""><span>Beadlight</span></a>
+    <nav>
+      <a href="../roadmap/">Roadmap</a>
+      <a href="../support/">Support</a>
+      <a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight/id6773049841">Download</a>
+    </nav>
+  </header>
+
+  <main class="section-shell admin-page">
+    <section class="roadmap-hero">
+      <p class="eyebrow">Private admin</p>
+      <h1>Update the roadmap</h1>
+      <p class="lead">Log in with your email, then add, edit, reorder, release, or remove roadmap items. Public visitors can only view the roadmap.</p>
+    </section>
+
+    <section class="admin-panel" id="loginPanel">
+      <h2>Email login</h2>
+      <p>Enter your approved admin email address. Supabase will send you a secure magic link to sign in.</p>
+      <div class="admin-grid">
+        <label class="wide">Email address<input id="email" type="email" placeholder="you@example.com" autocomplete="email"></label>
+      </div>
+      <div class="admin-actions">
+        <button class="primary-button" id="loginBtn">Send magic link</button>
+      </div>
+      <p class="admin-note" id="loginStatus">Only emails listed in your Supabase <strong>admin_users</strong> table can edit the roadmap.</p>
+    </section>
+
+    <section class="admin-panel hidden" id="editorPanel">
+      <div class="editor-head">
+        <div>
+          <h2>Roadmap items</h2>
+          <p>Changes save directly to Supabase and normally appear on the public roadmap straight away.</p>
+        </div>
+        <div class="admin-actions compact-actions">
+          <button class="secondary-button" id="signOutBtn">Sign out</button>
+          <button class="secondary-button" id="addBtn">Add item</button>
+        </div>
+      </div>
+      <div id="itemsEditor" class="items-editor"></div>
+      <div id="adminStatus" class="admin-status"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

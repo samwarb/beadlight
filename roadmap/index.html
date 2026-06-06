@@ -1,1 +1,43 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Beadlight Roadmap</title><link rel="stylesheet" href="../styles.css"><link rel="icon" href="../assets/beadlight-icon.png"></head><body><header class="site-header"><a class="brand" href="../"><img src="../assets/beadlight-icon.png" alt=""><span>Beadlight</span></a><nav><a href="../#features">Features</a><a href="../roadmap/">Roadmap</a><a href="../support/">Support</a><a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight/id6773049841">Download</a></nav></header><main class="section-shell" style="padding:72px 0 120px;"><section class="brand-card"><p class="eyebrow">Beadlight</p><h1 style="font-size:clamp(3rem,7vw,5rem);">Roadmap</h1><p>This page is ready for your content. Edit <strong>/beadlight/roadmap/index.html</strong> in your GitHub Pages repo.</p><a class="primary-button" href="../">Back to homepage</a></section></main></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Beadlight Roadmap</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="icon" href="../assets/beadlight-icon.png">
+</head>
+<body>
+  <div class="page-glow"></div>
+  <header class="site-header">
+    <a class="brand" href="../"><img src="../assets/beadlight-icon.png" alt=""><span>Beadlight</span></a>
+    <nav>
+      <a href="../#features">Features</a>
+      <a href="../roadmap/">Roadmap</a>
+      <a href="../support/">Support</a>
+      <a href="../admin/">Admin</a>
+      <a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight/id6773049841">Download</a>
+    </nav>
+  </header>
+
+  <main class="section-shell roadmap-page">
+    <section class="roadmap-hero">
+      <p class="eyebrow">Beadlight roadmap</p>
+      <h1>What’s coming next</h1>
+      <p class="lead">A simple public roadmap for Beadlight. Some ideas are planned, some are being built, and some are deliberately left out to keep the app calm and focused. This list is updated live from the Beadlight roadmap database.</p>
+      <div class="roadmap-meta" id="roadmapMeta">Loading roadmap…</div>
+    </section>
+
+    <section class="roadmap-board" id="roadmapBoard" aria-live="polite"></section>
+  </main>
+
+  <footer>
+    <p>© Beadlight by Mercian Digital</p>
+    <div><a href="../privacy/">Privacy</a><a href="../support/">Support</a><a href="../admin/">Admin</a></div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <script src="../roadmap.js"></script>
+</body>
+</html>
