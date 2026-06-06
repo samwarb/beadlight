@@ -39,9 +39,21 @@ async function init() {
   const signOutBtn = document.getElementById("signOutBtn");
   const addBtn = document.getElementById("addBtn");
 
-  if (loginBtn) loginBtn.addEventListener("click", sendMagicLink);
-  if (signOutBtn) signOutBtn.addEventListener("click", signOut);
-  if (addBtn) addBtn.addEventListener("click", addItem);
+  if (loginBtn) {
+    loginBtn.addEventListener("click", sendMagicLink);
+  }
+
+  if (signOutBtn) {
+    signOutBtn.addEventListener("click", signOut);
+  }
+
+  if (addBtn) {
+    addBtn.addEventListener("click", addItem);
+  }
+
+  if (editor) {
+    editor.addEventListener("click", handleEditorClick);
+  }
 
   const {
     data: { session },
@@ -69,7 +81,8 @@ async function sendMagicLink() {
   const email = emailInput ? emailInput.value.trim() : "";
 
   if (!email) {
-    return setLoginStatus("Enter your email address first.", true);
+    setLoginStatus("Enter your email address first.", true);
+    return;
   }
 
   setLoginStatus("Sending magic link…");
@@ -82,15 +95,17 @@ async function sendMagicLink() {
   });
 
   if (error) {
-    return setLoginStatus(error.message, true);
+    setLoginStatus(error.message, true);
+    return;
   }
 
   setLoginStatus("Magic link sent. Check your email, then open the newest link.");
 }
 
 async function showEditor() {
-  loginPanel.classList.add("hidden");
-  editorPanel.classList.remove("hidden");
+  if (loginPanel) loginPanel.classList.add("hidden");
+  if (editorPanel) editorPanel.classList.remove("hidden");
+
   await loadItems();
 }
 
@@ -104,7 +119,7 @@ async function loadItems() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    setAdminStatus(error.message, true);
+    setAdminStatus("Could not load roadmap: " + error.message, true);
     return;
   }
 
@@ -117,21 +132,12 @@ async function loadItems() {
 function renderEditor() {
   if (!editor) return;
 
-  editor.innerHTML = items.length
-    ? items.map(renderEditorItem).join("")
-    : `<div class="empty-state">No roadmap items yet.</div>`;
+  if (!items.length) {
+    editor.innerHTML = `<div class="empty-state">No roadmap items yet.</div>`;
+    return;
+  }
 
-  editor
-    .querySelectorAll("[data-action='save']")
-    .forEach((btn) => {
-      btn.addEventListener("click", () => saveItem(btn.dataset.id));
-    });
-
-  editor
-    .querySelectorAll("[data-action='delete']")
-    .forEach((btn) => {
-      btn.addEventListener("click", () => deleteItem(btn.dataset.id));
-    });
+  editor.innerHTML = items.map(renderEditorItem).join("");
 }
 
 function renderEditorItem(item) {
@@ -184,22 +190,52 @@ function renderEditorItem(item) {
       </div>
 
       <div class="admin-actions">
-        <button class="primary-button" data-action="save" data-id="${escapeAttr(item.id)}">Save</button>
-        <button class="secondary-button danger-button" data-action="delete" data-id="${escapeAttr(item.id)}">Delete</button>
+        <button type="button" class="primary-button" data-action="save" data-id="${escapeAttr(item.id)}">
+          Save
+        </button>
+
+        <button type="button" class="secondary-button danger-button" data-action="delete" data-id="${escapeAttr(item.id)}">
+          Delete
+        </button>
       </div>
     </article>
   `;
 }
 
+async function handleEditorClick(event) {
+  const button = event.target.closest("button[data-action]");
+
+  if (!button) return;
+
+  const action = button.dataset.action;
+  const id = button.dataset.id;
+
+  if (!id) {
+    setAdminStatus("Could not identify this roadmap item.", true);
+    return;
+  }
+
+  if (action === "save") {
+    await saveItem(id);
+    return;
+  }
+
+  if (action === "delete") {
+    await deleteItem(id);
+    return;
+  }
+}
+
 function getCardValues(id) {
-  const card = editor.querySelector(`[data-id='${CSS.escape(id)}']`);
+  const cards = Array.from(document.querySelectorAll(".editor-card"));
+  const card = cards.find((card) => card.dataset.id === id);
 
   if (!card) {
     return null;
   }
 
   const get = (field) => {
-    const input = card.querySelector(`[data-field='${field}']`);
+    const input = card.querySelector(`[data-field="${field}"]`);
     return input ? input.value : "";
   };
 
@@ -218,22 +254,34 @@ async function saveItem(id) {
   const values = getCardValues(id);
 
   if (!values) {
-    return setAdminStatus("Could not find this roadmap item.", true);
+    setAdminStatus("Could not find this roadmap item.", true);
+    return;
   }
 
   if (!values.title) {
-    return setAdminStatus("Title is required.", true);
+    setAdminStatus("Title is required.", true);
+    return;
   }
 
   setAdminStatus("Saving…");
 
-  const { error } = await client
+  const { data, error } = await client
     .from("roadmap_items")
     .update(values)
-    .eq("id", id);
+    .eq("id", id)
+    .select();
 
   if (error) {
-    return setAdminStatus(error.message, true);
+    setAdminStatus("Could not save item: " + error.message, true);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    setAdminStatus(
+      "Nothing was saved. This usually means your Supabase security policy is blocking updates for this email.",
+      true
+    );
+    return;
   }
 
   await loadItems();
@@ -243,18 +291,30 @@ async function saveItem(id) {
 async function addItem() {
   setAdminStatus("Adding item…");
 
-  const { error } = await client.from("roadmap_items").insert({
-    title: "New roadmap item",
-    summary: "Describe the feature or improvement.",
-    status: "under-consideration",
-    tag: "Idea",
-    priority: "Medium",
-    sort_order: 100,
-    is_public: true
-  });
+  const { data, error } = await client
+    .from("roadmap_items")
+    .insert({
+      title: "New roadmap item",
+      summary: "Describe the feature or improvement.",
+      status: "under-consideration",
+      tag: "Idea",
+      priority: "Medium",
+      sort_order: 100,
+      is_public: true
+    })
+    .select();
 
   if (error) {
-    return setAdminStatus(error.message, true);
+    setAdminStatus("Could not add item: " + error.message, true);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    setAdminStatus(
+      "Nothing was added. This usually means your Supabase security policy is blocking inserts for this email.",
+      true
+    );
+    return;
   }
 
   await loadItems();
@@ -268,13 +328,23 @@ async function deleteItem(id) {
 
   setAdminStatus("Deleting…");
 
-  const { error } = await client
+  const { data, error } = await client
     .from("roadmap_items")
     .delete()
-    .eq("id", id);
+    .eq("id", id)
+    .select();
 
   if (error) {
-    return setAdminStatus(error.message, true);
+    setAdminStatus("Could not delete item: " + error.message, true);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    setAdminStatus(
+      "Nothing was deleted. This usually means your Supabase security policy is blocking deletes for this email.",
+      true
+    );
+    return;
   }
 
   await loadItems();
@@ -284,8 +354,8 @@ async function deleteItem(id) {
 async function signOut() {
   await client.auth.signOut();
 
-  editorPanel.classList.add("hidden");
-  loginPanel.classList.remove("hidden");
+  if (editorPanel) editorPanel.classList.add("hidden");
+  if (loginPanel) loginPanel.classList.remove("hidden");
 
   setLoginStatus("Signed out.");
 }
