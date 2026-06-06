@@ -135,6 +135,8 @@
     </div>
   </footer>
 
+  <script src="../supabase-config.js"></script>
+
   <script>
     const SUPPORT_FUNCTION_URL = "https://ibfdpdjknxcbvuqmvimz.supabase.co/functions/v1/dynamic-endpoint";
 
@@ -144,6 +146,14 @@
 
     supportForm.addEventListener("submit", async function (event) {
       event.preventDefault();
+
+      const config = window.BEADLIGHT_SUPABASE || {};
+      const anonKey = config.anonKey;
+
+      if (!anonKey) {
+        showSupportStatus("Support form is missing the Supabase public key. Please check supabase-config.js.", true);
+        return;
+      }
 
       const payload = {
         name: document.getElementById("ticketName").value.trim(),
@@ -168,7 +178,9 @@
         const response = await fetch(SUPPORT_FUNCTION_URL, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + anonKey,
+            "apikey": anonKey
           },
           body: JSON.stringify(payload)
         });
