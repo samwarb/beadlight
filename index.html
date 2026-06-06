@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beadlight</title>
+  <meta name="description" content="Beadlight is a calm digital rosary companion for guided prayer, reflection, and focus.">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2430;
+      --muted: #636b76;
+      --paper: #f8f6f1;
+      --surface: #ffffff;
+      --line: #ded8cd;
+      --gold: #c69749;
+      --green: #66826b;
+      --rose: #b76d68;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: 32px 18px;
+    }
+
+    main {
+      width: min(920px, 100%);
+      display: grid;
+      gap: 34px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(240px, 330px);
+      gap: clamp(28px, 5vw, 58px);
+      align-items: center;
+      padding: clamp(28px, 5vw, 56px);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: 0 24px 70px rgba(38, 34, 28, 0.08);
+    }
+
+    .mark {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      margin-bottom: 28px;
+      color: #ffffff;
+      background: var(--green);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(46px, 9vw, 86px);
+      line-height: 0.92;
+      letter-spacing: 0;
+      font-weight: 500;
+    }
+
+    p {
+      margin: 22px 0 0;
+      max-width: 560px;
+      color: var(--muted);
+      font-size: clamp(18px, 2.3vw, 22px);
+      line-height: 1.55;
+    }
+
+    .status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--ink);
+      background: #fbfaf7;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .rosary {
+      aspect-ratio: 1;
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+
+    .bead {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 5px 14px rgba(111, 82, 45, 0.16);
+      transform: rotate(var(--turn)) translateY(-126px);
+    }
+
+    .bead:nth-child(3n) {
+      width: 24px;
+      height: 24px;
+      background: var(--rose);
+    }
+
+    .center {
+      width: 116px;
+      height: 116px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--green);
+      background: #fbfaf7;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 42px;
+    }
+
+    footer {
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+    }
+
+    @media (max-width: 760px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .rosary {
+        max-width: 300px;
+        margin: 0 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero" aria-label="Beadlight launch page">
+      <div>
+        <div class="mark" aria-hidden="true">B</div>
+        <h1>Beadlight</h1>
+        <p>A calm digital rosary companion for guided prayer, reflection, and focus.</p>
+        <div class="status" aria-label="Product status">
+          <span class="pill">Coming soon</span>
+          <span class="pill">iPhone app</span>
+          <span class="pill">Made by Mercian Digital</span>
+        </div>
+      </div>
+
+      <div class="rosary" aria-hidden="true">
+        <span class="bead" style="--turn: 0deg"></span>
+        <span class="bead" style="--turn: 24deg"></span>
+        <span class="bead" style="--turn: 48deg"></span>
+        <span class="bead" style="--turn: 72deg"></span>
+        <span class="bead" style="--turn: 96deg"></span>
+        <span class="bead" style="--turn: 120deg"></span>
+        <span class="bead" style="--turn: 144deg"></span>
+        <span class="bead" style="--turn: 168deg"></span>
+        <span class="bead" style="--turn: 192deg"></span>
+        <span class="bead" style="--turn: 216deg"></span>
+        <span class="bead" style="--turn: 240deg"></span>
+        <span class="bead" style="--turn: 264deg"></span>
+        <span class="bead" style="--turn: 288deg"></span>
+        <span class="bead" style="--turn: 312deg"></span>
+        <span class="bead" style="--turn: 336deg"></span>
+        <div class="center">B</div>
+      </div>
+    </section>
+
+    <footer>beadlight.merciandigital.co.uk</footer>
+  </main>
+</body>
+</html>
