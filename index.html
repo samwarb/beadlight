@@ -1,199 +1,139 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Beadlight</title>
-  <meta name="description" content="Beadlight is a calm digital rosary companion for guided prayer, reflection, and focus.">
-  <style>
-    :root {
-      color-scheme: light;
-      --ink: #1f2430;
-      --muted: #636b76;
-      --paper: #f8f6f1;
-      --surface: #ffffff;
-      --line: #ded8cd;
-      --gold: #c69749;
-      --green: #66826b;
-      --rose: #b76d68;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      min-height: 100%;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--ink);
-      background: var(--paper);
-    }
-
-    body {
-      display: grid;
-      place-items: center;
-      padding: 32px 18px;
-    }
-
-    main {
-      width: min(920px, 100%);
-      display: grid;
-      gap: 34px;
-    }
-
-    .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(240px, 330px);
-      gap: clamp(28px, 5vw, 58px);
-      align-items: center;
-      padding: clamp(28px, 5vw, 56px);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--surface);
-      box-shadow: 0 24px 70px rgba(38, 34, 28, 0.08);
-    }
-
-    .mark {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      margin-bottom: 28px;
-      color: #ffffff;
-      background: var(--green);
-      font-weight: 800;
-      letter-spacing: 0.02em;
-    }
-
-    h1 {
-      margin: 0;
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(46px, 9vw, 86px);
-      line-height: 0.92;
-      letter-spacing: 0;
-      font-weight: 500;
-    }
-
-    p {
-      margin: 22px 0 0;
-      max-width: 560px;
-      color: var(--muted);
-      font-size: clamp(18px, 2.3vw, 22px);
-      line-height: 1.55;
-    }
-
-    .status {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 32px;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      min-height: 38px;
-      padding: 0 14px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      color: var(--ink);
-      background: #fbfaf7;
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .rosary {
-      aspect-ratio: 1;
-      position: relative;
-      display: grid;
-      place-items: center;
-    }
-
-    .bead {
-      position: absolute;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: var(--gold);
-      box-shadow: 0 5px 14px rgba(111, 82, 45, 0.16);
-      transform: rotate(var(--turn)) translateY(-126px);
-    }
-
-    .bead:nth-child(3n) {
-      width: 24px;
-      height: 24px;
-      background: var(--rose);
-    }
-
-    .center {
-      width: 116px;
-      height: 116px;
-      border: 1px solid var(--line);
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      color: var(--green);
-      background: #fbfaf7;
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 42px;
-    }
-
-    footer {
-      color: var(--muted);
-      font-size: 14px;
-      text-align: center;
-    }
-
-    @media (max-width: 760px) {
-      .hero {
-        grid-template-columns: 1fr;
-      }
-
-      .rosary {
-        max-width: 300px;
-        margin: 0 auto;
-      }
-    }
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Beadlight — A peaceful Rosary companion</title>
+  <meta name="description" content="Beadlight is a calm, bead-by-bead Rosary app with guided audio, peaceful background sound, and a simple prayer experience." />
+  <meta property="og:title" content="Beadlight — A peaceful Rosary companion" />
+  <meta property="og:description" content="Pray the Rosary bead by bead with a calm, focused app designed for beginners and regular prayer." />
+  <meta property="og:image" content="assets/beadlight-icon.png" />
+  <meta name="theme-color" content="#f2e2c6" />
+  <link rel="icon" href="assets/beadlight-icon.png" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="Beadlight home">
+      <img src="assets/beadlight-icon.png" alt="" />
+      <span>Beadlight</span>
+    </a>
+
+    <nav aria-label="Primary navigation">
+      <a href="#features">Features</a>
+      <a href="roadmap/">Roadmap</a>
+      <a href="support/">Support</a>
+      <a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight/id6773049841">Download</a>
+    </nav>
+  </header>
+
   <main>
-    <section class="hero" aria-label="Beadlight launch page">
-      <div>
-        <div class="mark" aria-hidden="true">B</div>
-        <h1>Beadlight</h1>
-        <p>A calm digital rosary companion for guided prayer, reflection, and focus.</p>
-        <div class="status" aria-label="Product status">
-          <span class="pill">Coming soon</span>
-          <span class="pill">iPhone app</span>
-          <span class="pill">Made by Mercian Digital</span>
+    <section class="hero section-shell">
+      <div class="hero-copy">
+        <p class="eyebrow">A calmer way to pray the Rosary</p>
+        <h1>Bead by bead, prayer by prayer.</h1>
+        <p class="lead">Beadlight helps you pray the Rosary with a gentle, focused interface, guided audio, and peaceful background sound — whether you are learning or returning to prayer.</p>
+
+        <div class="hero-actions">
+          <a class="primary-button" href="https://apps.apple.com/gb/app/beadlight/id6773049841" aria-label="Download Beadlight on the App Store">Download on the App Store</a>
+          <a class="secondary-button" href="#how-it-works">See how it works</a>
+        </div>
+
+        <div class="trust-row" aria-label="Beadlight highlights">
+          <span>✦ Guided Mode</span>
+          <span>✦ Peaceful audio</span>
+          <span>✦ Beginner friendly</span>
         </div>
       </div>
 
-      <div class="rosary" aria-hidden="true">
-        <span class="bead" style="--turn: 0deg"></span>
-        <span class="bead" style="--turn: 24deg"></span>
-        <span class="bead" style="--turn: 48deg"></span>
-        <span class="bead" style="--turn: 72deg"></span>
-        <span class="bead" style="--turn: 96deg"></span>
-        <span class="bead" style="--turn: 120deg"></span>
-        <span class="bead" style="--turn: 144deg"></span>
-        <span class="bead" style="--turn: 168deg"></span>
-        <span class="bead" style="--turn: 192deg"></span>
-        <span class="bead" style="--turn: 216deg"></span>
-        <span class="bead" style="--turn: 240deg"></span>
-        <span class="bead" style="--turn: 264deg"></span>
-        <span class="bead" style="--turn: 288deg"></span>
-        <span class="bead" style="--turn: 312deg"></span>
-        <span class="bead" style="--turn: 336deg"></span>
-        <div class="center">B</div>
+      <div class="phone-stage" aria-label="Beadlight app preview">
+        <div class="glow glow-one"></div>
+        <div class="phone">
+          <div class="phone-top"></div>
+          <div class="app-screen">
+            <div class="sun-cross" aria-hidden="true">
+              <span class="sun">☼</span>
+              <span class="cross">✝</span>
+            </div>
+            <p class="screen-kicker">Choose your mysteries</p>
+            <h2>Joyful Mysteries</h2>
+            <p class="screen-copy">The Annunciation, the Visitation, the Nativity, the Presentation, and the Finding in the Temple.</p>
+
+            <div class="mystery-grid">
+              <div class="mystery-card active"><span>Joyful</span><small>Today’s suggestion</small></div>
+              <div class="mystery-card"><span>Luminous</span><small>Light of Christ</small></div>
+              <div class="mystery-card"><span>Sorrowful</span><small>The Passion</small></div>
+              <div class="mystery-card"><span>Glorious</span><small>The Resurrection</small></div>
+            </div>
+
+            <div class="rosary-loop" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <button class="screen-button">Start Rosary</button>
+          </div>
+        </div>
       </div>
     </section>
 
-    <footer>beadlight.merciandigital.co.uk</footer>
+    <section id="features" class="section-shell feature-section">
+      <div class="section-heading">
+        <p class="eyebrow">Designed to feel quiet, warm, and simple</p>
+        <h2>A prayer app that stays out of the way.</h2>
+      </div>
+
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="feature-icon">✝</div>
+          <h3>Bead-by-bead flow</h3>
+          <p>Move through the Rosary clearly, with each prayer and mystery presented in a calm, readable layout.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">♪</div>
+          <h3>Guided audio</h3>
+          <p>Use Guided Mode to hear the prayers aloud and keep your focus when you want a hands-free experience.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">☔</div>
+          <h3>Peaceful backgrounds</h3>
+          <p>Pray with optional rain, piano, or Gregorian chant ambience for a more reflective atmosphere.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="how-it-works" class="section-shell split-section">
+      <div class="brand-card">
+        <p class="eyebrow">How it works</p>
+        <h2>Choose. Start. Pray.</h2>
+        <p>Select the mysteries, start the Rosary, then follow the prayer card and beads as you move through each step.</p>
+      </div>
+      <div class="steps">
+        <div class="step"><span>1</span><p>Pick Joyful, Luminous, Sorrowful, or Glorious Mysteries.</p></div>
+        <div class="step"><span>2</span><p>Read each prayer or turn on Guided Mode for audio.</p></div>
+        <div class="step"><span>3</span><p>Continue bead by bead, with a peaceful screen that keeps you focused.</p></div>
+      </div>
+    </section>
+
+    <section class="section-shell final-cta">
+      <div>
+        <p class="eyebrow">Ready to begin?</p>
+        <h2>Make space for prayer today.</h2>
+        <p>Download Beadlight and start with a simple, focused Rosary experience.</p>
+      </div>
+      <a class="primary-button" href="https://apps.apple.com/gb/app/beadlight/id6773049841">Download Beadlight</a>
+    </section>
   </main>
+
+  <footer>
+    <p>© <span id="year"></span> Merciandigital. Beadlight is made to support personal prayer.</p>
+    <div>
+      <a href="privacy/">Privacy</a>
+      <a href="support/">Support</a>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
