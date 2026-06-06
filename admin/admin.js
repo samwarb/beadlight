@@ -6,6 +6,21 @@ const STATUSES = [
   ["not-planned", "Not planned"]
 ];
 
+const TAGS = [
+  ["UI", "UI"],
+  ["Platform", "Platform"],
+  ["Bug", "Bug"],
+  ["Feature", "Feature"],
+  ["Other", "Other"]
+];
+
+const PRIORITIES = [
+  ["Urgent", "Urgent"],
+  ["High", "High"],
+  ["Medium", "Medium"],
+  ["Low", "Low"]
+];
+
 const ADMIN_REDIRECT_URL = "https://beadlight.merciandigital.co.uk/admin/";
 
 let client;
@@ -39,20 +54,13 @@ async function init() {
   const signOutBtn = document.getElementById("signOutBtn");
   const addBtn = document.getElementById("addBtn");
 
-  if (loginBtn) {
-    loginBtn.addEventListener("click", sendMagicLink);
-  }
-
-  if (signOutBtn) {
-    signOutBtn.addEventListener("click", signOut);
-  }
-
-  if (addBtn) {
-    addBtn.addEventListener("click", addItem);
-  }
+  if (loginBtn) loginBtn.addEventListener("click", sendMagicLink);
+  if (signOutBtn) signOutBtn.addEventListener("click", signOut);
+  if (addBtn) addBtn.addEventListener("click", addItem);
 
   if (editor) {
     editor.addEventListener("click", handleEditorClick);
+    editor.addEventListener("change", handleEditorChange);
   }
 
   const {
@@ -114,8 +122,7 @@ async function loadItems() {
 
   const { data, error } = await client
     .from("roadmap_items")
-    .select("id,title,summary,status,tag,priority,sort_order,is_public,created_at,updated_at")
-    .order("sort_order", { ascending: true })
+    .select("id,title,summary,status,tag,priority,sprint_due,created_at,updated_at")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -145,12 +152,25 @@ function renderEditorItem(item) {
     return `<option value="${value}" ${item.status === value ? "selected" : ""}>${label}</option>`;
   }).join("");
 
+  const savedTag = item.tag || "Feature";
+  const tagIsKnown = TAGS.some(([value]) => value === savedTag);
+  const selectedTag = tagIsKnown ? savedTag : "Other";
+  const customTagValue = tagIsKnown ? "" : savedTag;
+
+  const tagOptions = TAGS.map(([value, label]) => {
+    return `<option value="${value}" ${selectedTag === value ? "selected" : ""}>${label}</option>`;
+  }).join("");
+
+  const priorityOptions = PRIORITIES.map(([value, label]) => {
+    return `<option value="${value}" ${item.priority === value ? "selected" : ""}>${label}</option>`;
+  }).join("");
+
   return `
     <article class="editor-card" data-id="${escapeAttr(item.id)}">
       <div class="admin-grid">
         <label>
-          Title
-          <input data-field="title" value="${escapeAttr(item.title || "")}">
+          Name
+          <input data-field="title" value="${escapeAttr(item.title || "")}" placeholder="Roadmap item name">
         </label>
 
         <label>
@@ -162,30 +182,31 @@ function renderEditorItem(item) {
 
         <label>
           Tag
-          <input data-field="tag" value="${escapeAttr(item.tag || "")}" placeholder="e.g. Android, Audio, UI">
+          <select data-field="tag_select">
+            ${tagOptions}
+          </select>
+        </label>
+
+        <label class="${selectedTag === "Other" ? "" : "hidden"}" data-custom-tag-wrap>
+          Other tag
+          <input data-field="tag_other" value="${escapeAttr(customTagValue)}" placeholder="Type custom tag">
         </label>
 
         <label>
           Priority
-          <input data-field="priority" value="${escapeAttr(item.priority || "")}" placeholder="High / Medium / Low">
-        </label>
-
-        <label>
-          Sort order
-          <input data-field="sort_order" type="number" value="${Number(item.sort_order || 0)}">
-        </label>
-
-        <label>
-          Visible
-          <select data-field="is_public">
-            <option value="true" ${item.is_public ? "selected" : ""}>Public</option>
-            <option value="false" ${!item.is_public ? "selected" : ""}>Hidden</option>
+          <select data-field="priority">
+            ${priorityOptions}
           </select>
+        </label>
+
+        <label>
+          Sprint due
+          <input data-field="sprint_due" value="${escapeAttr(item.sprint_due || "2026 Sprint 23")}" placeholder="e.g. 2026 Sprint 23">
         </label>
 
         <label class="wide">
           Summary
-          <textarea data-field="summary" rows="3">${escapeHtml(item.summary || "")}</textarea>
+          <textarea data-field="summary" rows="3" placeholder="Describe the feature, bug, or improvement">${escapeHtml(item.summary || "")}</textarea>
         </label>
       </div>
 
@@ -200,6 +221,25 @@ function renderEditorItem(item) {
       </div>
     </article>
   `;
+}
+
+function handleEditorChange(event) {
+  const changed = event.target;
+
+  if (!changed || changed.dataset.field !== "tag_select") return;
+
+  const card = changed.closest(".editor-card");
+  if (!card) return;
+
+  const customTagWrap = card.querySelector("[data-custom-tag-wrap]");
+
+  if (!customTagWrap) return;
+
+  if (changed.value === "Other") {
+    customTagWrap.classList.remove("hidden");
+  } else {
+    customTagWrap.classList.add("hidden");
+  }
 }
 
 async function handleEditorClick(event) {
@@ -230,23 +270,30 @@ function getCardValues(id) {
   const cards = Array.from(document.querySelectorAll(".editor-card"));
   const card = cards.find((card) => card.dataset.id === id);
 
-  if (!card) {
-    return null;
-  }
+  if (!card) return null;
 
   const get = (field) => {
     const input = card.querySelector(`[data-field="${field}"]`);
     return input ? input.value : "";
   };
 
+  const selectedTag = get("tag_select");
+  const otherTag = get("tag_other").trim();
+
+  let finalTag = selectedTag;
+
+  if (selectedTag === "Other") {
+    finalTag = otherTag || "Other";
+  }
+
   return {
     title: get("title").trim(),
     status: get("status"),
-    tag: get("tag").trim(),
-    priority: get("priority").trim(),
-    sort_order: Number(get("sort_order")) || 0,
-    is_public: get("is_public") === "true",
-    summary: get("summary").trim()
+    tag: finalTag,
+    priority: get("priority"),
+    sprint_due: get("sprint_due").trim(),
+    summary: get("summary").trim(),
+    is_public: true
   };
 }
 
@@ -259,7 +306,12 @@ async function saveItem(id) {
   }
 
   if (!values.title) {
-    setAdminStatus("Title is required.", true);
+    setAdminStatus("Name is required.", true);
+    return;
+  }
+
+  if (!values.sprint_due) {
+    setAdminStatus("Sprint due is required.", true);
     return;
   }
 
@@ -297,9 +349,9 @@ async function addItem() {
       title: "New roadmap item",
       summary: "Describe the feature or improvement.",
       status: "under-consideration",
-      tag: "Idea",
+      tag: "Feature",
       priority: "Medium",
-      sort_order: 100,
+      sprint_due: "2026 Sprint 23",
       is_public: true
     })
     .select();
