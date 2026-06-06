@@ -4,9 +4,123 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Beadlight — A calmer way to pray the Rosary</title>
-  <meta name="description" content="Beadlight is a calm, focused Rosary app with guided prayer, mystery selection, and a peaceful design.">
+  <meta name="description" content="Beadlight is a calm, focused Rosary app with guided prayer, mystery selection, light and dark mode, and a peaceful design.">
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="assets/beadlight-icon.png">
+
+  <style>
+    /*
+      Homepage-only additions.
+      This keeps your existing site structure, navigation, footer, and page links intact.
+    */
+
+    .home-hero-clean {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .home-hero-clean::before {
+      content: "";
+      position: absolute;
+      inset: -120px -80px auto auto;
+      width: min(52vw, 620px);
+      height: min(52vw, 620px);
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(183, 121, 24, 0.16), transparent 62%);
+      filter: blur(16px);
+      pointer-events: none;
+    }
+
+    .home-hero-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 680px;
+    }
+
+    .home-hero-showcase {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(340px, 0.72fr);
+      gap: clamp(28px, 5vw, 72px);
+      align-items: center;
+    }
+
+    .hero-visual {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 520px;
+      isolation: isolate;
+    }
+
+    .hero-visual::before {
+      content: "";
+      position: absolute;
+      inset: 8% -4% 7% -4%;
+      z-index: -2;
+      background:
+        radial-gradient(circle at 48% 34%, rgba(255, 247, 236, 0.92), transparent 42%),
+        radial-gradient(circle at 70% 47%, rgba(183, 121, 24, 0.17), transparent 40%),
+        radial-gradient(circle at 64% 82%, rgba(232, 210, 177, 0.35), transparent 46%);
+      filter: blur(46px);
+      opacity: 0.96;
+    }
+
+    .hero-visual::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background:
+        linear-gradient(90deg, rgba(247, 239, 227, 0.72), transparent 16%, transparent 84%, rgba(247, 239, 227, 0.42)),
+        linear-gradient(180deg, rgba(255, 250, 242, 0.42), transparent 16%, transparent 84%, rgba(247, 239, 227, 0.52));
+      pointer-events: none;
+      mix-blend-mode: soft-light;
+    }
+
+    .hero-visual img {
+      width: min(100%, 430px);
+      height: auto;
+      display: block;
+      filter:
+        drop-shadow(0 32px 44px rgba(61, 39, 16, 0.11))
+        saturate(0.96)
+        contrast(0.98)
+        brightness(1.015);
+    }
+
+    .hero-points span:last-child {
+      background: rgba(183, 121, 24, 0.09);
+      border-color: rgba(183, 121, 24, 0.22);
+    }
+
+    @media (max-width: 980px) {
+      .home-hero-showcase {
+        grid-template-columns: 1fr;
+      }
+
+      .home-hero-inner {
+        max-width: 760px;
+      }
+
+      .hero-visual {
+        min-height: auto;
+        margin-top: 12px;
+      }
+
+      .hero-visual img {
+        width: min(100%, 460px);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero-visual img {
+        width: min(100%, 380px);
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -28,30 +142,37 @@
 
   <main>
     <section class="home-hero-clean">
-      <div class="home-hero-inner">
-        <p class="eyebrow">Rosary prayer companion</p>
+      <div class="home-hero-showcase">
+        <div class="home-hero-inner">
+          <p class="eyebrow">Rosary prayer companion</p>
 
-        <h1>A calmer way to pray the Rosary.</h1>
+          <h1>A calmer way to pray the Rosary.</h1>
 
-        <p class="lead">
-          Beadlight helps you choose your mysteries, follow each bead, and stay focused in prayer
-          with a simple guided Rosary experience.
-        </p>
+          <p class="lead">
+            Beadlight helps you choose your mysteries, follow each bead, and stay focused in prayer
+            with a simple guided Rosary experience — now with a softer light and dark mode design.
+          </p>
 
-        <div class="hero-actions">
-          <a class="primary-button" href="https://apps.apple.com/gb/app/beadlight/id6773049841">
-            Download on the App Store
-          </a>
+          <div class="hero-actions">
+            <a class="primary-button" href="https://apps.apple.com/gb/app/beadlight/id6773049841">
+              Download on the App Store
+            </a>
 
-          <a class="secondary-button" href="./roadmap/">
-            View roadmap
-          </a>
+            <a class="secondary-button" href="./roadmap/">
+              View roadmap
+            </a>
+          </div>
+
+          <div class="hero-points">
+            <span>Guided Rosary</span>
+            <span>Mystery selection</span>
+            <span>Light & dark mode</span>
+            <span>Peaceful design</span>
+          </div>
         </div>
 
-        <div class="hero-points">
-          <span>Guided Rosary</span>
-          <span>Mystery selection</span>
-          <span>Peaceful design</span>
+        <div class="hero-visual" aria-label="Beadlight shown in light and dark mode on iPhone">
+          <img src="beadlight-dark-mode-showcase-blended-v2.png" alt="Beadlight app shown in light and dark mode on iPhone">
         </div>
       </div>
     </section>
@@ -70,9 +191,9 @@
       </article>
 
       <article>
-        <span class="feature-icon">✺</span>
-        <h2>Calm by design</h2>
-        <p>A quiet, focused prayer space with no clutter or distraction.</p>
+        <span class="feature-icon">☾</span>
+        <h2>Light & dark mode</h2>
+        <p>Pray comfortably in the morning, during the day, or quietly at night.</p>
       </article>
 
       <article>
