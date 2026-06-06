@@ -1,225 +1,65 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Beadlight — A calmer way to pray the Rosary</title>
-  <meta name="description" content="Beadlight is a calm, focused Rosary app with guided prayer, mystery selection, and a peaceful design.">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="icon" href="assets/beadlight-icon.png">
+/* ================================
+   Clean Beadlight Homepage
+   Removes broken mobile app preview
+   ================================ */
 
-  <meta property="og:title" content="Beadlight — A calmer way to pray the Rosary">
-  <meta property="og:description" content="Choose your mysteries, follow each bead, and pray with focus using Beadlight.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://beadlight.merciandigital.co.uk/">
-</head>
+.home-hero-clean {
+  width: min(1180px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 78px 0 90px;
+}
 
-<body>
-  <div class="page-glow"></div>
+.home-hero-inner {
+  max-width: 820px;
+}
 
-  <header class="site-header">
-    <a class="brand" href="./" aria-label="Beadlight home">
-      <img src="assets/beadlight-icon.png" alt="">
-      <span>Beadlight</span>
-    </a>
+.home-hero-clean h1 {
+  margin: 0 0 26px;
+  color: #202431;
+  font-size: clamp(4rem, 8vw, 7.6rem);
+  line-height: 0.88;
+  letter-spacing: -0.065em;
+}
 
-    <nav>
-      <a href="./roadmap/">Roadmap</a>
-      <a href="./support/">Support</a>
-      <a href="./privacy/">Privacy</a>
-      <a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight/id6773049841">Download</a>
-    </nav>
-  </header>
+.home-hero-clean .lead {
+  max-width: 690px;
+  margin: 0;
+  color: rgba(31, 36, 48, 0.72);
+  font-size: 1.16rem;
+  line-height: 1.75;
+}
 
-  <main>
-    <section class="hero-section">
-      <div class="hero-copy">
-        <p class="eyebrow">Rosary prayer companion</p>
+@media (max-width: 760px) {
+  .home-hero-clean {
+    width: calc(100% - 32px);
+    padding: 42px 0 64px;
+  }
 
-        <h1>A calmer way to pray the Rosary.</h1>
+  .home-hero-clean h1 {
+    font-size: clamp(3.2rem, 15vw, 4.8rem);
+    line-height: 0.9;
+    letter-spacing: -0.065em;
+  }
 
-        <p class="lead">
-          Beadlight helps you choose your mysteries, follow each bead, and stay focused in prayer
-          with a simple guided Rosary experience.
-        </p>
+  .home-hero-clean .lead {
+    font-size: 1.03rem;
+    line-height: 1.65;
+  }
 
-        <div class="hero-actions">
-          <a class="primary-button" href="https://apps.apple.com/gb/app/beadlight/id6773049841">
-            Download on the App Store
-          </a>
+  .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 
-          <a class="secondary-button" href="./roadmap/">
-            View roadmap
-          </a>
-        </div>
+  .hero-actions .primary-button,
+  .hero-actions .secondary-button {
+    width: 100%;
+    min-height: 58px;
+    box-sizing: border-box;
+  }
 
-        <div class="hero-points" aria-label="Beadlight highlights">
-          <span>Guided Rosary</span>
-          <span>Mystery selection</span>
-          <span>Peaceful design</span>
-        </div>
-      </div>
-
-      <div class="hero-visual" aria-label="Beadlight app preview">
-        <div class="phone-frame">
-          <div class="phone-screen">
-            <div class="phone-status">
-              <span>Today</span>
-              <span>Beadlight</span>
-            </div>
-
-            <div class="sun-cross" aria-hidden="true">
-              <span>✝</span>
-            </div>
-
-            <p class="phone-kicker">Choose your mysteries</p>
-            <h2>Joyful Mysteries</h2>
-
-            <p class="phone-description">
-              The Annunciation, the Visitation, the Nativity, the Presentation,
-              and the Finding in the Temple.
-            </p>
-
-            <div class="mystery-grid">
-              <div class="mystery-card active">
-                <strong>Joyful</strong>
-                <span>Today’s suggestion</span>
-              </div>
-
-              <div class="mystery-card">
-                <strong>Luminous</strong>
-                <span>Light of Christ</span>
-              </div>
-
-              <div class="mystery-card">
-                <strong>Sorrowful</strong>
-                <span>The Passion</span>
-              </div>
-
-              <div class="mystery-card">
-                <strong>Glorious</strong>
-                <span>The Resurrection</span>
-              </div>
-            </div>
-
-            <div class="bead-row" aria-hidden="true">
-              <span></span><span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span><span></span>
-            </div>
-
-            <div class="phone-button">Start Rosary</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="feature-strip" aria-label="Beadlight features">
-      <article>
-        <span class="feature-icon">✦</span>
-        <h2>Guided prayer</h2>
-        <p>
-          Follow the Rosary step by step without losing your place.
-        </p>
-      </article>
-
-      <article>
-        <span class="feature-icon">✧</span>
-        <h2>Mystery selection</h2>
-        <p>
-          Choose Joyful, Luminous, Sorrowful, or Glorious mysteries.
-        </p>
-      </article>
-
-      <article>
-        <span class="feature-icon">✺</span>
-        <h2>Calm by design</h2>
-        <p>
-          A quiet, focused prayer space with no clutter or distraction.
-        </p>
-      </article>
-
-      <article>
-        <span class="feature-icon">✚</span>
-        <h2>Built to improve</h2>
-        <p>
-          View the public roadmap and see what is coming next.
-        </p>
-      </article>
-    </section>
-
-    <section class="content-section split-section">
-      <div>
-        <p class="eyebrow">Why Beadlight?</p>
-        <h2>Simple enough to use every day.</h2>
-      </div>
-
-      <div>
-        <p>
-          Beadlight is made for people who want a gentle way to pray the Rosary without
-          unnecessary noise. Open the app, choose your mystery, and begin.
-        </p>
-
-        <p>
-          It is especially useful when you want structure, audio guidance, or a clearer way to
-          move through the prayers at your own pace.
-        </p>
-      </div>
-    </section>
-
-    <section class="content-section roadmap-preview">
-      <div class="roadmap-preview-copy">
-        <p class="eyebrow">Product roadmap</p>
-        <h2>See what’s planned next.</h2>
-        <p>
-          Beadlight is still growing. The public roadmap shows ideas under consideration,
-          planned features, items in progress, released work, and things not currently planned.
-        </p>
-
-        <a class="secondary-button" href="./roadmap/">View roadmap</a>
-      </div>
-
-      <div class="mini-roadmap">
-        <div>
-          <span>In progress</span>
-          <strong>Android version</strong>
-        </div>
-
-        <div>
-          <span>Planned</span>
-          <strong>Background audio</strong>
-        </div>
-
-        <div>
-          <span>Under consideration</span>
-          <strong>Apple Watch</strong>
-        </div>
-      </div>
-    </section>
-
-    <section class="download-section">
-      <div>
-        <p class="eyebrow">Start praying</p>
-        <h2>Download Beadlight on iPhone.</h2>
-        <p>
-          A peaceful Rosary companion for focused prayer.
-        </p>
-      </div>
-
-      <a class="primary-button" href="https://apps.apple.com/gb/app/beadlight/id6773049841">
-        Download on the App Store
-      </a>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <p>© Beadlight</p>
-
-    <div>
-      <a href="./privacy/">Privacy</a>
-      <a href="./support/">Support</a>
-      <a href="./roadmap/">Roadmap</a>
-      <a href="./admin/">Admin</a>
-    </div>
-  </footer>
-</body>
-</html>
+  .hero-points {
+    gap: 10px;
+  }
+}
