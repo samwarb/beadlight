@@ -6,6 +6,8 @@ const STATUSES = [
   ["not-planned", "Not planned"]
 ];
 
+const ADMIN_REDIRECT_URL = "https://beadlight.merciandigital.co.uk/admin/";
+
 let client;
 let items = [];
 
@@ -20,7 +22,7 @@ function initClient() {
 
   if (!config.url || !config.anonKey || config.url.includes("PASTE_YOUR")) {
     setLoginStatus(
-      "Supabase is not configured yet. Add your project URL and anon key to supabase-config.js.",
+      "Supabase is not configured yet. Add your project URL and publishable key to supabase-config.js.",
       true
     );
     return null;
@@ -33,13 +35,23 @@ async function init() {
   client = initClient();
   if (!client) return;
 
-  document.getElementById("loginBtn").addEventListener("click", sendMagicLink);
-  document.getElementById("signOutBtn").addEventListener("click", signOut);
-  document.getElementById("addBtn").addEventListener("click", addItem);
+  const loginBtn = document.getElementById("loginBtn");
+  const signOutBtn = document.getElementById("signOutBtn");
+  const addBtn = document.getElementById("addBtn");
+
+  if (loginBtn) loginBtn.addEventListener("click", sendMagicLink);
+  if (signOutBtn) signOutBtn.addEventListener("click", signOut);
+  if (addBtn) addBtn.addEventListener("click", addItem);
 
   const {
-    data: { session }
+    data: { session },
+    error
   } = await client.auth.getSession();
+
+  if (error) {
+    setLoginStatus(error.message, true);
+    return;
+  }
 
   if (session) {
     await showEditor();
@@ -53,7 +65,8 @@ async function init() {
 }
 
 async function sendMagicLink() {
-  const email = document.getElementById("email").value.trim();
+  const emailInput = document.getElementById("email");
+  const email = emailInput ? emailInput.value.trim() : "";
 
   if (!email) {
     return setLoginStatus("Enter your email address first.", true);
@@ -64,7 +77,7 @@ async function sendMagicLink() {
   const { error } = await client.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${window.location.origin}/admin/`
+      emailRedirectTo: ADMIN_REDIRECT_URL
     }
   });
 
@@ -72,7 +85,7 @@ async function sendMagicLink() {
     return setLoginStatus(error.message, true);
   }
 
-  setLoginStatus("Magic link sent. Check your email, then open the link on this device.");
+  setLoginStatus("Magic link sent. Check your email, then open the newest link.");
 }
 
 async function showEditor() {
@@ -97,31 +110,37 @@ async function loadItems() {
 
   items = data || [];
   renderEditor();
+
   setAdminStatus(`${items.length} item${items.length === 1 ? "" : "s"} loaded.`);
 }
 
 function renderEditor() {
+  if (!editor) return;
+
   editor.innerHTML = items.length
     ? items.map(renderEditorItem).join("")
     : `<div class="empty-state">No roadmap items yet.</div>`;
 
   editor
     .querySelectorAll("[data-action='save']")
-    .forEach((btn) => btn.addEventListener("click", () => saveItem(btn.dataset.id)));
+    .forEach((btn) => {
+      btn.addEventListener("click", () => saveItem(btn.dataset.id));
+    });
 
   editor
     .querySelectorAll("[data-action='delete']")
-    .forEach((btn) => btn.addEventListener("click", () => deleteItem(btn.dataset.id)));
+    .forEach((btn) => {
+      btn.addEventListener("click", () => deleteItem(btn.dataset.id));
+    });
 }
 
 function renderEditorItem(item) {
-  const statusOptions = STATUSES.map(
-    ([value, label]) =>
-      `<option value="${value}" ${item.status === value ? "selected" : ""}>${label}</option>`
-  ).join("");
+  const statusOptions = STATUSES.map(([value, label]) => {
+    return `<option value="${value}" ${item.status === value ? "selected" : ""}>${label}</option>`;
+  }).join("");
 
   return `
-    <article class="editor-card" data-id="${item.id}">
+    <article class="editor-card" data-id="${escapeAttr(item.id)}">
       <div class="admin-grid">
         <label>
           Title
@@ -130,7 +149,9 @@ function renderEditorItem(item) {
 
         <label>
           Status
-          <select data-field="status">${statusOptions}</select>
+          <select data-field="status">
+            ${statusOptions}
+          </select>
         </label>
 
         <label>
@@ -163,8 +184,8 @@ function renderEditorItem(item) {
       </div>
 
       <div class="admin-actions">
-        <button class="primary-button" data-action="save" data-id="${item.id}">Save</button>
-        <button class="secondary-button danger-button" data-action="delete" data-id="${item.id}">Delete</button>
+        <button class="primary-button" data-action="save" data-id="${escapeAttr(item.id)}">Save</button>
+        <button class="secondary-button danger-button" data-action="delete" data-id="${escapeAttr(item.id)}">Delete</button>
       </div>
     </article>
   `;
@@ -173,7 +194,14 @@ function renderEditorItem(item) {
 function getCardValues(id) {
   const card = editor.querySelector(`[data-id='${CSS.escape(id)}']`);
 
-  const get = (field) => card.querySelector(`[data-field='${field}']`).value;
+  if (!card) {
+    return null;
+  }
+
+  const get = (field) => {
+    const input = card.querySelector(`[data-field='${field}']`);
+    return input ? input.value : "";
+  };
 
   return {
     title: get("title").trim(),
@@ -188,6 +216,10 @@ function getCardValues(id) {
 
 async function saveItem(id) {
   const values = getCardValues(id);
+
+  if (!values) {
+    return setAdminStatus("Could not find this roadmap item.", true);
+  }
 
   if (!values.title) {
     return setAdminStatus("Title is required.", true);
@@ -230,7 +262,9 @@ async function addItem() {
 }
 
 async function deleteItem(id) {
-  if (!confirm("Delete this roadmap item?")) return;
+  const confirmed = confirm("Delete this roadmap item?");
+
+  if (!confirmed) return;
 
   setAdminStatus("Deleting…");
 
@@ -257,11 +291,15 @@ async function signOut() {
 }
 
 function setLoginStatus(message, isError = false) {
+  if (!loginStatus) return;
+
   loginStatus.innerHTML = escapeHtml(message);
   loginStatus.classList.toggle("error-text", isError);
 }
 
 function setAdminStatus(message, isError = false) {
+  if (!adminStatus) return;
+
   adminStatus.textContent = message;
   adminStatus.classList.toggle("error-text", isError);
 }
