@@ -4,36 +4,113 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Beadlight Roadmap</title>
+  <meta name="description" content="See what is planned, in progress, under consideration, released, and not planned for Beadlight.">
   <link rel="stylesheet" href="../styles.css">
   <link rel="icon" href="../assets/beadlight-icon.png">
 </head>
+
 <body>
   <div class="page-glow"></div>
+
   <header class="site-header">
-    <a class="brand" href="../"><img src="../assets/beadlight-icon.png" alt=""><span>Beadlight</span></a>
+    <a class="brand" href="../">
+      <img src="../assets/beadlight-icon.png" alt="">
+      <span>Beadlight</span>
+    </a>
+
     <nav>
-      <a href="../#features">Features</a>
-      <a href="../roadmap/">Roadmap</a>
+      <a href="../">Home</a>
+      <a href="../roadmap/" aria-current="page">Roadmap</a>
       <a href="../support/">Support</a>
-      <a href="../admin/">Admin</a>
       <a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight/id6773049841">Download</a>
     </nav>
   </header>
 
   <main class="section-shell roadmap-page">
     <section class="roadmap-hero">
-      <p class="eyebrow">Beadlight roadmap</p>
-      <h1>What’s coming next</h1>
-      <p class="lead">A simple public roadmap for Beadlight. Some ideas are planned, some are being built, and some are deliberately left out to keep the app calm and focused. This list is updated live from the Beadlight roadmap database.</p>
-      <div class="roadmap-meta" id="roadmapMeta">Loading roadmap…</div>
+      <p class="eyebrow">Product roadmap</p>
+
+      <h1>What’s coming next for Beadlight</h1>
+
+      <p class="lead">
+        A transparent look at the features, fixes, and improvements being considered,
+        planned, worked on, released, or not currently planned.
+      </p>
+
+      <div class="roadmap-legend">
+        <span>Under consideration</span>
+        <span>Planned</span>
+        <span>In progress</span>
+        <span>Released</span>
+        <span>Not planned</span>
+      </div>
     </section>
 
-    <section class="roadmap-board" id="roadmapBoard" aria-live="polite"></section>
+    <section class="roadmap-intro-card">
+      <div>
+        <h2>Roadmap status guide</h2>
+        <p>
+          Items may move between statuses as priorities change, feedback comes in,
+          or technical work is completed.
+        </p>
+      </div>
+
+      <div class="roadmap-status-guide">
+        <div>
+          <strong>Under consideration</strong>
+          <span>Ideas being reviewed.</span>
+        </div>
+
+        <div>
+          <strong>Planned</strong>
+          <span>Features or fixes intended for a future sprint.</span>
+        </div>
+
+        <div>
+          <strong>In progress</strong>
+          <span>Currently being worked on.</span>
+        </div>
+
+        <div>
+          <strong>Released</strong>
+          <span>Live or completed.</span>
+        </div>
+
+        <div>
+          <strong>Not planned</strong>
+          <span>Not being worked on at the moment.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="roadmap-board-section" aria-label="Beadlight roadmap board">
+      <div id="roadmapBoard" class="roadmap-board">
+        <div class="empty-state">Loading roadmap…</div>
+      </div>
+    </section>
+
+    <section class="roadmap-feedback-card">
+      <div>
+        <p class="eyebrow">Have an idea?</p>
+        <h2>Help shape Beadlight</h2>
+        <p>
+          If there is a feature, fix, or improvement you would like to see,
+          send feedback through the support page.
+        </p>
+      </div>
+
+      <a class="primary-button" href="../support/">Send feedback</a>
+    </section>
   </main>
 
-  <footer>
-    <p>© Beadlight by Mercian Digital</p>
-    <div><a href="../privacy/">Privacy</a><a href="../support/">Support</a><a href="../admin/">Admin</a></div>
+  <footer class="site-footer">
+    <p>© Beadlight</p>
+
+    <div>
+      <a href="../privacy/">Privacy</a>
+      <a href="../support/">Support</a>
+      <a href="../admin/">Admin</a>
+    </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
