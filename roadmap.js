@@ -29,12 +29,41 @@ function initRoadmapClient() {
 }
 
 async function initRoadmap() {
+  setCurrentSprintLabel();
+
   roadmapClient = initRoadmapClient();
 
   if (!roadmapClient) return;
 
   setupFilterListeners();
   await loadRoadmap();
+}
+
+function setCurrentSprintLabel() {
+  const sprintLabel = document.getElementById("currentSprintLabel");
+
+  if (!sprintLabel) return;
+
+  sprintLabel.textContent = getCurrentSprintText();
+}
+
+function getCurrentSprintText() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const week = getIsoWeekNumber(now);
+
+  return `${year} Sprint ${week}`;
+}
+
+function getIsoWeekNumber(date) {
+  const tempDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNumber = tempDate.getUTCDay() || 7;
+
+  tempDate.setUTCDate(tempDate.getUTCDate() + 4 - dayNumber);
+
+  const yearStart = new Date(Date.UTC(tempDate.getUTCFullYear(), 0, 1));
+
+  return Math.ceil((((tempDate - yearStart) / 86400000) + 1) / 7);
 }
 
 function setupFilterListeners() {
@@ -127,7 +156,8 @@ function getPriorityValues(items) {
   const priorityOrder = ["Urgent", "High", "Medium", "Low"];
   const found = getUniqueValues(items, "priority");
 
-  return priorityOrder.filter((priority) => found.includes(priority))
+  return priorityOrder
+    .filter((priority) => found.includes(priority))
     .concat(found.filter((priority) => !priorityOrder.includes(priority)));
 }
 
