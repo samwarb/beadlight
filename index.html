@@ -11,103 +11,102 @@
   <style>
     .home-hero-clean {
       position: relative;
+      min-height: calc(100vh - 72px);
+      padding-top: clamp(52px, 7vw, 76px);
+      padding-bottom: clamp(42px, 6vw, 72px);
       overflow: hidden;
+      isolation: isolate;
     }
 
     .home-hero-clean::before {
       content: "";
       position: absolute;
-      inset: -120px -80px auto auto;
-      width: min(52vw, 620px);
-      height: min(52vw, 620px);
-      border-radius: 999px;
-      background: radial-gradient(circle, rgba(183, 121, 24, 0.16), transparent 62%);
-      filter: blur(16px);
+      inset: 0;
+      z-index: -3;
+      background:
+        linear-gradient(90deg, rgba(255, 250, 242, 0.98) 0%, rgba(255, 250, 242, 0.92) 34%, rgba(255, 250, 242, 0.38) 58%, rgba(255, 250, 242, 0.1) 100%),
+        url("beadlight-screenshot-calm-guidance.jpeg") right center / min(52vw, 790px) auto no-repeat;
+      opacity: 0.98;
+    }
+
+    .home-hero-clean::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 220px;
+      z-index: -2;
+      background: linear-gradient(0deg, rgba(255, 248, 238, 1), rgba(255, 248, 238, 0));
       pointer-events: none;
     }
 
     .home-hero-showcase {
+      width: min(1180px, calc(100% - 48px));
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 0.96fr) minmax(300px, 0.7fr);
+      gap: clamp(28px, 4vw, 64px);
+      align-items: center;
       position: relative;
       z-index: 1;
-      display: grid;
-      grid-template-columns: minmax(0, 0.95fr) minmax(320px, 0.72fr);
-      gap: clamp(28px, 5vw, 72px);
-      align-items: center;
     }
 
     .home-hero-inner {
-      position: relative;
-      z-index: 2;
-      max-width: 680px;
+      max-width: 640px;
+    }
+
+    .hero-actions .button-icon,
+    .nav-pill .button-icon,
+    .download-section .button-icon {
+      margin-left: 8px;
+      font-size: 1rem;
+      line-height: 1;
     }
 
     .hero-carousel {
       position: relative;
       display: flex;
-      justify-content: center;
       align-items: center;
-      min-height: 560px;
-      isolation: isolate;
+      justify-content: center;
+      min-height: 0;
       perspective: 1200px;
-    }
-
-    .hero-carousel::before {
-      content: "";
-      position: absolute;
-      inset: 4% -8% 2% -8%;
-      z-index: -2;
-      background:
-        radial-gradient(circle at 48% 34%, rgba(255, 247, 236, 0.92), transparent 42%),
-        radial-gradient(circle at 70% 47%, rgba(183, 121, 24, 0.18), transparent 40%),
-        radial-gradient(circle at 64% 82%, rgba(232, 210, 177, 0.38), transparent 46%);
-      filter: blur(46px);
-      opacity: 0.98;
     }
 
     .carousel-shell {
       position: relative;
-      width: min(100%, 470px);
-      padding: 18px;
-      border-radius: 46px;
-      background:
-        linear-gradient(145deg, rgba(255, 252, 246, 0.92), rgba(238, 219, 188, 0.70));
-      border: 1px solid rgba(183, 121, 24, 0.24);
+      width: min(100%, 280px);
+      padding: 10px;
+      border-radius: 42px;
+      background: linear-gradient(145deg, #1c1c1d 0%, #0b0b0c 100%);
+      border: 1px solid rgba(255, 255, 255, 0.55);
       box-shadow:
-        0 34px 70px rgba(61, 39, 16, 0.16),
-        inset 0 1px 0 rgba(255, 255, 255, 0.78);
+        0 30px 72px rgba(70, 48, 22, 0.28),
+        0 8px 18px rgba(70, 48, 22, 0.16);
+      transform: rotate(4deg);
     }
 
     .carousel-shell::before {
       content: "";
       position: absolute;
-      inset: 8px;
-      border-radius: 38px;
-      border: 1px solid rgba(255, 255, 255, 0.62);
+      top: 22px;
+      left: 50%;
+      z-index: 8;
+      width: 92px;
+      height: 26px;
+      border-radius: 999px;
+      background: #111;
+      transform: translateX(-50%);
+      box-shadow: inset 22px 0 0 rgba(255, 255, 255, 0.04);
       pointer-events: none;
-      z-index: 4;
-    }
-
-    .carousel-shell::after {
-      content: "";
-      position: absolute;
-      inset: 18px;
-      border-radius: 34px;
-      pointer-events: none;
-      z-index: 5;
-      box-shadow:
-        inset 0 0 0 1px rgba(183, 121, 24, 0.16),
-        inset 0 20px 36px rgba(255, 255, 255, 0.16),
-        inset 0 -26px 42px rgba(63, 39, 13, 0.08);
     }
 
     .carousel-frame {
       position: relative;
       width: 100%;
-      aspect-ratio: 1242 / 2688;
-      border-radius: 30px;
+      aspect-ratio: 710 / 1536;
+      border-radius: 32px;
+      overflow: hidden;
       background: #f7efe3;
       transform-style: preserve-3d;
-      overflow: visible;
     }
 
     .carousel-slide {
@@ -116,13 +115,12 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: 30px;
+      border-radius: 32px;
       opacity: 0;
       visibility: hidden;
       transform-origin: center center;
       backface-visibility: hidden;
-      box-shadow: none;
-      filter: saturate(0.99) contrast(1) brightness(1);
+      filter: saturate(0.98) contrast(1.01);
       transition:
         transform 650ms cubic-bezier(.2, .72, .18, 1),
         opacity 220ms ease,
@@ -148,7 +146,6 @@
       opacity: 1;
       visibility: visible;
       z-index: 4;
-      transform: rotateY(0deg) scale(1);
       animation: spinInNext 650ms cubic-bezier(.2, .72, .18, 1) both;
     }
 
@@ -163,51 +160,34 @@
       opacity: 1;
       visibility: visible;
       z-index: 4;
-      transform: rotateY(0deg) scale(1);
       animation: spinInPrev 650ms cubic-bezier(.2, .72, .18, 1) both;
     }
 
     @keyframes spinInNext {
-      from {
-        opacity: 0;
-        transform: rotateY(82deg) translateX(18%) scale(0.92);
-      }
-      45% {
-        opacity: 1;
-      }
-      to {
-        opacity: 1;
-        transform: rotateY(0deg) translateX(0) scale(1);
-      }
+      from { opacity: 0; transform: rotateY(82deg) translateX(18%) scale(0.92); }
+      45% { opacity: 1; }
+      to { opacity: 1; transform: rotateY(0deg) translateX(0) scale(1); }
     }
 
     @keyframes spinInPrev {
-      from {
-        opacity: 0;
-        transform: rotateY(-82deg) translateX(-18%) scale(0.92);
-      }
-      45% {
-        opacity: 1;
-      }
-      to {
-        opacity: 1;
-        transform: rotateY(0deg) translateX(0) scale(1);
-      }
+      from { opacity: 0; transform: rotateY(-82deg) translateX(-18%) scale(0.92); }
+      45% { opacity: 1; }
+      to { opacity: 1; transform: rotateY(0deg) translateX(0) scale(1); }
     }
 
     .carousel-dots {
       position: absolute;
       left: 50%;
-      bottom: 26px;
-      transform: translateX(-50%);
-      z-index: 8;
+      bottom: 34px;
+      z-index: 9;
       display: flex;
       gap: 7px;
       padding: 8px 10px;
       border-radius: 999px;
-      background: rgba(255, 250, 242, 0.58);
+      background: rgba(255, 250, 242, 0.72);
       border: 1px solid rgba(183, 121, 24, 0.16);
       backdrop-filter: blur(14px);
+      transform: translateX(-50%) rotate(4deg);
     }
 
     .carousel-dot {
@@ -225,9 +205,88 @@
       transform: scale(1.25);
     }
 
-    .hero-points span:last-child {
-      background: rgba(183, 121, 24, 0.09);
-      border-color: rgba(183, 121, 24, 0.22);
+    .testimonial-band {
+      min-height: 150px;
+      display: grid;
+      place-items: center;
+      margin: -34px 0 54px;
+      padding: 28px 24px;
+      background:
+        linear-gradient(90deg, rgba(90, 58, 19, 0.38), rgba(255, 246, 231, 0.92) 34%, rgba(255, 246, 231, 0.92) 100%),
+        url("beadlight-screenshot-hands-free.jpeg") left 60% / 430px auto no-repeat;
+      border-top: 1px solid rgba(165, 111, 35, 0.16);
+      border-bottom: 1px solid rgba(165, 111, 35, 0.16);
+    }
+
+    .testimonial-band blockquote {
+      width: min(700px, calc(100% - 32px));
+      margin: 0;
+      color: var(--ink);
+      text-align: center;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.2rem, 2vw, 1.55rem);
+      font-style: italic;
+      line-height: 1.35;
+    }
+
+    .testimonial-band blockquote::before {
+      content: "“";
+      display: block;
+      color: var(--gold-dark);
+      font-size: 3.2rem;
+      font-style: normal;
+      line-height: 0.72;
+    }
+
+    .testimonial-band cite {
+      display: block;
+      margin-top: 8px;
+      color: rgba(32, 36, 49, 0.7);
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: 0.88rem;
+      font-style: normal;
+      font-weight: 800;
+    }
+
+    .how-it-works {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(300px, 0.78fr);
+      gap: clamp(28px, 4vw, 58px);
+      align-items: center;
+    }
+
+    .step-list {
+      display: grid;
+      gap: 16px;
+      margin: 28px 0 0;
+    }
+
+    .step-list li {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      align-items: start;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .step-list span {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(183, 121, 24, 0.13);
+      color: var(--gold-dark);
+      font-weight: 950;
+    }
+
+    .showcase-image {
+      width: min(100%, 460px);
+      margin-inline: auto;
+      display: block;
+      border-radius: 30px;
+      box-shadow: 0 24px 70px rgba(64, 43, 19, 0.16);
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -241,48 +300,63 @@
     }
 
     @media (max-width: 980px) {
-      .home-hero-showcase {
-        grid-template-columns: 1fr;
+      .home-hero-clean {
+        min-height: auto;
       }
 
-      .home-hero-inner {
-        max-width: 760px;
+      .home-hero-clean::before {
+        background:
+          linear-gradient(180deg, rgba(255, 250, 242, 0.98) 0%, rgba(255, 250, 242, 0.9) 54%, rgba(255, 250, 242, 0.32) 100%),
+          url("beadlight-screenshot-calm-guidance.jpeg") center bottom / min(96vw, 660px) auto no-repeat;
+      }
+
+      .home-hero-showcase,
+      .how-it-works {
+        grid-template-columns: 1fr;
       }
 
       .hero-carousel {
         min-height: auto;
-        margin-top: 12px;
       }
 
       .carousel-shell {
-        width: min(100%, 500px);
+        width: min(68vw, 300px);
+        transform: rotate(0deg);
+      }
+
+      .carousel-dots {
+        transform: translateX(-50%);
       }
     }
 
     @media (max-width: 640px) {
-      .carousel-frame,
-      .carousel-slide {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 30px;
-      opacity: 0;
-      visibility: hidden;
-      transform-origin: center center;
-      backface-visibility: hidden;
-      box-shadow: none;
-      filter: saturate(0.99) contrast(1) brightness(1);
-      transition:
-        transform 650ms cubic-bezier(.2, .72, .18, 1),
-        opacity 220ms ease,
-        visibility 650ms ease;
-      will-change: transform, opacity;
-    }
+      .home-hero-clean {
+        padding-top: 46px;
+      }
 
-      .carousel-frame {
-        width: min(100%, 380px);
+      .home-hero-showcase {
+        width: calc(100% - 32px);
+      }
+
+      .home-hero-clean::before {
+        background:
+          linear-gradient(180deg, rgba(255, 250, 242, 0.99) 0%, rgba(255, 250, 242, 0.94) 62%, rgba(255, 250, 242, 0.24) 100%),
+          url("beadlight-screenshot-calm-guidance.jpeg") center bottom / 118vw auto no-repeat;
+      }
+
+      .carousel-shell {
+        width: min(78vw, 280px);
+      }
+
+      .hero-carousel {
+        display: none;
+      }
+
+      .testimonial-band {
+        margin-top: -18px;
+        background:
+          linear-gradient(90deg, rgba(255, 246, 231, 0.94), rgba(255, 246, 231, 0.94)),
+          url("beadlight-screenshot-hands-free.jpeg") left center / 360px auto no-repeat;
       }
     }
   </style>
@@ -294,14 +368,22 @@
   <header class="site-header">
     <a class="brand" href="./" aria-label="Beadlight home">
       <img src="assets/beadlight-icon.png" alt="">
-      <span>Beadlight</span>
+      <span>
+        <strong>BeadLight</strong>
+        <small>Rosary prayer companion</small>
+      </span>
     </a>
 
     <nav>
+      <a href="./" aria-current="page">Home</a>
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#about">About</a>
       <a href="./roadmap/">Roadmap</a>
       <a href="./support/">Support</a>
-      <a href="./privacy/">Privacy</a>
-      <a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight/id6773049841">Download</a>
+      <a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight/id6773049841">
+        Download App <span class="button-icon" aria-hidden="true">↓</span>
+      </a>
     </nav>
   </header>
 
@@ -314,25 +396,25 @@
           <h1>A calmer way to pray the Rosary.</h1>
 
           <p class="lead">
-            Beadlight helps you choose your mysteries, follow each bead, and stay focused in prayer
+            BeadLight helps you choose your mysteries, follow each bead, and stay focused in prayer
             with a simple guided Rosary experience — now with a softer light and dark mode design.
           </p>
 
           <div class="hero-actions">
             <a class="primary-button" href="https://apps.apple.com/gb/app/beadlight/id6773049841">
-              Download on the App Store
+              Download on the App Store <span class="button-icon" aria-hidden="true">↓</span>
             </a>
 
-            <a class="secondary-button" href="./roadmap/">
-              View roadmap
+            <a class="secondary-button" href="#features">
+              View features
             </a>
           </div>
 
           <div class="hero-points">
-            <span>Guided Rosary</span>
-            <span>Mystery selection</span>
-            <span>Light & dark mode</span>
-            <span>Peaceful design</span>
+            <span>Guided Prayers</span>
+            <span>Mystery Selection</span>
+            <span>Light & Dark Mode</span>
+            <span>Peaceful Design</span>
           </div>
         </div>
 
@@ -358,33 +440,40 @@
       </div>
     </section>
 
-    <section class="feature-strip">
+    <section class="feature-strip" id="features">
       <article>
-        <span class="feature-icon">✦</span>
-        <h2>Guided prayer</h2>
+        <span class="feature-icon" aria-hidden="true">□</span>
+        <h2>Guided Prayer</h2>
         <p>Follow the Rosary step by step without losing your place.</p>
       </article>
 
       <article>
-        <span class="feature-icon">✧</span>
-        <h2>Mystery selection</h2>
+        <span class="feature-icon" aria-hidden="true">⌘</span>
+        <h2>Mystery Selection</h2>
         <p>Choose Joyful, Luminous, Sorrowful, or Glorious mysteries.</p>
       </article>
 
       <article>
-        <span class="feature-icon">☾</span>
+        <span class="feature-icon" aria-hidden="true">☼</span>
         <h2>Light & dark mode</h2>
         <p>Pray comfortably in the morning, during the day, or quietly at night.</p>
       </article>
 
       <article>
-        <span class="feature-icon">✚</span>
+        <span class="feature-icon" aria-hidden="true">♡</span>
         <h2>Built to improve</h2>
         <p>View the public roadmap and see what is coming next.</p>
       </article>
     </section>
 
-    <section class="content-section split-section">
+    <section class="testimonial-band" aria-label="BeadLight testimonial">
+      <blockquote>
+        BeadLight has transformed the way I pray the Rosary. It helps me stay focused and present in every mystery.
+        <cite>Sarah, London</cite>
+      </blockquote>
+    </section>
+
+    <section class="content-section split-section" id="about">
       <div>
         <p class="eyebrow">Why Beadlight?</p>
         <h2>Simple enough to use every day.</h2>
@@ -403,12 +492,31 @@
       </div>
     </section>
 
-    <section class="content-section roadmap-preview">
+    <section class="content-section how-it-works" id="how-it-works">
+      <div>
+        <p class="eyebrow">How it works</p>
+        <h2>Choose a mystery, follow each bead, stay in prayer.</h2>
+        <p>
+          BeadLight keeps the Rosary sequence clear without turning prayer into a busy interface.
+          The app gives you structure when you need it and quietly gets out of the way when you do not.
+        </p>
+
+        <ol class="step-list">
+          <li><span>1</span>Pick the mystery you want to pray, or use the day’s suggested Rosary.</li>
+          <li><span>2</span>Move bead by bead with clear progress and optional hands-free controls.</li>
+          <li><span>3</span>Use the light or dark theme so the experience feels calm at any time of day.</li>
+        </ol>
+      </div>
+
+      <img class="showcase-image" src="beadlight-dark-mode-showcase-blended-v2.png" alt="BeadLight light and dark mode app screens">
+    </section>
+
+    <section class="content-section roadmap-preview" id="roadmap-preview">
       <div class="roadmap-preview-copy">
         <p class="eyebrow">Product roadmap</p>
         <h2>See what’s planned next.</h2>
         <p>
-          Beadlight is still growing. The public roadmap shows ideas under consideration,
+          BeadLight is still growing. The public roadmap shows ideas under consideration,
           planned features, items in progress, released work, and things not currently planned.
         </p>
 
@@ -436,18 +544,18 @@
     <section class="download-section">
       <div>
         <p class="eyebrow">Start praying</p>
-        <h2>Download Beadlight on iPhone.</h2>
+        <h2>Download BeadLight on iPhone.</h2>
         <p>A peaceful Rosary companion for focused prayer.</p>
       </div>
 
       <a class="primary-button" href="https://apps.apple.com/gb/app/beadlight/id6773049841">
-        Download on the App Store
+        Download on the App Store <span class="button-icon" aria-hidden="true">↓</span>
       </a>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>© Beadlight</p>
+    <p>© BeadLight</p>
 
     <div>
       <a href="./privacy/">Privacy</a>
