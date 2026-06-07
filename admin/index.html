@@ -3,220 +3,213 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Beadlight Roadmap Admin</title>
+  <title>Beadlight Admin</title>
   <link rel="stylesheet" href="../styles.css">
   <link rel="icon" href="../assets/beadlight-icon.png">
-  <style>
-    .analytics-panel {
-      display: grid;
-      gap: 18px;
-      margin-bottom: 28px;
-      padding-bottom: 28px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    }
-
-    .analytics-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .analytics-head h2,
-    .analytics-table-card h3 {
-      margin: 0;
-    }
-
-    .analytics-head p {
-      margin: 8px 0 0;
-      color: #626874;
-    }
-
-    .analytics-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .analytics-card,
-    .analytics-table-card {
-      border: 1px solid rgba(80, 68, 46, 0.14);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.34);
-    }
-
-    .analytics-card {
-      padding: 16px;
-    }
-
-    .analytics-card strong {
-      display: block;
-      margin-bottom: 4px;
-      font-size: 2rem;
-      line-height: 1;
-      color: #17202b;
-    }
-
-    .analytics-card span {
-      color: #626874;
-      font-size: 0.9rem;
-    }
-
-    .analytics-tables {
-      display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
-      gap: 12px;
-    }
-
-    .analytics-table-card {
-      overflow: hidden;
-    }
-
-    .analytics-table-card h3 {
-      padding: 14px 16px;
-      border-bottom: 1px solid rgba(80, 68, 46, 0.14);
-      font-size: 1rem;
-      color: #17202b;
-    }
-
-    .analytics-table-scroll {
-      overflow-x: auto;
-    }
-
-    .analytics-table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 460px;
-    }
-
-    .analytics-table th,
-    .analytics-table td {
-      padding: 12px 16px;
-      border-bottom: 1px solid rgba(80, 68, 46, 0.1);
-      text-align: left;
-      white-space: nowrap;
-      color: #17202b;
-    }
-
-    .analytics-table th {
-      color: #736a5c;
-      font-size: 0.78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-
-    .analytics-empty {
-      padding: 16px;
-      color: #626874;
-    }
-
-    .admin-header-logout {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 40px;
-      padding: 0 16px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.56);
-      color: #17202b;
-      cursor: pointer;
-      font: inherit;
-    }
-
-    .admin-header-logout:hover {
-      background: rgba(255, 255, 255, 0.78);
-    }
-
-    @media (max-width: 860px) {
-      .analytics-grid,
-      .analytics-tables {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 640px) {
-      .analytics-head {
-        display: grid;
-      }
-
-      .analytics-grid,
-      .analytics-tables {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
 </head>
 <body>
   <div class="page-glow"></div>
+
   <header class="site-header">
-    <a class="brand" href="../"><img src="../assets/beadlight-icon.png" alt=""><span>Beadlight</span></a>
+    <a class="brand" href="../">
+      <img src="../assets/beadlight-icon.png" alt="">
+      <span>Beadlight</span>
+    </a>
+
     <nav>
       <a href="../roadmap/">Roadmap</a>
       <a href="../support/">Support</a>
       <a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight/id6773049841">Download</a>
     </nav>
+
     <button class="admin-header-logout hidden" id="headerSignOutBtn" type="button">Log out</button>
   </header>
 
   <main class="section-shell admin-page">
-    <section class="roadmap-hero">
+    <section class="admin-hero">
       <p class="eyebrow">Private admin</p>
-      <h1>Update the roadmap</h1>
-      <p class="lead">Log in with your email, then add, edit, reorder, release, or remove roadmap items. Public visitors can only view the roadmap.</p>
+      <h1>Beadlight control centre</h1>
+      <p class="lead">Prayer analytics, public roadmap management and customer support tickets in one secure workspace.</p>
     </section>
 
-    <section class="admin-panel" id="loginPanel">
-      <h2>Email login</h2>
-      <p>Enter your approved admin email address. Supabase will send you a secure magic link to sign in.</p>
+    <section class="admin-panel admin-login-panel" id="loginPanel">
+      <div class="admin-section-heading">
+        <div>
+          <p class="admin-kicker">Secure access</p>
+          <h2>Email login</h2>
+          <p>Enter your approved admin email address. Supabase will send you a secure magic link.</p>
+        </div>
+      </div>
+
       <div class="admin-grid">
-        <label class="wide">Email address<input id="email" type="email" placeholder="you@example.com" autocomplete="email"></label>
+        <label class="wide">
+          Email address
+          <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
+        </label>
       </div>
+
       <div class="admin-actions">
-        <button class="primary-button" id="loginBtn">Send magic link</button>
+        <button class="primary-button" id="loginBtn" type="button">Send magic link</button>
       </div>
-      <p class="admin-note" id="loginStatus">Only emails listed in your Supabase <strong>admin_users</strong> table can edit the roadmap.</p>
+
+      <p class="admin-note" id="loginStatus">Only approved administrators can access this page.</p>
     </section>
 
-    <section class="admin-panel hidden" id="editorPanel">
-      <section class="analytics-panel" aria-labelledby="analyticsTitle">
-        <div class="analytics-head">
-          <div>
-            <h2 id="analyticsTitle">Prayer analytics</h2>
-            <p>Anonymous prayer progress from Beadlight app sessions.</p>
+    <section class="hidden" id="editorPanel">
+      <nav class="admin-workspace-nav" aria-label="Admin sections">
+        <button class="admin-workspace-tab is-active" type="button" data-admin-tab="analytics" aria-selected="true">
+          <span class="admin-tab-icon">◌</span>
+          <span>
+            <strong>Analytics</strong>
+            <small>Prayer activity</small>
+          </span>
+        </button>
+
+        <button class="admin-workspace-tab" type="button" data-admin-tab="roadmap" aria-selected="false">
+          <span class="admin-tab-icon">↗</span>
+          <span>
+            <strong>Roadmap</strong>
+            <small>Features and releases</small>
+          </span>
+        </button>
+
+        <button class="admin-workspace-tab" type="button" data-admin-tab="tickets" aria-selected="false">
+          <span class="admin-tab-icon">✉</span>
+          <span>
+            <strong>Tickets</strong>
+            <small>Customer support</small>
+          </span>
+        </button>
+      </nav>
+
+      <section class="admin-workspace-section is-active" id="analyticsSection" data-admin-section="analytics" aria-labelledby="analyticsTitle">
+        <div class="admin-section-card admin-section-card-analytics">
+          <div class="admin-section-heading">
+            <div>
+              <p class="admin-kicker">App usage</p>
+              <h2 id="analyticsTitle">Prayer analytics</h2>
+              <p>Anonymous prayer progress recorded from Beadlight app sessions.</p>
+            </div>
+            <button class="secondary-button" id="refreshAnalyticsBtn" type="button">Refresh stats</button>
           </div>
-          <button class="secondary-button" id="refreshAnalyticsBtn" type="button">Refresh stats</button>
+
+          <div class="analytics-grid" id="analyticsTotals" aria-live="polite"></div>
+
+          <div class="analytics-tables">
+            <article class="analytics-table-card">
+              <h3>Recent daily activity</h3>
+              <div id="analyticsDaily"></div>
+            </article>
+
+            <article class="analytics-table-card">
+              <h3>Mystery sets</h3>
+              <div id="analyticsMysteries"></div>
+            </article>
+          </div>
+
+          <div id="analyticsStatus" class="admin-status"></div>
         </div>
-
-        <div class="analytics-grid" id="analyticsTotals" aria-live="polite"></div>
-
-        <div class="analytics-tables">
-          <article class="analytics-table-card">
-            <h3>Recent daily activity</h3>
-            <div id="analyticsDaily"></div>
-          </article>
-
-          <article class="analytics-table-card">
-            <h3>Mystery sets</h3>
-            <div id="analyticsMysteries"></div>
-          </article>
-        </div>
-
-        <div id="analyticsStatus" class="admin-status"></div>
       </section>
 
-      <div class="editor-head">
-        <div>
-          <h2>Roadmap items</h2>
-          <p>Changes save directly to Supabase and normally appear on the public roadmap straight away.</p>
+      <section class="admin-workspace-section" id="roadmapSection" data-admin-section="roadmap" aria-labelledby="roadmapAdminTitle">
+        <div class="admin-section-card admin-section-card-roadmap">
+          <div class="admin-section-heading">
+            <div>
+              <p class="admin-kicker">Public planning</p>
+              <h2 id="roadmapAdminTitle">Roadmap items</h2>
+              <p>Add, edit, release or remove items shown on the public roadmap.</p>
+            </div>
+            <button class="primary-button" id="addBtn" type="button">Add item</button>
+          </div>
+
+          <div id="itemsEditor" class="items-editor"></div>
+          <div id="adminStatus" class="admin-status"></div>
         </div>
-        <div class="admin-actions compact-actions">
-          <button class="secondary-button" id="signOutBtn">Sign out</button>
-          <button class="secondary-button" id="addBtn">Add item</button>
+      </section>
+
+      <section class="admin-workspace-section" id="ticketsSection" data-admin-section="tickets" aria-labelledby="ticketsTitle">
+        <div class="admin-section-card admin-section-card-tickets">
+          <div class="admin-section-heading">
+            <div>
+              <p class="admin-kicker">Customer support</p>
+              <h2 id="ticketsTitle">Support tickets</h2>
+              <p>Review enquiries, reply directly from the dashboard, update their status and keep private admin notes.</p>
+            </div>
+            <button class="secondary-button" id="refreshTicketsBtn" type="button">Refresh tickets</button>
+          </div>
+
+          <div class="ticket-summary-grid" id="ticketSummary" aria-live="polite"></div>
+
+          <div class="ticket-toolbar">
+            <label class="ticket-search-label">
+              <span>Search</span>
+              <input id="ticketSearch" type="search" placeholder="Reference, name, email or subject">
+            </label>
+
+            <label>
+              <span>Status</span>
+              <select id="ticketStatusFilter">
+                <option value="">All statuses</option>
+                <option value="open">Open</option>
+                <option value="in_progress">In progress</option>
+                <option value="waiting_for_customer">Waiting for customer</option>
+                <option value="resolved">Resolved</option>
+                <option value="closed">Closed</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Priority</span>
+              <select id="ticketPriorityFilter">
+                <option value="">All priorities</option>
+                <option value="urgent">Urgent</option>
+                <option value="high">High</option>
+                <option value="normal">Normal</option>
+                <option value="low">Low</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="ticket-workspace">
+            <div class="ticket-list-card">
+              <div class="ticket-list-head">
+                <strong>Inbox</strong>
+                <span id="ticketCount">0 tickets</span>
+              </div>
+              <div class="ticket-table-scroll">
+                <table class="ticket-table">
+                  <thead>
+                    <tr>
+                      <th>Reference</th>
+                      <th>Customer</th>
+                      <th>Subject</th>
+                      <th>Status</th>
+                      <th>Priority</th>
+                      <th>Received</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ticketTableBody"></tbody>
+                </table>
+              </div>
+              <div class="ticket-empty hidden" id="ticketEmpty">No tickets match these filters.</div>
+            </div>
+
+            <aside class="ticket-detail-card" id="ticketDetail">
+              <div class="ticket-detail-placeholder">
+                <span>✉</span>
+                <h3>Select a ticket</h3>
+                <p>Choose a ticket from the inbox to read it, reply and update its details.</p>
+              </div>
+            </aside>
+          </div>
+
+          <div id="ticketStatus" class="admin-status"></div>
         </div>
+      </section>
+
+      <div class="admin-footer-actions">
+        <button class="secondary-button" id="signOutBtn" type="button">Sign out</button>
       </div>
-      <div id="itemsEditor" class="items-editor"></div>
-      <div id="adminStatus" class="admin-status"></div>
     </section>
   </main>
 
