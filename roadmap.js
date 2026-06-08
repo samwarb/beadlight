@@ -1,7 +1,7 @@
 const ROADMAP_STATUSES = [
-  ["under-consideration", "Under consideration"],
-  ["planned", "Planned"],
   ["in-progress", "In progress"],
+  ["planned", "Planned"],
+  ["under-consideration", "Under consideration"],
   ["released", "Released"],
   ["not-planned", "Not planned"]
 ];
@@ -14,13 +14,16 @@ const STATUS_ORDER = {
   "not-planned": 5
 };
 
+const STATUS_DESCRIPTIONS = {
+  "in-progress": "Being actively worked on now.",
+  "planned": "Chosen for an upcoming build cycle.",
+  "under-consideration": "Ideas being shaped, validated, or scoped.",
+  "released": "Already shipped and available.",
+  "not-planned": "Not currently on the product path."
+};
+
 let roadmapClient;
 let allRoadmapItems = [];
-
-let currentSort = {
-  key: "status",
-  direction: "asc"
-};
 
 document.addEventListener("DOMContentLoaded", initRoadmap);
 
@@ -28,7 +31,10 @@ function initRoadmapClient() {
   const config = window.BEADLIGHT_SUPABASE || {};
 
   if (!config.url || !config.anonKey || config.url.includes("PASTE_YOUR")) {
-    showRoadmapError("Roadmap is not configured yet.");
+    return null;
+  }
+
+  if (!window.supabase || typeof window.supabase.createClient !== "function") {
     return null;
   }
 
@@ -40,9 +46,13 @@ async function initRoadmap() {
 
   roadmapClient = initRoadmapClient();
 
-  if (!roadmapClient) return;
-
   setupFilterListeners();
+
+  if (!roadmapClient) {
+    await loadStaticRoadmap();
+    return;
+  }
+
   await loadRoadmap();
 }
 
@@ -107,14 +117,52 @@ async function loadRoadmap() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    showRoadmapError("Could not load roadmap: " + error.message);
+    const usedFallback = await loadStaticRoadmap();
+    if (!usedFallback) {
+      showRoadmapError("Could not load roadmap: " + error.message);
+    }
     return;
   }
 
-  allRoadmapItems = data || [];
+  allRoadmapItems = normalizeRoadmapItems(data || []);
 
   populateFilters(allRoadmapItems);
   renderFilteredRoadmap();
+}
+
+async function loadStaticRoadmap() {
+  try {
+    const response = await fetch("../data/roadmap.json", { cache: "no-store" });
+
+    if (!response.ok) throw new Error("Static roadmap file was not found.");
+
+    const payload = await response.json();
+
+    allRoadmapItems = normalizeRoadmapItems(payload.items || []);
+
+    populateFilters(allRoadmapItems);
+    renderFilteredRoadmap();
+    return true;
+  } catch (error) {
+    showRoadmapError(error.message || "Could not load roadmap.");
+    return false;
+  }
+}
+
+function normalizeRoadmapItems(items) {
+  const statusAliases = {
+    "wont-do": "not-planned"
+  };
+
+  return items.map((item) => {
+    const status = statusAliases[item.status] || item.status || "under-consideration";
+
+    return {
+      ...item,
+      status,
+      sprint_due: item.sprint_due || "N/A"
+    };
+  });
 }
 
 function populateFilters(items) {
@@ -185,9 +233,8 @@ function renderFilteredRoadmap() {
 
   if (!board) return;
 
-  board.innerHTML = renderRoadmapSummary(filteredItems) + renderRoadmapTable(sortedItems);
+  board.innerHTML = renderRoadmapSummary(filteredItems) + renderRoadmapGroups(sortedItems);
 
-  setupSortButtons();
   updateResultCount(filteredItems.length, allRoadmapItems.length);
 }
 
@@ -226,49 +273,16 @@ function getFilteredItems() {
 
 function sortItems(items) {
   return [...items].sort((a, b) => {
-    const key = currentSort.key;
-    const direction = currentSort.direction === "asc" ? 1 : -1;
+    const statusCompare = (STATUS_ORDER[a.status] || 99) - (STATUS_ORDER[b.status] || 99);
+    if (statusCompare !== 0) return statusCompare;
 
-    let valueA;
-    let valueB;
+    const priorityCompare = getPrioritySortValue(a.priority) - getPrioritySortValue(b.priority);
+    if (priorityCompare !== 0) return priorityCompare;
 
-    if (key === "title") {
-      valueA = String(a.title || "").toLowerCase();
-      valueB = String(b.title || "").toLowerCase();
-      return valueA.localeCompare(valueB) * direction;
-    }
+    const sprintCompare = getSprintSortValue(a.sprint_due) - getSprintSortValue(b.sprint_due);
+    if (sprintCompare !== 0) return sprintCompare;
 
-    if (key === "status") {
-      valueA = STATUS_ORDER[a.status] || 99;
-      valueB = STATUS_ORDER[b.status] || 99;
-      return (valueA - valueB) * direction;
-    }
-
-    if (key === "tag") {
-      valueA = String(a.tag || "").toLowerCase();
-      valueB = String(b.tag || "").toLowerCase();
-      return valueA.localeCompare(valueB) * direction;
-    }
-
-    if (key === "priority") {
-      valueA = getPrioritySortValue(a.priority);
-      valueB = getPrioritySortValue(b.priority);
-      return (valueA - valueB) * direction;
-    }
-
-    if (key === "sprint_due") {
-      valueA = getSprintSortValue(a.sprint_due);
-      valueB = getSprintSortValue(b.sprint_due);
-      return (valueA - valueB) * direction;
-    }
-
-    if (key === "summary") {
-      valueA = String(a.summary || "").toLowerCase();
-      valueB = String(b.summary || "").toLowerCase();
-      return valueA.localeCompare(valueB) * direction;
-    }
-
-    return 0;
+    return String(a.title || "").localeCompare(String(b.title || ""));
   });
 }
 
@@ -335,132 +349,81 @@ function renderRoadmapSummary(items) {
   `;
 }
 
-function renderRoadmapTable(items) {
+function renderRoadmapGroups(items) {
   if (!items.length) {
     return `<div class="empty-state">No roadmap items match these filters.</div>`;
   }
 
-  const rows = items.map(renderRoadmapRow).join("");
+  const activeStatusFilter = getControlValue("statusFilter");
+  const groups = ROADMAP_STATUSES
+    .filter(([statusValue]) => !activeStatusFilter || statusValue === activeStatusFilter)
+    .map(([statusValue, statusLabel]) => {
+      return {
+        statusValue,
+        statusLabel,
+        items: items.filter((item) => (item.status || "under-consideration") === statusValue)
+      };
+    })
+    .filter((group) => group.items.length > 0);
 
   return `
-    <section class="roadmap-table-wrap" aria-label="Roadmap table">
-      <table class="roadmap-table">
-        <thead>
-          <tr>
-            <th>
-              <button class="sort-button" type="button" data-sort="title">
-                Item ${getSortIndicator("title")}
-              </button>
-            </th>
-
-            <th>
-              <button class="sort-button" type="button" data-sort="status">
-                Status ${getSortIndicator("status")}
-              </button>
-            </th>
-
-            <th>
-              <button class="sort-button" type="button" data-sort="tag">
-                Tag ${getSortIndicator("tag")}
-              </button>
-            </th>
-
-            <th>
-              <button class="sort-button" type="button" data-sort="priority">
-                Priority ${getSortIndicator("priority")}
-              </button>
-            </th>
-
-            <th>
-              <button class="sort-button" type="button" data-sort="sprint_due">
-                Sprint due ${getSortIndicator("sprint_due")}
-              </button>
-            </th>
-
-            <th>
-              <button class="sort-button" type="button" data-sort="summary">
-                Summary ${getSortIndicator("summary")}
-              </button>
-            </th>
-          </tr>
-        </thead>
-
-        <tbody>
-          ${rows}
-        </tbody>
-      </table>
+    <section class="roadmap-status-board" aria-label="Roadmap grouped by status">
+      ${groups.map(renderRoadmapGroup).join("")}
     </section>
   `;
 }
 
-function setupSortButtons() {
-  document.querySelectorAll("[data-sort]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const sortKey = button.dataset.sort;
+function renderRoadmapGroup(group) {
+  const description = STATUS_DESCRIPTIONS[group.statusValue] || "Roadmap items in this status.";
+  const countLabel = `${group.items.length} item${group.items.length === 1 ? "" : "s"}`;
 
-      if (currentSort.key === sortKey) {
-        currentSort.direction = currentSort.direction === "asc" ? "desc" : "asc";
-      } else {
-        currentSort.key = sortKey;
-        currentSort.direction = "asc";
-      }
+  return `
+    <article class="roadmap-status-group roadmap-group-${escapeAttr(group.statusValue)}">
+      <header class="roadmap-status-head">
+        <span class="roadmap-pill status-pill status-${escapeAttr(group.statusValue)}">
+          ${escapeHtml(group.statusLabel)}
+        </span>
+        <h3>${escapeHtml(group.statusLabel)}</h3>
+        <p>${escapeHtml(description)}</p>
+        <strong>${escapeHtml(countLabel)}</strong>
+      </header>
 
-      renderFilteredRoadmap();
-    });
-  });
+      <div class="roadmap-card-grid">
+        ${group.items.map(renderRoadmapCard).join("")}
+      </div>
+    </article>
+  `;
 }
 
-function getSortIndicator(key) {
-  if (currentSort.key !== key) {
-    return `<span class="sort-indicator">↕</span>`;
-  }
-
-  return currentSort.direction === "asc"
-    ? `<span class="sort-indicator active">↑</span>`
-    : `<span class="sort-indicator active">↓</span>`;
-}
-
-function renderRoadmapRow(item) {
+function renderRoadmapCard(item) {
   const title = item.title || "Untitled item";
-  const statusValue = item.status || "under-consideration";
-  const statusLabel = getStatusLabel(statusValue);
   const tag = item.tag || "Feature";
   const priority = item.priority || "Medium";
   const sprintDue = item.sprint_due || "N/A";
   const summary = item.summary || "";
 
   return `
-    <tr>
-      <td data-label="Item">
-        <strong class="roadmap-item-title">${escapeHtml(title)}</strong>
-      </td>
-
-      <td data-label="Status">
-        <span class="roadmap-pill status-pill status-${escapeAttr(statusValue)}">
-          ${escapeHtml(statusLabel)}
-        </span>
-      </td>
-
-      <td data-label="Tag">
+    <article class="roadmap-item-card">
+      <div class="roadmap-item-card-top">
         <span class="roadmap-pill tag-pill tag-${escapeAttr(slugify(tag))}">
           ${escapeHtml(tag)}
         </span>
-      </td>
 
-      <td data-label="Priority">
         <span class="roadmap-pill priority-pill priority-${escapeAttr(slugify(priority))}">
           ${escapeHtml(priority)}
         </span>
-      </td>
+      </div>
 
-      <td data-label="Sprint due">
-        <span class="roadmap-sprint">${escapeHtml(sprintDue)}</span>
-      </td>
+      <h4>${escapeHtml(title)}</h4>
+      <p>${escapeHtml(summary)}</p>
 
-      <td data-label="Summary">
-        <span class="roadmap-summary-text">${escapeHtml(summary)}</span>
-      </td>
-    </tr>
+      <dl class="roadmap-card-meta">
+        <div>
+          <dt>Sprint due</dt>
+          <dd>${escapeHtml(sprintDue)}</dd>
+        </div>
+      </dl>
+    </article>
   `;
 }
 

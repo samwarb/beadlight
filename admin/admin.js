@@ -45,6 +45,7 @@ let tickets = [];
 let currentAdminEmail = null;
 let selectedTicketId = null;
 let loadedTicketReplies = [];
+let adminSavePopupTimer = null;
 
 const loginPanel = document.getElementById("loginPanel");
 const editorPanel = document.getElementById("editorPanel");
@@ -74,6 +75,11 @@ function initClient() {
       "Supabase is not configured yet. Add your project URL and publishable key to supabase-config.js.",
       true
     );
+    return null;
+  }
+
+  if (!window.supabase || typeof window.supabase.createClient !== "function") {
+    setLoginStatus("Admin could not connect. Refresh the page and try again.", true);
     return null;
   }
 
@@ -606,24 +612,24 @@ function getCardValues(id) {
 
 async function saveItem(id) {
   if (!currentAdminEmail) {
-    setAdminStatus("Unauthorised user.", true);
+    showAdminSavePopup("Save failed", "Unauthorised user.", true);
     return;
   }
 
   const values = getCardValues(id);
 
   if (!values) {
-    setAdminStatus("Could not find this roadmap item.", true);
+    showAdminSavePopup("Save failed", "Could not find this roadmap item.", true);
     return;
   }
 
   if (!values.title) {
-    setAdminStatus("Name is required.", true);
+    showAdminSavePopup("Save failed", "Name is required.", true);
     return;
   }
 
   if (!values.sprint_due) {
-    setAdminStatus("Sprint due is required.", true);
+    showAdminSavePopup("Save failed", "Sprint due is required.", true);
     return;
   }
 
@@ -636,17 +642,23 @@ async function saveItem(id) {
     .select();
 
   if (error) {
-    setAdminStatus("Could not save item: " + error.message, true);
+    setAdminStatus("");
+    showAdminSavePopup("Save failed", "Could not save item: " + error.message, true);
     return;
   }
 
   if (!data || data.length === 0) {
-    setAdminStatus("Nothing was saved. Your Supabase policy may be blocking updates.", true);
+    setAdminStatus("");
+    showAdminSavePopup(
+      "Save failed",
+      "Nothing was saved. Your Supabase policy may be blocking updates.",
+      true
+    );
     return;
   }
 
   await loadItems();
-  setAdminStatus("Saved.");
+  showAdminSavePopup("Saved", "Roadmap item saved successfully.");
 }
 
 async function addItem() {
@@ -1238,6 +1250,55 @@ function setAdminStatus(message, isError = false) {
   if (!adminStatus) return;
   adminStatus.textContent = message;
   adminStatus.classList.toggle("error-text", isError);
+}
+
+function showAdminSavePopup(title, message, isError = false) {
+  const popup = getAdminSavePopup();
+  if (!popup) return;
+
+  const titleNode = popup.querySelector("[data-admin-popup-title]");
+  const messageNode = popup.querySelector("[data-admin-popup-message]");
+
+  if (titleNode) titleNode.textContent = title;
+  if (messageNode) messageNode.textContent = message;
+
+  popup.classList.toggle("is-error", isError);
+  popup.classList.remove("hidden");
+
+  window.clearTimeout(adminSavePopupTimer);
+  adminSavePopupTimer = window.setTimeout(hideAdminSavePopup, 5200);
+}
+
+function hideAdminSavePopup() {
+  const popup = document.getElementById("adminSavePopup");
+  if (!popup) return;
+  popup.classList.add("hidden");
+}
+
+function getAdminSavePopup() {
+  let popup = document.getElementById("adminSavePopup");
+
+  if (popup) return popup;
+
+  popup = document.createElement("div");
+  popup.id = "adminSavePopup";
+  popup.className = "admin-save-popup hidden";
+  popup.setAttribute("role", "status");
+  popup.setAttribute("aria-live", "polite");
+  popup.innerHTML = `
+    <div class="admin-save-popup-icon" aria-hidden="true"></div>
+    <div>
+      <strong data-admin-popup-title></strong>
+      <p data-admin-popup-message></p>
+    </div>
+    <button type="button" aria-label="Close save message">Close</button>
+  `;
+
+  const closeButton = popup.querySelector("button");
+  if (closeButton) closeButton.addEventListener("click", hideAdminSavePopup);
+
+  document.body.appendChild(popup);
+  return popup;
 }
 
 function setAnalyticsStatus(message, isError = false) {
