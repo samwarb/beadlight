@@ -1,10 +1,18 @@
 const STATUSES = [
-  ["under-consideration", "Under consideration"],
-  ["planned", "Planned"],
   ["in-progress", "In progress"],
+  ["planned", "Planned"],
+  ["under-consideration", "Under consideration"],
   ["released", "Released"],
   ["not-planned", "Not planned"]
 ];
+
+const ADMIN_STATUS_DESCRIPTIONS = {
+  "in-progress": "Actively being worked on.",
+  "planned": "Committed for an upcoming sprint.",
+  "under-consideration": "Ideas being shaped or validated.",
+  "released": "Already shipped to customers.",
+  "not-planned": "Not currently on the product path."
+};
 
 const TAGS = [
   ["UI", "UI"],
@@ -428,7 +436,37 @@ function renderEditor() {
     return;
   }
 
-  editor.innerHTML = items.map(renderEditorItem).join("");
+  editor.innerHTML = `
+    <div class="admin-roadmap-groups">
+      ${STATUSES.map(renderEditorGroup).join("")}
+    </div>
+  `;
+}
+
+function renderEditorGroup([statusValue, statusLabel]) {
+  const groupItems = items.filter((item) => (item.status || "under-consideration") === statusValue);
+  const countLabel = `${groupItems.length} item${groupItems.length === 1 ? "" : "s"}`;
+  const description = ADMIN_STATUS_DESCRIPTIONS[statusValue] || "Roadmap items in this status.";
+
+  return `
+    <section class="admin-roadmap-group admin-roadmap-group-${escapeAttr(statusValue)}">
+      <header class="admin-roadmap-group-head">
+        <div>
+          <span class="roadmap-pill ${statusClass(statusValue)}">${escapeHtml(statusLabel)}</span>
+          <h3>${escapeHtml(statusLabel)}</h3>
+          <p>${escapeHtml(description)}</p>
+        </div>
+        <strong>${escapeHtml(countLabel)}</strong>
+      </header>
+
+      <div class="admin-roadmap-group-items">
+        ${groupItems.length
+          ? groupItems.map(renderEditorItem).join("")
+          : `<div class="empty-state">No ${escapeHtml(statusLabel.toLowerCase())} items.</div>`
+        }
+      </div>
+    </section>
+  `;
 }
 
 function renderEditorItem(item) {
