@@ -60,6 +60,13 @@ const editorPanel = document.getElementById("editorPanel");
 const loginStatus = document.getElementById("loginStatus");
 const adminStatus = document.getElementById("adminStatus");
 const editor = document.getElementById("itemsEditor");
+const roadmapAdminSearch = document.getElementById("roadmapAdminSearch");
+const roadmapAdminStatusFilter = document.getElementById("roadmapAdminStatusFilter");
+const roadmapAdminTagFilter = document.getElementById("roadmapAdminTagFilter");
+const roadmapAdminPriorityFilter = document.getElementById("roadmapAdminPriorityFilter");
+const roadmapAdminSort = document.getElementById("roadmapAdminSort");
+const roadmapAdminClearFilters = document.getElementById("roadmapAdminClearFilters");
+const roadmapAdminCount = document.getElementById("roadmapAdminCount");
 const headerSignOutBtn = document.getElementById("headerSignOutBtn");
 const analyticsStatus = document.getElementById("analyticsStatus");
 const analyticsTotals = document.getElementById("analyticsTotals");
@@ -110,6 +117,7 @@ async function init() {
   if (addBtn) addBtn.addEventListener("click", addItem);
   if (refreshAnalyticsBtn) refreshAnalyticsBtn.addEventListener("click", loadAnalytics);
   if (refreshTicketsBtn) refreshTicketsBtn.addEventListener("click", loadTickets);
+  setupRoadmapAdminFilters();
 
   document.querySelectorAll("[data-admin-tab]").forEach((button) => {
     button.addEventListener("click", () => switchAdminSection(button.dataset.adminTab));
@@ -424,8 +432,84 @@ async function loadItems() {
   }
 
   items = data || [];
+  populateRoadmapAdminFilters();
   renderEditor();
   setAdminStatus(`${items.length} item${items.length === 1 ? "" : "s"} loaded.`);
+}
+
+function setupRoadmapAdminFilters() {
+  [
+    roadmapAdminSearch,
+    roadmapAdminStatusFilter,
+    roadmapAdminTagFilter,
+    roadmapAdminPriorityFilter,
+    roadmapAdminSort
+  ].forEach((control) => {
+    if (!control) return;
+    control.addEventListener("input", renderEditor);
+    control.addEventListener("change", renderEditor);
+  });
+
+  if (roadmapAdminClearFilters) {
+    roadmapAdminClearFilters.addEventListener("click", clearRoadmapAdminFilters);
+  }
+}
+
+function populateRoadmapAdminFilters() {
+  populateRoadmapAdminSelect(
+    roadmapAdminStatusFilter,
+    STATUSES.map(([value, label]) => ({ value, label })),
+    "All statuses"
+  );
+
+  populateRoadmapAdminSelect(
+    roadmapAdminTagFilter,
+    getUniqueAdminRoadmapValues("tag").map((value) => ({ value, label: value })),
+    "All tags"
+  );
+
+  populateRoadmapAdminSelect(
+    roadmapAdminPriorityFilter,
+    PRIORITIES.map(([value, label]) => ({ value, label })),
+    "All priorities"
+  );
+}
+
+function populateRoadmapAdminSelect(select, options, defaultLabel) {
+  if (!select) return;
+
+  const currentValue = select.value;
+
+  select.innerHTML = `
+    <option value="">${escapeHtml(defaultLabel)}</option>
+    ${options.map(({ value, label }) => {
+      return `<option value="${escapeAttr(value)}">${escapeHtml(label)}</option>`;
+    }).join("")}
+  `;
+
+  if (options.some((option) => option.value === currentValue)) {
+    select.value = currentValue;
+  }
+}
+
+function getUniqueAdminRoadmapValues(field) {
+  return [...new Set(
+    items
+      .map((item) => item[field])
+      .filter(Boolean)
+      .map((value) => String(value).trim())
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b));
+}
+
+function clearRoadmapAdminFilters(shouldRender = true) {
+  if (roadmapAdminSearch) roadmapAdminSearch.value = "";
+  if (roadmapAdminStatusFilter) roadmapAdminStatusFilter.value = "";
+  if (roadmapAdminTagFilter) roadmapAdminTagFilter.value = "";
+  if (roadmapAdminPriorityFilter) roadmapAdminPriorityFilter.value = "";
+  if (roadmapAdminSort) roadmapAdminSort.value = "status";
+
+  if (shouldRender) renderEditor();
 }
 
 function renderEditor() {
@@ -436,17 +520,82 @@ function renderEditor() {
     return;
   }
 
+  const visibleItems = getVisibleRoadmapAdminItems();
+
+  updateRoadmapAdminCount(visibleItems.length, items.length);
+
+  if (!visibleItems.length) {
+    editor.innerHTML = `<div class="empty-state">No roadmap items match these filters.</div>`;
+    return;
+  }
+
   editor.innerHTML = `
     <div class="admin-roadmap-groups">
-      ${STATUSES.map(renderEditorGroup).join("")}
+      ${STATUSES.map((status) => renderEditorGroup(status, visibleItems)).join("")}
     </div>
   `;
 }
 
-function renderEditorGroup([statusValue, statusLabel]) {
-  const groupItems = items.filter((item) => (item.status || "under-consideration") === statusValue);
+function getVisibleRoadmapAdminItems() {
+  const searchValue = getRoadmapAdminControlValue(roadmapAdminSearch).toLowerCase();
+  const statusValue = getRoadmapAdminControlValue(roadmapAdminStatusFilter);
+  const tagValue = getRoadmapAdminControlValue(roadmapAdminTagFilter);
+  const priorityValue = getRoadmapAdminControlValue(roadmapAdminPriorityFilter);
+  const filteredItems = items.filter((item) => {
+    const status = item.status || "under-consideration";
+    const searchable = [
+      item.title,
+      item.summary,
+      item.tag,
+      item.priority,
+      item.sprint_due,
+      getRoadmapAdminStatusLabel(status)
+    ].join(" ").toLowerCase();
+
+    return (!searchValue || searchable.includes(searchValue))
+      && (!statusValue || status === statusValue)
+      && (!tagValue || item.tag === tagValue)
+      && (!priorityValue || item.priority === priorityValue);
+  });
+
+  return sortRoadmapAdminItems(filteredItems);
+}
+
+function sortRoadmapAdminItems(roadmapItems) {
+  const sortValue = getRoadmapAdminControlValue(roadmapAdminSort) || "status";
+
+  return [...roadmapItems].sort((a, b) => {
+    if (sortValue === "title") {
+      return String(a.title || "").localeCompare(String(b.title || ""));
+    }
+
+    if (sortValue === "priority") {
+      return getAdminPrioritySortValue(a.priority) - getAdminPrioritySortValue(b.priority)
+        || String(a.title || "").localeCompare(String(b.title || ""));
+    }
+
+    if (sortValue === "sprint") {
+      return getAdminSprintSortValue(a.sprint_due) - getAdminSprintSortValue(b.sprint_due)
+        || String(a.title || "").localeCompare(String(b.title || ""));
+    }
+
+    if (sortValue === "updated") {
+      return getAdminDateSortValue(b.updated_at || b.created_at)
+        - getAdminDateSortValue(a.updated_at || a.created_at);
+    }
+
+    return getAdminStatusSortValue(a.status) - getAdminStatusSortValue(b.status)
+      || getAdminPrioritySortValue(a.priority) - getAdminPrioritySortValue(b.priority)
+      || String(a.title || "").localeCompare(String(b.title || ""));
+  });
+}
+
+function renderEditorGroup([statusValue, statusLabel], visibleItems) {
+  const groupItems = visibleItems.filter((item) => (item.status || "under-consideration") === statusValue);
   const countLabel = `${groupItems.length} item${groupItems.length === 1 ? "" : "s"}`;
   const description = ADMIN_STATUS_DESCRIPTIONS[statusValue] || "Roadmap items in this status.";
+
+  if (!groupItems.length) return "";
 
   return `
     <section class="admin-roadmap-group admin-roadmap-group-${escapeAttr(statusValue)}">
@@ -467,6 +616,50 @@ function renderEditorGroup([statusValue, statusLabel]) {
       </div>
     </section>
   `;
+}
+
+function updateRoadmapAdminCount(visibleCount, totalCount) {
+  if (!roadmapAdminCount) return;
+
+  if (visibleCount === totalCount) {
+    roadmapAdminCount.textContent = `Showing all ${totalCount} roadmap item${totalCount === 1 ? "" : "s"}.`;
+    return;
+  }
+
+  roadmapAdminCount.textContent = `Showing ${visibleCount} of ${totalCount} roadmap item${totalCount === 1 ? "" : "s"}.`;
+}
+
+function getRoadmapAdminControlValue(control) {
+  return control && control.value ? control.value : "";
+}
+
+function getRoadmapAdminStatusLabel(value) {
+  const match = STATUSES.find(([status]) => status === value);
+  return match ? match[1] : titleCase(value || "under-consideration");
+}
+
+function getAdminStatusSortValue(value) {
+  const index = STATUSES.findIndex(([status]) => status === value);
+  return index === -1 ? 99 : index;
+}
+
+function getAdminPrioritySortValue(value) {
+  const index = PRIORITIES.findIndex(([priority]) => priority.toLowerCase() === String(value || "").toLowerCase());
+  return index === -1 ? 99 : index;
+}
+
+function getAdminSprintSortValue(value) {
+  if (!value || value === "N/A") return 999999;
+
+  const match = String(value).match(/(\d{4})\s*Sprint\s*(\d{1,2})/i);
+  if (!match) return 999999;
+
+  return Number(match[1]) * 100 + Number(match[2]);
+}
+
+function getAdminDateSortValue(value) {
+  const dateValue = Date.parse(value || "");
+  return Number.isNaN(dateValue) ? 0 : dateValue;
 }
 
 function renderEditorItem(item) {
@@ -730,6 +923,7 @@ async function addItem() {
     return;
   }
 
+  clearRoadmapAdminFilters(false);
   await loadItems();
   setAdminStatus("New item added.");
 }

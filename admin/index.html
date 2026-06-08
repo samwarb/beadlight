@@ -122,6 +122,52 @@
             <button class="primary-button" id="addBtn" type="button">Add item</button>
           </div>
 
+          <div class="admin-roadmap-tools" aria-label="Roadmap search and filters">
+            <div class="admin-roadmap-tool-grid">
+              <label class="admin-roadmap-search-label">
+                <span>Search</span>
+                <input id="roadmapAdminSearch" type="search" placeholder="Find by title, summary, tag or sprint">
+              </label>
+
+              <label>
+                <span>Status</span>
+                <select id="roadmapAdminStatusFilter">
+                  <option value="">All statuses</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Tag</span>
+                <select id="roadmapAdminTagFilter">
+                  <option value="">All tags</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Priority</span>
+                <select id="roadmapAdminPriorityFilter">
+                  <option value="">All priorities</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Sort</span>
+                <select id="roadmapAdminSort">
+                  <option value="status">Status order</option>
+                  <option value="updated">Recently updated</option>
+                  <option value="priority">Priority</option>
+                  <option value="sprint">Sprint due</option>
+                  <option value="title">Title A-Z</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="admin-roadmap-tool-footer">
+              <p id="roadmapAdminCount">Loading roadmap items...</p>
+              <button class="secondary-button" id="roadmapAdminClearFilters" type="button">Clear filters</button>
+            </div>
+          </div>
+
           <div id="itemsEditor" class="items-editor"></div>
           <div id="adminStatus" class="admin-status"></div>
         </div>

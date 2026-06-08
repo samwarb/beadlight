@@ -698,6 +698,7 @@ textarea:focus {
 }
 
 .roadmap-summary-card {
+  min-width: 0;
   border-radius: 12px;
   padding: 18px;
   background: rgba(255, 255, 255, 0.62);
@@ -711,6 +712,12 @@ textarea:focus {
   font-weight: 900;
   line-height: 1;
   margin-bottom: 6px;
+}
+
+.roadmap-summary-card strong {
+  display: block;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .roadmap-status-board {
@@ -731,6 +738,7 @@ textarea:focus {
 }
 
 .roadmap-status-head {
+  min-width: 0;
   display: grid;
   gap: 10px;
   align-content: start;
@@ -742,6 +750,7 @@ textarea:focus {
   line-height: 1.05;
   letter-spacing: 0;
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .roadmap-status-head p {
@@ -1164,6 +1173,49 @@ textarea:focus {
 .items-editor {
   display: grid;
   gap: 18px;
+}
+
+.admin-roadmap-tools {
+  margin-bottom: 20px;
+  padding: 18px;
+  border: 1px solid rgba(177, 122, 35, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.46);
+}
+
+.admin-roadmap-tool-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.4fr) repeat(4, minmax(150px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.admin-roadmap-tool-grid label {
+  display: grid;
+  gap: 7px;
+}
+
+.admin-roadmap-tool-grid label > span {
+  color: rgba(31, 36, 48, 0.62);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-roadmap-tool-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.admin-roadmap-tool-footer p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 850;
 }
 
 .admin-roadmap-groups {
@@ -1602,6 +1654,14 @@ textarea:focus {
 }
 
 @media (max-width: 980px) {
+  .admin-roadmap-tool-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-roadmap-search-label {
+    grid-column: 1 / -1;
+  }
+
   .ticket-workspace {
     grid-template-columns: 1fr;
   }
@@ -1640,6 +1700,7 @@ textarea:focus {
   }
 
   .admin-section-heading,
+  .admin-roadmap-tool-footer,
   .admin-roadmap-group-head,
   .ticket-detail-head {
     display: grid;
@@ -1657,12 +1718,14 @@ textarea:focus {
   }
 
   .ticket-toolbar,
+  .admin-roadmap-tool-grid,
   .ticket-detail-meta,
   .ticket-edit-grid {
     grid-template-columns: 1fr;
   }
 
-  .ticket-search-label {
+  .ticket-search-label,
+  .admin-roadmap-search-label {
     grid-column: auto;
   }
 }
