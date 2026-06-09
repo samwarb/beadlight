@@ -305,10 +305,12 @@ async function loadAnalytics() {
 
 function renderAnalyticsLoading() {
   if (analyticsTotals) {
-    analyticsTotals.innerHTML = renderAnalyticsCard("...", "Completed steps")
-      + renderAnalyticsCard("...", "Decades completed")
-      + renderAnalyticsCard("...", "Full rosaries")
-      + renderAnalyticsCard("...", "Anonymous devices");
+    analyticsTotals.innerHTML = renderAnalyticsCard("...", "Total prayers")
+      + renderAnalyticsCard("...", "Total rosaries")
+      + renderAnalyticsCard("...", "Account users")
+      + renderAnalyticsCard("...", "Anonymous devices")
+      + renderAnalyticsCard("...", "Prayers this week")
+      + renderAnalyticsCard("...", "Rosaries this week");
   }
 
   if (analyticsDaily) {
@@ -332,10 +334,12 @@ function renderAnalyticsTotals(totals) {
   if (!analyticsTotals) return;
 
   analyticsTotals.innerHTML = [
-    renderAnalyticsCard(formatNumber(totals.completed_steps), "Completed steps"),
-    renderAnalyticsCard(formatNumber(totals.completed_decades), "Decades completed"),
-    renderAnalyticsCard(formatNumber(totals.completed_rosaries), "Full rosaries"),
-    renderAnalyticsCard(formatNumber(totals.anonymous_devices), "Anonymous devices")
+    renderAnalyticsCard(formatNumber(totals.total_prayers ?? totals.completed_steps), "Total prayers"),
+    renderAnalyticsCard(formatNumber(totals.total_rosaries ?? totals.completed_rosaries), "Total rosaries"),
+    renderAnalyticsCard(formatNumber(totals.account_users), "Account users"),
+    renderAnalyticsCard(formatNumber(totals.anonymous_devices), "Anonymous devices"),
+    renderAnalyticsCard(formatNumber(totals.prayers_this_week), "Prayers this week"),
+    renderAnalyticsCard(formatNumber(totals.rosaries_this_week), "Rosaries this week")
   ].join("");
 }
 
@@ -372,9 +376,9 @@ function renderDailyAnalytics(rows) {
           ${rows.map((row) => `
             <tr>
               <td>${escapeHtml(formatDate(row.prayer_date))}</td>
-              <td>${escapeHtml(formatNumber(row.completed_steps))}</td>
-              <td>${escapeHtml(formatNumber(row.completed_decades))}</td>
-              <td>${escapeHtml(formatNumber(row.completed_rosaries))}</td>
+              <td>${escapeHtml(formatNumber(row.total_prayers ?? row.completed_steps))}</td>
+              <td>${escapeHtml(formatNumber(row.total_rosaries ?? row.completed_rosaries))}</td>
+              <td>${escapeHtml(formatNumber(row.total_sessions))}</td>
               <td>${escapeHtml(formatNumber(row.anonymous_devices))}</td>
             </tr>
           `).join("")}
@@ -407,9 +411,9 @@ function renderMysteryAnalytics(rows) {
           ${rows.map((row) => `
             <tr>
               <td>${escapeHtml(titleCase(row.mystery_set || "Unknown"))}</td>
-              <td>${escapeHtml(formatNumber(row.completed_steps))}</td>
-              <td>${escapeHtml(formatNumber(row.completed_decades))}</td>
-              <td>${escapeHtml(formatNumber(row.completed_rosaries))}</td>
+              <td>${escapeHtml(formatNumber(row.total_prayers ?? row.completed_steps))}</td>
+              <td>${escapeHtml(formatNumber(row.total_rosaries ?? row.completed_rosaries))}</td>
+              <td>${escapeHtml(formatNumber(row.total_sessions))}</td>
             </tr>
           `).join("")}
         </tbody>
