@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Beadlight Support</title>
-  <meta name="description" content="Contact Beadlight support or send a suggestion.">
+  <meta name="description" content="Contact Beadlight support, request account deletion, or send a suggestion.">
   <link rel="stylesheet" href="../styles.css">
   <link rel="icon" href="../assets/beadlight-icon.png">
 </head>
@@ -32,9 +32,53 @@
         <p class="eyebrow">Support & suggestions</p>
         <h1>How can we help?</h1>
         <p class="lead">
-          Send a support request, report a bug, or suggest an improvement for Beadlight.
+          Send a support request, request account deletion, report a bug, or suggest an
+          improvement for Beadlight.
         </p>
       </div>
+    </section>
+
+    <section id="delete-account" class="support-info-card" aria-labelledby="deleteAccountTitle">
+      <div>
+        <p class="eyebrow">Account deletion</p>
+        <h2 id="deleteAccountTitle">Request deletion of your Beadlight account</h2>
+        <p>
+          Beadlight users can ask for their app account and associated Beadlight data to be deleted.
+          Use the support form below and choose <strong>Account deletion</strong>, or email
+          <a href="mailto:support@merciandigital.co.uk?subject=Beadlight%20account%20deletion%20request">support@merciandigital.co.uk</a>.
+        </p>
+      </div>
+
+      <div>
+        <div>
+          <h3>What to include</h3>
+          <ul>
+            <li>The email address used for your Beadlight account.</li>
+            <li>A clear request to delete your Beadlight account and associated data.</li>
+            <li>Any details that help us identify the account if your current email is different.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3>What is deleted or retained</h3>
+          <p>
+            We delete your Beadlight account and Beadlight-owned cloud data linked to that account,
+            including account-linked prayer journey records where applicable. We may retain limited
+            records when required for security, fraud prevention, purchase verification, accounting,
+            tax, legal obligations, or to keep a record of the deletion request. Anonymous or
+            aggregate prayer analytics that are not linked to your account may not be identifiable
+            for individual deletion.
+          </p>
+        </div>
+      </div>
+
+      <p>
+        Account deletion does not cancel Apple or Google Play subscriptions. Please manage active
+        subscriptions through your app store subscription settings. We aim to review deletion
+        requests as soon as reasonably possible, normally within 30 days.
+      </p>
+
+      <a class="primary-button" href="#supportForm" data-account-deletion-trigger>Start deletion request</a>
     </section>
 
     <section class="support-layout">
@@ -67,6 +111,7 @@
               <option value="Bug report">Bug report</option>
               <option value="Feature request">Feature request</option>
               <option value="Subscription / purchase issue">Subscription / purchase issue</option>
+              <option value="Account deletion">Account deletion</option>
               <option value="Other">Other</option>
             </select>
           </label>
@@ -143,6 +188,7 @@
     const supportForm = document.getElementById("supportForm");
     const supportStatus = document.getElementById("supportStatus");
     const supportSubmitBtn = document.getElementById("supportSubmitBtn");
+    const deletionTrigger = document.querySelector("[data-account-deletion-trigger]");
 
     supportForm.addEventListener("submit", async function (event) {
       event.preventDefault();
@@ -213,6 +259,25 @@
     function showSupportStatus(message, isError) {
       supportStatus.textContent = message;
       supportStatus.classList.toggle("error-text", isError);
+    }
+
+    function prepareAccountDeletionRequest() {
+      document.getElementById("ticketType").value = "Account deletion";
+      document.getElementById("ticketPriority").value = "Normal";
+      document.getElementById("ticketSubject").value = "Beadlight account deletion request";
+      document.getElementById("ticketMessage").value =
+        "Please delete my Beadlight account and associated Beadlight data. The email address for my Beadlight account is: ";
+      showSupportStatus("Account deletion request selected. Add your account email and send the form.", false);
+    }
+
+    if (deletionTrigger) {
+      deletionTrigger.addEventListener("click", function () {
+        prepareAccountDeletionRequest();
+      });
+    }
+
+    if (window.location.hash === "#delete-account" || window.location.search.includes("account-deletion")) {
+      prepareAccountDeletionRequest();
     }
   </script>
 </body>
