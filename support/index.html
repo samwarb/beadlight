@@ -1,84 +1,68 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-site-root="..">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Beadlight Support</title>
-  <meta name="description" content="Contact Beadlight support, request account deletion, or send a suggestion.">
+  <title>Beadlight Support - Help and Feedback</title>
+  <meta name="description" content="Contact Beadlight support, report a bug or suggest an improvement for the Catholic Rosary app.">
+  <link rel="canonical" href="https://beadlight.merciandigital.co.uk/support/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Beadlight">
+  <meta property="og:title" content="Beadlight Support">
+  <meta property="og:description" content="Send support requests, bug reports and suggestions for Beadlight.">
+  <meta property="og:url" content="https://beadlight.merciandigital.co.uk/support/">
+  <meta property="og:image" content="https://beadlight.merciandigital.co.uk/assets/app-preview.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Beadlight Support">
+  <meta name="twitter:description" content="Contact Beadlight support, report a bug or suggest an improvement.">
+  <meta name="twitter:image" content="https://beadlight.merciandigital.co.uk/assets/app-preview.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../marketing.css">
   <link rel="icon" href="../assets/beadlight-icon.png">
+  <link rel="apple-touch-icon" href="../assets/beadlight-icon.png">
+  <link rel="manifest" href="../site.webmanifest">
 </head>
 
-<body>
-  <div class="page-glow"></div>
+<body class="marketing-page support-public-page">
+  <a class="skip-link" href="#main">Skip to content</a>
 
-  <header class="site-header">
-    <a class="brand" href="../">
-      <img src="../assets/beadlight-icon.png" alt="">
-      <span>Beadlight</span>
+  <header class="site-header marketing-header" data-site-header>
+    <a class="brand" href="../" aria-label="Beadlight home">
+      <img src="../assets/beadlight-icon.png" alt="" width="50" height="50">
+      <span>
+        <strong>Beadlight</strong>
+        <small>Rosary prayer companion</small>
+      </span>
     </a>
 
-    <nav>
-      <a href="../">Home</a>
-      <a href="../roadmap/">Roadmap</a>
-      <a href="../support/" aria-current="page">Support</a>
-      <a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight/id6773049841">Download</a>
+    <nav class="site-nav" id="siteNav" aria-label="Primary navigation">
+      <a href="../#features">Features</a>
+      <a href="../#guided-audio">Guided Audio</a>
+      <a href="../#pricing">Pricing</a>
+      <a href="../#story">Our Story</a>
+      <a href="../support/" aria-current="page" data-analytics-event="support_navigation">Support</a>
     </nav>
+
+    <div class="header-actions">
+      <a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841" data-analytics-event="app_store_click">Download free</a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="siteNav" data-menu-toggle>
+        <span>Menu</span>
+      </button>
+    </div>
   </header>
 
-  <main class="support-page">
+  <main class="support-page" id="main">
     <section class="support-hero">
       <div>
-        <p class="eyebrow">Support & suggestions</p>
+        <p class="eyebrow">Support &amp; suggestions</p>
         <h1>How can we help?</h1>
         <p class="lead">
-          Send a support request, request account deletion, report a bug, or suggest an
-          improvement for Beadlight.
+          Send a support request, report a bug, or suggest an improvement for Beadlight.
         </p>
       </div>
-    </section>
-
-    <section id="delete-account" class="support-info-card" aria-labelledby="deleteAccountTitle">
-      <div>
-        <p class="eyebrow">Account deletion</p>
-        <h2 id="deleteAccountTitle">Request deletion of your Beadlight account</h2>
-        <p>
-          Beadlight users can ask for their app account and associated Beadlight data to be deleted.
-          Use the support form below and choose <strong>Account deletion</strong>, or email
-          <a href="mailto:support@merciandigital.co.uk?subject=Beadlight%20account%20deletion%20request">support@merciandigital.co.uk</a>.
-        </p>
-      </div>
-
-      <div>
-        <div>
-          <h3>What to include</h3>
-          <ul>
-            <li>The email address used for your Beadlight account.</li>
-            <li>A clear request to delete your Beadlight account and associated data.</li>
-            <li>Any details that help us identify the account if your current email is different.</li>
-          </ul>
-        </div>
-
-        <div>
-          <h3>What is deleted or retained</h3>
-          <p>
-            We delete your Beadlight account and Beadlight-owned cloud data linked to that account,
-            including account-linked prayer journey records where applicable. We may retain limited
-            records when required for security, fraud prevention, purchase verification, accounting,
-            tax, legal obligations, or to keep a record of the deletion request. Anonymous or
-            aggregate prayer analytics that are not linked to your account may not be identifiable
-            for individual deletion.
-          </p>
-        </div>
-      </div>
-
-      <p>
-        Account deletion does not cancel Apple or Google Play subscriptions. Please manage active
-        subscriptions through your app store subscription settings. We aim to review deletion
-        requests as soon as reasonably possible, normally within 30 days.
-      </p>
-
-      <a class="primary-button" href="#supportForm" data-account-deletion-trigger>Start deletion request</a>
     </section>
 
     <section class="support-layout">
@@ -111,7 +95,6 @@
               <option value="Bug report">Bug report</option>
               <option value="Feature request">Feature request</option>
               <option value="Subscription / purchase issue">Subscription / purchase issue</option>
-              <option value="Account deletion">Account deletion</option>
               <option value="Other">Other</option>
             </select>
           </label>
@@ -163,7 +146,7 @@
         <ul>
           <li>What you were trying to do</li>
           <li>What went wrong or what you expected</li>
-          <li>Your device model and iOS version</li>
+          <li>Your device model, operating system and Beadlight app version if known</li>
           <li>Whether it relates to guided audio, mysteries, subscriptions, or the roadmap</li>
         </ul>
       </aside>
@@ -171,16 +154,30 @@
   </main>
 
   <footer class="site-footer">
-    <p>© Beadlight</p>
-
-    <div>
-      <a href="../privacy/">Privacy</a>
-      <a href="../roadmap/">Roadmap</a>
-      <a href="../admin/">Admin</a>
+    <div class="footer-brand">
+      <a class="brand" href="../" aria-label="Beadlight home">
+        <img src="../assets/beadlight-icon.png" alt="" width="44" height="44">
+        <span><strong>Beadlight</strong></span>
+      </a>
+      <p>Beadlight handles the sequence, so you can focus on the prayer.</p>
     </div>
+
+    <nav aria-label="Footer navigation">
+      <a href="../#features">Features</a>
+      <a href="../#pricing">Pricing</a>
+      <a href="../#story">Our Story</a>
+      <a href="../privacy/">Privacy</a>
+      <a href="../support/" data-analytics-event="support_navigation">Support</a>
+      <a href="../roadmap/">Roadmap</a>
+      <a href="../how-to-pray-the-rosary/">How to Pray the Rosary</a>
+      <a href="https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841" data-analytics-event="app_store_click">App Store</a>
+    </nav>
+
+    <p class="copyright">&copy; 2026 Beadlight.</p>
   </footer>
 
   <script src="../supabase-config.js"></script>
+  <a class="mobile-download-bar" href="https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841" data-analytics-event="app_store_click">Download Beadlight free</a>
 
   <script>
     const SUPPORT_FUNCTION_URL = "https://ibfdpdjknxcbvuqmvimz.supabase.co/functions/v1/dynamic-endpoint";
@@ -188,7 +185,6 @@
     const supportForm = document.getElementById("supportForm");
     const supportStatus = document.getElementById("supportStatus");
     const supportSubmitBtn = document.getElementById("supportSubmitBtn");
-    const deletionTrigger = document.querySelector("[data-account-deletion-trigger]");
 
     supportForm.addEventListener("submit", async function (event) {
       event.preventDefault();
@@ -261,24 +257,7 @@
       supportStatus.classList.toggle("error-text", isError);
     }
 
-    function prepareAccountDeletionRequest() {
-      document.getElementById("ticketType").value = "Account deletion";
-      document.getElementById("ticketPriority").value = "Normal";
-      document.getElementById("ticketSubject").value = "Beadlight account deletion request";
-      document.getElementById("ticketMessage").value =
-        "Please delete my Beadlight account and associated Beadlight data. The email address for my Beadlight account is: ";
-      showSupportStatus("Account deletion request selected. Add your account email and send the form.", false);
-    }
-
-    if (deletionTrigger) {
-      deletionTrigger.addEventListener("click", function () {
-        prepareAccountDeletionRequest();
-      });
-    }
-
-    if (window.location.hash === "#delete-account" || window.location.search.includes("account-deletion")) {
-      prepareAccountDeletionRequest();
-    }
   </script>
+  <script src="../site.js" defer></script>
 </body>
 </html>

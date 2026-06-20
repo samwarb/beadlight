@@ -1,632 +1,480 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-site-root=".">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Beadlight — A calmer way to pray the Rosary</title>
-  <meta name="description" content="Beadlight is a calm, focused Rosary app with guided prayer, mystery selection, light and dark mode, and a peaceful design.">
+  <title>Beadlight - A Calmer Way to Pray the Rosary</title>
+  <meta name="description" content="Follow every mystery, prayer and bead with Beadlight, a peaceful Rosary app with guided audio, hands-free prayer and simple bead-by-bead guidance.">
+  <link rel="canonical" href="https://beadlight.merciandigital.co.uk/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Beadlight">
+  <meta property="og:title" content="Beadlight - A Calmer Way to Pray the Rosary">
+  <meta property="og:description" content="A peaceful Catholic Rosary app with guided audio, hands-free prayer and simple bead-by-bead guidance.">
+  <meta property="og:url" content="https://beadlight.merciandigital.co.uk/">
+  <meta property="og:image" content="https://beadlight.merciandigital.co.uk/assets/app-preview.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Beadlight - A Calmer Way to Pray the Rosary">
+  <meta name="twitter:description" content="Follow every mystery, prayer and bead with Beadlight.">
+  <meta name="twitter:image" content="https://beadlight.merciandigital.co.uk/assets/app-preview.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="marketing.css">
   <link rel="icon" href="assets/beadlight-icon.png">
-
-  <style>
-    .home-hero-clean {
-      position: relative;
-      min-height: calc(100vh - 72px);
-      padding-top: clamp(52px, 7vw, 76px);
-      padding-bottom: clamp(42px, 6vw, 72px);
-      overflow: hidden;
-      isolation: isolate;
-    }
-
-    .home-hero-clean::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: -3;
-      background:
-        linear-gradient(90deg, rgba(255, 250, 242, 0.98) 0%, rgba(255, 250, 242, 0.92) 34%, rgba(255, 250, 242, 0.38) 58%, rgba(255, 250, 242, 0.1) 100%),
-        url("beadlight-screenshot-calm-guidance.jpeg") right center / min(52vw, 790px) auto no-repeat;
-      opacity: 0.98;
-    }
-
-    .home-hero-clean::after {
-      content: "";
-      position: absolute;
-      inset: auto 0 0;
-      height: 220px;
-      z-index: -2;
-      background: linear-gradient(0deg, rgba(255, 248, 238, 1), rgba(255, 248, 238, 0));
-      pointer-events: none;
-    }
-
-    .home-hero-showcase {
-      width: min(1180px, calc(100% - 48px));
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: minmax(0, 0.96fr) minmax(300px, 0.7fr);
-      gap: clamp(28px, 4vw, 64px);
-      align-items: center;
-      position: relative;
-      z-index: 1;
-    }
-
-    .home-hero-inner {
-      max-width: 640px;
-    }
-
-    .hero-actions .button-icon,
-    .nav-pill .button-icon,
-    .download-section .button-icon {
-      margin-left: 8px;
-      font-size: 1rem;
-      line-height: 1;
-    }
-
-    .hero-carousel {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 0;
-      perspective: 1200px;
-    }
-
-    .carousel-shell {
-      position: relative;
-      width: min(100%, 280px);
-      padding: 10px;
-      border-radius: 42px;
-      background: linear-gradient(145deg, #1c1c1d 0%, #0b0b0c 100%);
-      border: 1px solid rgba(255, 255, 255, 0.55);
-      box-shadow:
-        0 30px 72px rgba(70, 48, 22, 0.28),
-        0 8px 18px rgba(70, 48, 22, 0.16);
-      transform: rotate(4deg);
-    }
-
-    .carousel-shell::before {
-      content: "";
-      position: absolute;
-      top: 22px;
-      left: 50%;
-      z-index: 8;
-      width: 92px;
-      height: 26px;
-      border-radius: 999px;
-      background: #111;
-      transform: translateX(-50%);
-      box-shadow: inset 22px 0 0 rgba(255, 255, 255, 0.04);
-      pointer-events: none;
-    }
-
-    .carousel-frame {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 710 / 1536;
-      border-radius: 32px;
-      overflow: hidden;
-      background: #f7efe3;
-      transform-style: preserve-3d;
-    }
-
-    .carousel-slide {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 32px;
-      opacity: 0;
-      visibility: hidden;
-      transform-origin: center center;
-      backface-visibility: hidden;
-      filter: saturate(0.98) contrast(1.01);
-      transition:
-        transform 650ms cubic-bezier(.2, .72, .18, 1),
-        opacity 220ms ease,
-        visibility 650ms ease;
-      will-change: transform, opacity;
-    }
-
-    .carousel-slide.is-active {
-      opacity: 1;
-      visibility: visible;
-      z-index: 3;
-      transform: rotateY(0deg) scale(1);
-    }
-
-    .carousel-slide.is-exiting-next {
-      opacity: 0;
-      visibility: visible;
-      z-index: 2;
-      transform: rotateY(-82deg) translateX(-18%) scale(0.92);
-    }
-
-    .carousel-slide.is-entering-next {
-      opacity: 1;
-      visibility: visible;
-      z-index: 4;
-      animation: spinInNext 650ms cubic-bezier(.2, .72, .18, 1) both;
-    }
-
-    .carousel-slide.is-exiting-prev {
-      opacity: 0;
-      visibility: visible;
-      z-index: 2;
-      transform: rotateY(82deg) translateX(18%) scale(0.92);
-    }
-
-    .carousel-slide.is-entering-prev {
-      opacity: 1;
-      visibility: visible;
-      z-index: 4;
-      animation: spinInPrev 650ms cubic-bezier(.2, .72, .18, 1) both;
-    }
-
-    @keyframes spinInNext {
-      from { opacity: 0; transform: rotateY(82deg) translateX(18%) scale(0.92); }
-      45% { opacity: 1; }
-      to { opacity: 1; transform: rotateY(0deg) translateX(0) scale(1); }
-    }
-
-    @keyframes spinInPrev {
-      from { opacity: 0; transform: rotateY(-82deg) translateX(-18%) scale(0.92); }
-      45% { opacity: 1; }
-      to { opacity: 1; transform: rotateY(0deg) translateX(0) scale(1); }
-    }
-
-    .carousel-dots {
-      position: absolute;
-      left: 50%;
-      bottom: 34px;
-      z-index: 9;
-      display: flex;
-      gap: 7px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      background: rgba(255, 250, 242, 0.72);
-      border: 1px solid rgba(183, 121, 24, 0.16);
-      backdrop-filter: blur(14px);
-      transform: translateX(-50%) rotate(4deg);
-    }
-
-    .carousel-dot {
-      width: 7px;
-      height: 7px;
-      border: 0;
-      border-radius: 50%;
-      padding: 0;
-      cursor: pointer;
-      background: rgba(183, 121, 24, 0.34);
-    }
-
-    .carousel-dot.is-active {
-      background: rgba(183, 121, 24, 0.95);
-      transform: scale(1.25);
-    }
-
-    .testimonial-band {
-      min-height: 150px;
-      display: grid;
-      place-items: center;
-      margin: -34px 0 54px;
-      padding: 28px 24px;
-      background:
-        linear-gradient(90deg, rgba(90, 58, 19, 0.38), rgba(255, 246, 231, 0.92) 34%, rgba(255, 246, 231, 0.92) 100%),
-        url("beadlight-screenshot-hands-free.jpeg") left 60% / 430px auto no-repeat;
-      border-top: 1px solid rgba(165, 111, 35, 0.16);
-      border-bottom: 1px solid rgba(165, 111, 35, 0.16);
-    }
-
-    .testimonial-band blockquote {
-      width: min(700px, calc(100% - 32px));
-      margin: 0;
-      color: var(--ink);
-      text-align: center;
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(1.2rem, 2vw, 1.55rem);
-      font-style: italic;
-      line-height: 1.35;
-    }
-
-    .testimonial-band blockquote::before {
-      content: "“";
-      display: block;
-      color: var(--gold-dark);
-      font-size: 3.2rem;
-      font-style: normal;
-      line-height: 0.72;
-    }
-
-    .testimonial-band cite {
-      display: block;
-      margin-top: 8px;
-      color: rgba(32, 36, 49, 0.7);
-      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-      font-size: 0.88rem;
-      font-style: normal;
-      font-weight: 800;
-    }
-
-    .how-it-works {
-      display: grid;
-      grid-template-columns: minmax(0, 0.92fr) minmax(300px, 0.78fr);
-      gap: clamp(28px, 4vw, 58px);
-      align-items: center;
-    }
-
-    .step-list {
-      display: grid;
-      gap: 16px;
-      margin: 28px 0 0;
-    }
-
-    .step-list li {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 14px;
-      align-items: start;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-
-    .step-list span {
-      width: 34px;
-      height: 34px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      background: rgba(183, 121, 24, 0.13);
-      color: var(--gold-dark);
-      font-weight: 950;
-    }
-
-    .showcase-image {
-      width: min(100%, 460px);
-      margin-inline: auto;
-      display: block;
-      border-radius: 30px;
-      box-shadow: 0 24px 70px rgba(64, 43, 19, 0.16);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .carousel-slide,
-      .carousel-slide.is-entering-next,
-      .carousel-slide.is-entering-prev {
-        animation: none;
-        transition: opacity 200ms ease;
-        transform: none;
-      }
-    }
-
-    @media (max-width: 980px) {
-      .home-hero-clean {
-        min-height: auto;
-      }
-
-      .home-hero-clean::before {
-        background:
-          linear-gradient(180deg, rgba(255, 250, 242, 0.98) 0%, rgba(255, 250, 242, 0.9) 54%, rgba(255, 250, 242, 0.32) 100%),
-          url("beadlight-screenshot-calm-guidance.jpeg") center bottom / min(96vw, 660px) auto no-repeat;
-      }
-
-      .home-hero-showcase,
-      .how-it-works {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-carousel {
-        min-height: auto;
-      }
-
-      .carousel-shell {
-        width: min(68vw, 300px);
-        transform: rotate(0deg);
-      }
-
-      .carousel-dots {
-        transform: translateX(-50%);
-      }
-    }
-
-    @media (max-width: 640px) {
-      .home-hero-clean {
-        padding-top: 46px;
-      }
-
-      .home-hero-showcase {
-        width: calc(100% - 32px);
-      }
-
-      .home-hero-clean::before {
-        background:
-          linear-gradient(180deg, rgba(255, 250, 242, 0.99) 0%, rgba(255, 250, 242, 0.94) 62%, rgba(255, 250, 242, 0.24) 100%),
-          url("beadlight-screenshot-calm-guidance.jpeg") center bottom / 118vw auto no-repeat;
-      }
-
-      .carousel-shell {
-        width: min(78vw, 280px);
-      }
-
-      .hero-carousel {
-        display: none;
-      }
-
-      .testimonial-band {
-        margin-top: -18px;
-        background:
-          linear-gradient(90deg, rgba(255, 246, 231, 0.94), rgba(255, 246, 231, 0.94)),
-          url("beadlight-screenshot-hands-free.jpeg") left center / 360px auto no-repeat;
-      }
-    }
-  </style>
+  <link rel="apple-touch-icon" href="assets/beadlight-icon.png">
+  <link rel="manifest" href="site.webmanifest">
 </head>
 
-<body>
-  <div class="page-glow"></div>
+<body class="marketing-page home-page">
+  <a class="skip-link" href="#main">Skip to content</a>
 
-  <header class="site-header">
+  <header class="site-header marketing-header" data-site-header>
     <a class="brand" href="./" aria-label="Beadlight home">
-      <img src="assets/beadlight-icon.png" alt="">
+      <img src="assets/beadlight-icon.png" alt="" width="50" height="50">
       <span>
-        <strong>BeadLight</strong>
+        <strong>Beadlight</strong>
         <small>Rosary prayer companion</small>
       </span>
     </a>
 
-    <nav>
-      <a href="./" aria-current="page">Home</a>
+    <nav class="site-nav" id="siteNav" aria-label="Primary navigation">
       <a href="#features">Features</a>
-      <a href="#how-it-works">How it works</a>
-      <a href="#about">About</a>
-      <a href="./roadmap/">Roadmap</a>
-      <a href="./support/">Support</a>
-      <a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight/id6773049841">
-        Download App <span class="button-icon" aria-hidden="true">↓</span>
-      </a>
+      <a href="#guided-audio">Guided Audio</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#story">Our Story</a>
+      <a href="./support/" data-analytics-event="support_navigation">Support</a>
     </nav>
+
+    <div class="header-actions">
+      <a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841" data-analytics-event="app_store_click">Download free</a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="siteNav" data-menu-toggle>
+        <span>Menu</span>
+      </button>
+    </div>
   </header>
 
-  <main>
-    <section class="home-hero-clean">
-      <div class="home-hero-showcase">
-        <div class="home-hero-inner">
-          <p class="eyebrow">Rosary prayer companion</p>
-
-          <h1>A calmer way to pray the Rosary.</h1>
-
+  <main id="main">
+    <section class="hero-section" aria-labelledby="hero-title">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Beadlight handles the sequence, so you can focus on the prayer.</p>
+          <h1 id="hero-title">Pray the Rosary without losing your place.</h1>
           <p class="lead">
-            BeadLight helps you choose your mysteries, follow each bead, and stay focused in prayer
-            with a simple guided Rosary experience — now with a softer light and dark mode design.
+            Beadlight gently guides you through every mystery, prayer and bead, helping you spend less time checking what comes next and more time present with God.
           </p>
 
           <div class="hero-actions">
-            <a class="primary-button" href="https://apps.apple.com/gb/app/beadlight/id6773049841">
-              Download on the App Store <span class="button-icon" aria-hidden="true">↓</span>
-            </a>
-
-            <a class="secondary-button" href="#features">
-              View features
-            </a>
+            <a class="primary-button" href="https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841" data-analytics-event="hero_download_click app_store_click">Download free</a>
+            <a class="secondary-button" href="#how-it-works" data-analytics-event="secondary_demo_click">Watch how it works</a>
           </div>
 
-          <div class="hero-points">
-            <span>Guided Prayers</span>
-            <span>Mystery Selection</span>
-            <span>Light & Dark Mode</span>
-            <span>Peaceful Design</span>
-          </div>
+          <ul class="reassurance-list" aria-label="Beadlight reassurance">
+            <li>Free to begin</li>
+            <li>No adverts</li>
+            <li>Account optional</li>
+          </ul>
         </div>
 
-        <div class="hero-carousel" aria-label="Beadlight app screenshots carousel">
-          <div class="carousel-shell">
-            <div class="carousel-frame" id="beadlightCarousel">
-              <img class="carousel-slide is-active" src="beadlight-screenshot-calm-guidance.jpeg" alt="Beadlight calm guidance screenshot">
-              <img class="carousel-slide" src="beadlight-screenshot-hands-free.jpeg" alt="Beadlight hands-free prayer screenshot">
-              <img class="carousel-slide" src="beadlight-screenshot-return-to-prayer.jpeg" alt="Beadlight peaceful prayer screenshot">
-              <img class="carousel-slide" src="beadlight-screenshot-mysteries.jpeg" alt="Beadlight mysteries selection screenshot">
-              <img class="carousel-slide" src="beadlight-screenshot-dark-mode.png" alt="Beadlight light and dark mode screenshot">
+        <div class="hero-product" aria-label="Beadlight app preview">
+          <div class="phone-stage">
+            <img class="hero-phone" src="assets/app-preview.png" width="970" height="1532" alt="Beadlight app screen showing mystery selection and a Start Rosary button" fetchpriority="high">
+
+            <div class="floating-card floating-card-today">
+              <span>Suggested today</span>
+              <strong data-daily-mystery>Traditional mystery</strong>
+            </div>
+
+            <div class="floating-card floating-card-audio">
+              <span>Guided audio</span>
+              <strong>Voice, speed and background sounds</strong>
+            </div>
+
+            <div class="floating-card floating-card-progress">
+              <span>Prayer progress</span>
+              <strong>Glory Be - 7 of 10</strong>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
 
-          <div class="carousel-dots" aria-label="Carousel controls">
-            <button class="carousel-dot is-active" type="button" aria-label="Show screenshot 1"></button>
-            <button class="carousel-dot" type="button" aria-label="Show screenshot 2"></button>
-            <button class="carousel-dot" type="button" aria-label="Show screenshot 3"></button>
-            <button class="carousel-dot" type="button" aria-label="Show screenshot 4"></button>
-            <button class="carousel-dot" type="button" aria-label="Show screenshot 5"></button>
+    <section class="trust-strip" aria-label="Product reassurance">
+      <ul>
+        <li>Complete Rosary guidance</li>
+        <li>Guided audio</li>
+        <li>Hands-free prayer</li>
+        <li>No advertising tracking</li>
+        <li>Light and dark mode</li>
+        <li>iPhone available. Android in progress.</li>
+      </ul>
+    </section>
+
+    <section class="problem-section section-pad" aria-labelledby="problem-title">
+      <div class="section-kicker">Why it helps</div>
+      <div class="problem-grid">
+        <div>
+          <h2 id="problem-title">The Rosary should draw you into prayer&mdash;not make you worry about what comes next.</h2>
+        </div>
+
+        <div class="problem-copy">
+          <p>
+            Beadlight is made for the ordinary moments when prayer needs a little structure: when you lose your place, forget the next prayer, become distracted, or are still learning the rhythm of the Rosary.
+          </p>
+          <p>
+            It is also useful when you are returning to prayer, or when you want to pray while walking, resting or travelling.
+          </p>
+          <p class="section-closer">Beadlight handles the structure, so you can focus on the prayer.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="feature-walkthrough section-pad" id="features" aria-labelledby="features-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Features</p>
+          <h2 id="features-title">A calmer way through every bead.</h2>
+        </div>
+        <p>Large, quiet controls and clear prayer flow keep the app supportive without pulling attention away from prayer.</p>
+      </div>
+
+      <article class="feature-story">
+        <div class="feature-media">
+          <img src="beadlight-screenshot-calm-guidance.jpeg" width="710" height="1536" loading="lazy" alt="Beadlight showing bead-by-bead Rosary guidance">
+        </div>
+        <div class="feature-copy">
+          <span class="feature-number">01</span>
+          <h3>Every prayer, in the right order</h3>
+          <p>Follow the complete Rosary bead by bead, including each mystery, decade and closing prayer.</p>
+        </div>
+      </article>
+
+      <article class="feature-story feature-story-reverse">
+        <div class="feature-media">
+          <img src="beadlight-screenshot-hands-free.jpeg" width="710" height="1536" loading="lazy" alt="Beadlight guided mode with voices, background sounds and hands-free prayer controls">
+        </div>
+        <div class="feature-copy">
+          <span class="feature-number">02</span>
+          <h3>Guided audio that moves with you</h3>
+          <p>Choose a voice, adjust the speed and let each prayer advance automatically.</p>
+        </div>
+      </article>
+
+      <article class="feature-story">
+        <div class="feature-media">
+          <img src="beadlight-screenshot-dark-mode.png" width="853" height="1844" loading="lazy" alt="Beadlight light and dark appearance screens">
+        </div>
+        <div class="feature-copy">
+          <span class="feature-number">03</span>
+          <h3>Peaceful at any hour</h3>
+          <p>Use light, dark or system appearance, with optional background sounds to create a calmer prayer environment.</p>
+        </div>
+      </article>
+
+      <article class="feature-story feature-story-reverse">
+        <div class="feature-media">
+          <img src="beadlight-screenshot-return-to-prayer.jpeg" width="710" height="1536" loading="lazy" alt="Beadlight encouraging users to return to prayer">
+        </div>
+        <div class="feature-copy">
+          <span class="feature-number">04</span>
+          <h3>Your prayer journey</h3>
+          <p>Keep track of completed prayers, Rosaries and personal consistency when signed in.</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="how-section section-pad" id="how-it-works" aria-labelledby="how-title">
+      <div class="section-heading centered">
+        <p class="eyebrow">How it works</p>
+        <h2 id="how-title">Begin simply. Stay present.</h2>
+      </div>
+
+      <ol class="steps-path">
+        <li>
+          <span class="step-bead">1</span>
+          <h3>Choose your mystery</h3>
+          <p>Select a mystery or follow the traditional mystery for the day.</p>
+        </li>
+        <li>
+          <span class="step-bead">2</span>
+          <h3>Begin the Rosary</h3>
+          <p>Swipe manually, use the controls or start guided audio.</p>
+        </li>
+        <li>
+          <span class="step-bead">3</span>
+          <h3>Stay present</h3>
+          <p>Beadlight keeps your place and moves through the sequence with you.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="guided-section section-pad" id="guided-audio" aria-labelledby="guided-title">
+      <div class="guided-grid">
+        <div>
+          <p class="eyebrow">Guided Audio</p>
+          <h2 id="guided-title">Close your eyes. Keep walking. Continue praying.</h2>
+          <p>
+            Hands-free mode advances through the Rosary as each prayer finishes, giving you a peaceful guided experience without repeatedly touching the screen.
+          </p>
+        </div>
+
+        <div class="audio-panel" aria-label="Guided audio controls">
+          <div class="audio-control">
+            <span>Voice</span>
+            <strong>Choose the guide that helps you pray</strong>
+          </div>
+          <div class="audio-control">
+            <span>Speed</span>
+            <strong>Adjust the pace</strong>
+          </div>
+          <div class="audio-control">
+            <span>Controls</span>
+            <strong>Pause and resume</strong>
+          </div>
+          <div class="audio-control">
+            <span>Background</span>
+            <strong>Optional peaceful sounds</strong>
+          </div>
+          <div class="audio-control">
+            <span>Progression</span>
+            <strong>Automatic bead advance</strong>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="feature-strip" id="features">
-      <article>
-        <span class="feature-icon" aria-hidden="true">□</span>
-        <h2>Guided Prayer</h2>
-        <p>Follow the Rosary step by step without losing your place.</p>
-      </article>
-
-      <article>
-        <span class="feature-icon" aria-hidden="true">⌘</span>
-        <h2>Mystery Selection</h2>
-        <p>Choose Joyful, Luminous, Sorrowful, or Glorious mysteries.</p>
-      </article>
-
-      <article>
-        <span class="feature-icon" aria-hidden="true">☼</span>
-        <h2>Light & dark mode</h2>
-        <p>Pray comfortably in the morning, during the day, or quietly at night.</p>
-      </article>
-
-      <article>
-        <span class="feature-icon" aria-hidden="true">♡</span>
-        <h2>Built to improve</h2>
-        <p>View the public roadmap and see what is coming next.</p>
-      </article>
-    </section>
-
-    <section class="testimonial-band" aria-label="BeadLight testimonial">
-      <blockquote>
-        BeadLight has transformed the way I pray the Rosary. It helps me stay focused and present in every mystery.
-        <cite>Sarah, London</cite>
-      </blockquote>
-    </section>
-
-    <section class="content-section split-section" id="about">
-      <div>
-        <p class="eyebrow">Why Beadlight?</p>
-        <h2>Simple enough to use every day.</h2>
+    <section class="founder-section section-pad" id="story" aria-labelledby="founder-title">
+      <div class="founder-mark" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
       </div>
-
       <div>
+        <p class="eyebrow">Our Story</p>
+        <h2 id="founder-title">Built to make the Rosary easier to begin&mdash;and easier to continue.</h2>
         <p>
-          Beadlight is made for people who want a gentle way to pray the Rosary without
-          unnecessary noise. Open the app, choose your mystery, and begin.
-        </p>
-
-        <p>
-          It is especially useful when you want structure, audio guidance, or a clearer way to
-          move through the prayers at your own pace.
+          We decided to build Beadlight because the Rosary should feel easier to begin and easier to continue. It is not intended to replace a physical Rosary, but to provide gentle guidance whenever it is useful.
         </p>
       </div>
     </section>
 
-    <section class="content-section how-it-works" id="how-it-works">
-      <div>
-        <p class="eyebrow">How it works</p>
-        <h2>Choose a mystery, follow each bead, stay in prayer.</h2>
-        <p>
-          BeadLight keeps the Rosary sequence clear without turning prayer into a busy interface.
-          The app gives you structure when you need it and quietly gets out of the way when you do not.
-        </p>
-
-        <ol class="step-list">
-          <li><span>1</span>Pick the mystery you want to pray, or use the day’s suggested Rosary.</li>
-          <li><span>2</span>Move bead by bead with clear progress and optional hands-free controls.</li>
-          <li><span>3</span>Use the light or dark theme so the experience feels calm at any time of day.</li>
-        </ol>
+    <section class="pricing-section section-pad" id="pricing" aria-labelledby="pricing-title">
+      <div class="section-heading centered">
+        <p class="eyebrow">Pricing</p>
+        <h2 id="pricing-title">Start free. Add guided audio if it helps.</h2>
+        <p>Subscriptions and purchases are managed through the App Store. No web checkout is used.</p>
       </div>
 
-      <img class="showcase-image" src="beadlight-dark-mode-showcase-blended-v2.png" alt="BeadLight light and dark mode app screens">
-    </section>
+      <div class="pricing-grid">
+        <article class="pricing-card">
+          <div>
+            <span class="plan-label">Free</span>
+            <h3>Complete Rosary guidance</h3>
+            <p class="price">Free</p>
+          </div>
+          <ul>
+            <li>Complete Rosary sequence</li>
+            <li>All four mysteries</li>
+            <li>Bead-by-bead navigation</li>
+            <li>Daily mystery guidance</li>
+            <li>Light and dark mode</li>
+            <li>Optional account</li>
+          </ul>
+          <a class="secondary-button" href="https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841" data-analytics-event="pricing_cta_click app_store_click">Continue with free features</a>
+        </article>
 
-    <section class="content-section roadmap-preview" id="roadmap-preview">
-      <div class="roadmap-preview-copy">
-        <p class="eyebrow">Product roadmap</p>
-        <h2>See what’s planned next.</h2>
-        <p>
-          BeadLight is still growing. The public roadmap shows ideas under consideration,
-          planned features, items in progress, released work, and things not currently planned.
-        </p>
-
-        <a class="secondary-button" href="./roadmap/">View roadmap</a>
-      </div>
-
-      <div class="mini-roadmap">
-        <div>
-          <span>In progress</span>
-          <strong>Android version</strong>
-        </div>
-
-        <div>
-          <span>Planned</span>
-          <strong>Background audio</strong>
-        </div>
-
-        <div>
-          <span>Under consideration</span>
-          <strong>Apple Watch</strong>
-        </div>
+        <article class="pricing-card pricing-card-featured">
+          <div>
+            <span class="plan-label">Premium</span>
+            <h3>Guided Audio Monthly</h3>
+            <p class="price">&pound;1.99 <span>/ month</span></p>
+            <p class="price-note">Listed on the UK App Store as an in-app purchase. Final billing terms are shown by the App Store before purchase.</p>
+          </div>
+          <ul>
+            <li>Everything in Free</li>
+            <li>Guided prayer audio</li>
+            <li>Hands-free progression</li>
+            <li>Multiple voices</li>
+            <li>Playback speed</li>
+            <li>Background sounds</li>
+            <li>Future premium prayer features</li>
+          </ul>
+          <a class="primary-button" href="https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841" data-analytics-event="pricing_cta_click app_store_click">Open Beadlight on the App Store</a>
+          <p class="store-note">Cancel anytime through your App Store subscription settings.</p>
+        </article>
       </div>
     </section>
 
-    <section class="download-section">
-      <div>
-        <p class="eyebrow">Start praying</p>
-        <h2>Download BeadLight on iPhone.</h2>
-        <p>A peaceful Rosary companion for focused prayer.</p>
+    <section class="faq-section section-pad" id="faq" aria-labelledby="faq-title">
+      <div class="section-heading centered">
+        <p class="eyebrow">FAQ</p>
+        <h2 id="faq-title">Questions before you begin.</h2>
       </div>
 
-      <a class="primary-button" href="https://apps.apple.com/gb/app/beadlight/id6773049841">
-        Download on the App Store <span class="button-icon" aria-hidden="true">↓</span>
-      </a>
+      <div class="faq-list">
+        <details>
+          <summary>Is Beadlight free?</summary>
+          <p>Yes. The core Rosary experience is free to begin, including the complete Rosary sequence, mysteries and bead-by-bead guidance. Guided Audio is an optional in-app purchase.</p>
+        </details>
+        <details>
+          <summary>Do I need to create an account?</summary>
+          <p>No. Beadlight can be used without an account. If you sign in, Beadlight may save your prayer journey so you can see personal streaks, totals and progress.</p>
+        </details>
+        <details>
+          <summary>Is Beadlight an official Catholic Church app?</summary>
+          <p>No. Beadlight is an independent Catholic Rosary app. It is not an official app of the Catholic Church.</p>
+        </details>
+        <details>
+          <summary>Can I use a physical Rosary with Beadlight?</summary>
+          <p>Yes. Beadlight is not intended to replace a physical Rosary. It can provide gentle guidance alongside physical beads whenever that is useful.</p>
+        </details>
+        <details>
+          <summary>Does Beadlight listen to or record my prayers?</summary>
+          <p>No. Beadlight does not record your voice, listen to your prayers or access your microphone for prayer tracking.</p>
+        </details>
+        <details>
+          <summary>Which mysteries are included?</summary>
+          <p>Beadlight includes the Joyful, Luminous, Sorrowful and Glorious Mysteries.</p>
+        </details>
+        <details>
+          <summary>Can I use guided audio without looking at the screen?</summary>
+          <p>Yes. Guided Audio and hands-free progression are designed to help you continue praying without repeatedly touching the screen.</p>
+        </details>
+        <details>
+          <summary>How do I cancel my subscription?</summary>
+          <p>Manage or cancel subscriptions through your App Store subscription settings. Account deletion does not automatically cancel an App Store subscription.</p>
+        </details>
+        <details>
+          <summary>Is Beadlight available on Android?</summary>
+          <p>Beadlight is currently public on iPhone. Android is listed on the public roadmap as in progress.</p>
+        </details>
+        <details>
+          <summary>How can I request a feature?</summary>
+          <p>Send a feature request through the support page, or review the public roadmap to see what is already planned or under consideration.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="roadmap-home section-pad" aria-labelledby="roadmap-preview-title">
+      <div>
+        <p class="eyebrow">Roadmap</p>
+        <h2 id="roadmap-preview-title">See what is being shaped next.</h2>
+        <p>The homepage preview reads from the same public roadmap source used by the full roadmap page.</p>
+        <a class="secondary-button" href="./roadmap/" data-analytics-event="roadmap_navigation">View roadmap</a>
+      </div>
+      <div class="roadmap-preview-list" id="homepageRoadmapPreview" aria-live="polite">
+        <div class="empty-state">Loading roadmap...</div>
+      </div>
+    </section>
+
+    <section class="final-cta section-pad" aria-labelledby="final-cta-title">
+      <div>
+        <p class="eyebrow">Start today</p>
+        <h2 id="final-cta-title">Make space for the Rosary today.</h2>
+        <p>Let Beadlight guide the sequence while you focus on prayer.</p>
+        <ul class="reassurance-list">
+          <li>iPhone available</li>
+          <li>Android in progress</li>
+          <li>No adverts</li>
+        </ul>
+      </div>
+      <a class="primary-button" href="https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841" data-analytics-event="app_store_click">Download Beadlight free</a>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <p>© BeadLight</p>
-
-    <div>
-      <a href="./privacy/">Privacy</a>
-      <a href="./support/">Support</a>
-      <a href="./roadmap/">Roadmap</a>
-      <a href="./admin/">Admin</a>
+  <footer class="site-footer marketing-footer">
+    <div class="footer-brand">
+      <a class="brand" href="./" aria-label="Beadlight home">
+        <img src="assets/beadlight-icon.png" alt="" width="44" height="44">
+        <span><strong>Beadlight</strong></span>
+      </a>
+      <p>Beadlight handles the sequence, so you can focus on the prayer.</p>
     </div>
+
+    <nav aria-label="Footer navigation">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#story">Our Story</a>
+      <a href="./support/" data-analytics-event="support_navigation">Support</a>
+      <a href="./roadmap/" data-analytics-event="roadmap_navigation">Roadmap</a>
+      <a href="./privacy/">Privacy</a>
+      <a href="./how-to-pray-the-rosary/">How to Pray the Rosary</a>
+      <a href="https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841" data-analytics-event="app_store_click">App Store</a>
+    </nav>
+
+    <p class="copyright">&copy; 2026 Beadlight.</p>
   </footer>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const slides = Array.from(document.querySelectorAll(".carousel-slide"));
-      const dots = Array.from(document.querySelectorAll(".carousel-dot"));
-      let currentIndex = 0;
-      let timerId;
-      let isAnimating = false;
+  <a class="mobile-download-bar" href="https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841" data-analytics-event="app_store_click">Download Beadlight free</a>
 
-      function clearMotionClasses(slide) {
-        slide.classList.remove(
-          "is-active",
-          "is-exiting-next",
-          "is-entering-next",
-          "is-exiting-prev",
-          "is-entering-prev"
-        );
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Beadlight",
+        "alternateName": "Beadlight: Catholic Rosary",
+        "applicationCategory": "LifestyleApplication",
+        "applicationSubCategory": "Catholic Rosary app",
+        "operatingSystem": "iOS",
+        "url": "https://beadlight.merciandigital.co.uk/",
+        "downloadUrl": "https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841",
+        "description": "Beadlight is a peaceful Catholic Rosary app with guided audio, hands-free prayer and simple bead-by-bead guidance.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "GBP",
+          "description": "Free core Rosary experience with optional in-app purchases."
+        },
+        "author": {
+          "@type": "Organization",
+          "name": "Beadlight"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is Beadlight free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The core Rosary experience is free to begin, including the complete Rosary sequence, mysteries and bead-by-bead guidance. Guided Audio is an optional in-app purchase."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do I need to create an account?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Beadlight can be used without an account. If you sign in, Beadlight may save your prayer journey so you can see personal streaks, totals and progress."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does Beadlight listen to or record my prayers?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Beadlight does not record your voice, listen to your prayers or access your microphone for prayer tracking."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is Beadlight available on Android?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Beadlight is currently public on iPhone. Android is listed on the public roadmap as in progress."
+            }
+          }
+        ]
       }
-
-      function showSlide(nextIndex, direction = "next") {
-        if (isAnimating || nextIndex === currentIndex) return;
-
-        isAnimating = true;
-
-        const previousSlide = slides[currentIndex];
-        const nextSlide = slides[(nextIndex + slides.length) % slides.length];
-
-        slides.forEach(clearMotionClasses);
-
-        previousSlide.classList.add(direction === "next" ? "is-exiting-next" : "is-exiting-prev");
-        nextSlide.classList.add(direction === "next" ? "is-entering-next" : "is-entering-prev");
-
-        dots.forEach((dot, dotIndex) => {
-          dot.classList.toggle("is-active", dotIndex === ((nextIndex + slides.length) % slides.length));
-        });
-
-        window.setTimeout(() => {
-          slides.forEach(clearMotionClasses);
-          nextSlide.classList.add("is-active");
-          currentIndex = (nextIndex + slides.length) % slides.length;
-          isAnimating = false;
-        }, 680);
-      }
-
-      function startCarousel() {
-        window.clearInterval(timerId);
-        timerId = window.setInterval(() => {
-          showSlide(currentIndex + 1, "next");
-        }, 2000);
-      }
-
-      dots.forEach((dot, dotIndex) => {
-        dot.addEventListener("click", () => {
-          const direction = dotIndex > currentIndex ? "next" : "prev";
-          showSlide(dotIndex, direction);
-          startCarousel();
-        });
-      });
-
-      slides.forEach(clearMotionClasses);
-      slides[0].classList.add("is-active");
-      startCarousel();
-    });
+    ]
+  }
   </script>
+  <script src="supabase-config.js"></script>
+  <script src="site.js" defer></script>
 </body>
 </html>

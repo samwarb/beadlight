@@ -1,32 +1,60 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-site-root="..">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Beadlight Roadmap</title>
+  <title>Beadlight Roadmap - Planned Rosary App Improvements</title>
   <meta name="description" content="See what is planned, in progress, under consideration, released, and not planned for Beadlight.">
+  <link rel="canonical" href="https://beadlight.merciandigital.co.uk/roadmap/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Beadlight">
+  <meta property="og:title" content="Beadlight Roadmap">
+  <meta property="og:description" content="See what is planned, in progress, under consideration, released, and not planned for Beadlight.">
+  <meta property="og:url" content="https://beadlight.merciandigital.co.uk/roadmap/">
+  <meta property="og:image" content="https://beadlight.merciandigital.co.uk/assets/app-preview.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Beadlight Roadmap">
+  <meta name="twitter:description" content="Follow planned improvements for Beadlight.">
+  <meta name="twitter:image" content="https://beadlight.merciandigital.co.uk/assets/app-preview.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../marketing.css">
   <link rel="icon" href="../assets/beadlight-icon.png">
+  <link rel="apple-touch-icon" href="../assets/beadlight-icon.png">
+  <link rel="manifest" href="../site.webmanifest">
 </head>
 
-<body>
-  <div class="page-glow"></div>
+<body class="marketing-page roadmap-public-page">
+  <a class="skip-link" href="#main">Skip to content</a>
 
-  <header class="site-header">
-    <a class="brand" href="../">
-      <img src="../assets/beadlight-icon.png" alt="">
-      <span>Beadlight</span>
+  <header class="site-header marketing-header" data-site-header>
+    <a class="brand" href="../" aria-label="Beadlight home">
+      <img src="../assets/beadlight-icon.png" alt="" width="50" height="50">
+      <span>
+        <strong>Beadlight</strong>
+        <small>Rosary prayer companion</small>
+      </span>
     </a>
 
-    <nav>
-      <a href="../">Home</a>
-      <a href="../roadmap/" aria-current="page">Roadmap</a>
-      <a href="../support/">Support</a>
-      <a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight/id6773049841">Download</a>
+    <nav class="site-nav" id="siteNav" aria-label="Primary navigation">
+      <a href="../#features">Features</a>
+      <a href="../#guided-audio">Guided Audio</a>
+      <a href="../#pricing">Pricing</a>
+      <a href="../#story">Our Story</a>
+      <a href="../support/" data-analytics-event="support_navigation">Support</a>
     </nav>
+
+    <div class="header-actions">
+      <a class="nav-pill" href="https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841" data-analytics-event="app_store_click">Download free</a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="siteNav" data-menu-toggle>
+        <span>Menu</span>
+      </button>
+    </div>
   </header>
 
-  <main class="section-shell roadmap-page">
+  <main class="section-shell roadmap-page" id="main">
     <section class="roadmap-hero">
       <p class="eyebrow">Product roadmap</p>
 
@@ -113,17 +141,33 @@
   </main>
 
   <footer class="site-footer">
-    <p>© Beadlight</p>
-
-    <div>
-      <a href="../privacy/">Privacy</a>
-      <a href="../support/">Support</a>
-      <a href="../admin/">Admin</a>
+    <div class="footer-brand">
+      <a class="brand" href="../" aria-label="Beadlight home">
+        <img src="../assets/beadlight-icon.png" alt="" width="44" height="44">
+        <span><strong>Beadlight</strong></span>
+      </a>
+      <p>Beadlight handles the sequence, so you can focus on the prayer.</p>
     </div>
+
+    <nav aria-label="Footer navigation">
+      <a href="../#features">Features</a>
+      <a href="../#pricing">Pricing</a>
+      <a href="../#story">Our Story</a>
+      <a href="../privacy/">Privacy</a>
+      <a href="../support/" data-analytics-event="support_navigation">Support</a>
+      <a href="../roadmap/" aria-current="page" data-analytics-event="roadmap_navigation">Roadmap</a>
+      <a href="../how-to-pray-the-rosary/">How to Pray the Rosary</a>
+      <a href="https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841" data-analytics-event="app_store_click">App Store</a>
+    </nav>
+
+    <p class="copyright">&copy; 2026 Beadlight.</p>
   </footer>
+
+  <a class="mobile-download-bar" href="https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841" data-analytics-event="app_store_click">Download Beadlight free</a>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
   <script src="../roadmap.js"></script>
+  <script src="../site.js" defer></script>
 </body>
 </html>

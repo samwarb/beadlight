@@ -1,0 +1,17 @@
+{
+  "name": "Beadlight",
+  "short_name": "Beadlight",
+  "description": "A calmer way to pray the Catholic Rosary.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff8eb",
+  "theme_color": "#111d31",
+  "icons": [
+    {
+      "src": "/assets/beadlight-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
