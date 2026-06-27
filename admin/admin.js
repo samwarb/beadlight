@@ -54,6 +54,7 @@ let currentAdminEmail = null;
 let selectedTicketId = null;
 let loadedTicketReplies = [];
 let adminSavePopupTimer = null;
+let activeRoadmapItemId = null;
 
 const loginPanel = document.getElementById("loginPanel");
 const editorPanel = document.getElementById("editorPanel");
@@ -125,8 +126,11 @@ async function init() {
 
   if (editor) {
     editor.addEventListener("click", handleEditorClick);
-    editor.addEventListener("change", handleEditorChange);
   }
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeRoadmapItemEditor();
+  });
 
   if (ticketSearch) ticketSearch.addEventListener("input", renderTickets);
   if (ticketStatusFilter) ticketStatusFilter.addEventListener("change", renderTickets);
@@ -668,6 +672,48 @@ function getAdminDateSortValue(value) {
 
 function renderEditorItem(item) {
   const status = item.status || "under-consideration";
+  const summary = item.summary || "No summary added yet.";
+  const updated = item.updated_at || item.created_at;
+
+  return `
+    <article class="editor-card editor-card-compact" data-id="${escapeAttr(item.id)}">
+      <div class="editor-card-compact-main">
+        <div class="editor-card-head">
+          <span class="roadmap-pill ${statusClass(status)}">${escapeHtml(getRoadmapAdminStatusLabel(status))}</span>
+          <h3>${escapeHtml(item.title || "Untitled roadmap item")}</h3>
+          <p>${escapeHtml(summary)}</p>
+        </div>
+
+        <dl class="editor-card-meta">
+          <div>
+            <dt>Tag</dt>
+            <dd>${escapeHtml(item.tag || "Feature")}</dd>
+          </div>
+          <div>
+            <dt>Priority</dt>
+            <dd>${escapeHtml(item.priority || "Medium")}</dd>
+          </div>
+          <div>
+            <dt>Sprint</dt>
+            <dd>${escapeHtml(item.sprint_due || "N/A")}</dd>
+          </div>
+          <div>
+            <dt>Updated</dt>
+            <dd>${escapeHtml(formatDate(updated))}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="admin-actions editor-card-compact-actions">
+        <button type="button" class="primary-button" data-action="edit" data-id="${escapeAttr(item.id)}">Edit</button>
+        <button type="button" class="secondary-button danger-button" data-action="delete" data-id="${escapeAttr(item.id)}">Delete</button>
+      </div>
+    </article>
+  `;
+}
+
+function renderRoadmapEditorForm(item) {
+  const status = item.status || "under-consideration";
   const sprintDisabled = shouldDisableSprint(status);
 
   const statusOptions = STATUSES.map(([value, label]) => {
@@ -691,10 +737,10 @@ function renderEditorItem(item) {
   const weekValue = sprintDisabled ? "" : sprintTextToWeekInputValue(sprintText);
 
   return `
-    <article class="editor-card" data-id="${escapeAttr(item.id)}">
+    <article class="editor-card roadmap-edit-panel" data-id="${escapeAttr(item.id)}">
       <div class="editor-card-head">
         <div>
-          <span class="roadmap-pill ${statusClass(status)}">${escapeHtml(titleCase(status))}</span>
+          <span class="roadmap-pill ${statusClass(status)}">${escapeHtml(getRoadmapAdminStatusLabel(status))}</span>
           <h3>${escapeHtml(item.title || "Untitled roadmap item")}</h3>
         </div>
       </div>
@@ -747,6 +793,85 @@ function renderEditorItem(item) {
       </div>
     </article>
   `;
+}
+
+function openRoadmapItemEditor(id, options = {}) {
+  const item = items.find((candidate) => String(candidate.id) === String(id));
+
+  if (!item) {
+    showAdminSavePopup("Editor unavailable", "Could not find this roadmap item.", true);
+    return;
+  }
+
+  activeRoadmapItemId = String(id);
+
+  const modal = getRoadmapEditorModal();
+  const title = modal.querySelector("[data-roadmap-editor-title]");
+  const body = modal.querySelector("[data-roadmap-editor-body]");
+
+  if (title) title.textContent = options.title || "Edit roadmap item";
+  if (body) body.innerHTML = renderRoadmapEditorForm(item);
+
+  modal.classList.remove("hidden");
+  document.body.classList.add("roadmap-editor-open");
+
+  window.requestAnimationFrame(() => {
+    const focusTarget = options.focusTitle
+      ? modal.querySelector('[data-field="title"]')
+      : modal.querySelector("[data-roadmap-close]");
+
+    if (focusTarget) focusTarget.focus();
+  });
+}
+
+function closeRoadmapItemEditor() {
+  const modal = document.getElementById("roadmapEditorModal");
+  if (!modal || modal.classList.contains("hidden")) return;
+
+  modal.classList.add("hidden");
+  document.body.classList.remove("roadmap-editor-open");
+  activeRoadmapItemId = null;
+}
+
+function getRoadmapEditorModal() {
+  let modal = document.getElementById("roadmapEditorModal");
+
+  if (modal) return modal;
+
+  modal = document.createElement("div");
+  modal.id = "roadmapEditorModal";
+  modal.className = "roadmap-editor-modal hidden";
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
+  modal.setAttribute("aria-labelledby", "roadmapEditorTitle");
+  modal.innerHTML = `
+    <div class="roadmap-editor-backdrop" data-roadmap-close></div>
+    <section class="roadmap-editor-panel" aria-label="Roadmap item editor">
+      <header class="roadmap-editor-header">
+        <div>
+          <p class="admin-kicker">Roadmap editor</p>
+          <h2 id="roadmapEditorTitle" data-roadmap-editor-title>Edit roadmap item</h2>
+        </div>
+        <button type="button" class="secondary-button" data-roadmap-close>Close</button>
+      </header>
+
+      <div data-roadmap-editor-body></div>
+    </section>
+  `;
+
+  modal.addEventListener("click", (event) => {
+    if (event.target.closest("[data-roadmap-close]")) {
+      closeRoadmapItemEditor();
+      return;
+    }
+
+    handleEditorClick(event);
+  });
+
+  modal.addEventListener("change", handleEditorChange);
+
+  document.body.appendChild(modal);
+  return modal;
 }
 
 function handleEditorChange(event) {
@@ -814,13 +939,16 @@ async function handleEditorClick(event) {
     return;
   }
 
+  if (action === "edit") openRoadmapItemEditor(id);
   if (action === "save") await saveItem(id);
   if (action === "delete") await deleteItem(id);
 }
 
 function getCardValues(id) {
   const cards = Array.from(document.querySelectorAll(".editor-card"));
-  const card = cards.find((candidate) => candidate.dataset.id === id);
+  const card = cards.find((candidate) => {
+    return candidate.dataset.id === id && candidate.querySelector("[data-field]");
+  });
   if (!card) return null;
 
   const get = (field) => {
@@ -892,7 +1020,13 @@ async function saveItem(id) {
     return;
   }
 
-  await loadItems();
+  const savedItem = data[0];
+  items = items.map((item) => String(item.id) === String(id) ? savedItem : item);
+  populateRoadmapAdminFilters();
+  renderEditor();
+  if (activeRoadmapItemId === String(id)) {
+    openRoadmapItemEditor(id);
+  }
   showAdminSavePopup("Saved", "Roadmap item saved successfully.");
 }
 
@@ -927,9 +1061,13 @@ async function addItem() {
     return;
   }
 
+  const newItem = data[0];
+  items = [newItem, ...items];
   clearRoadmapAdminFilters(false);
-  await loadItems();
-  setAdminStatus("New item added.");
+  populateRoadmapAdminFilters();
+  renderEditor();
+  openRoadmapItemEditor(newItem.id, { focusTitle: true, title: "New roadmap item" });
+  setAdminStatus("New item added. Fill in the details in the editor.");
 }
 
 async function deleteItem(id) {
@@ -958,7 +1096,10 @@ async function deleteItem(id) {
     return;
   }
 
-  await loadItems();
+  items = items.filter((item) => String(item.id) !== String(id));
+  if (activeRoadmapItemId === String(id)) closeRoadmapItemEditor();
+  populateRoadmapAdminFilters();
+  renderEditor();
   setAdminStatus("Deleted.");
 }
 

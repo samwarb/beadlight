@@ -1283,6 +1283,115 @@ textarea:focus {
   font-size: 1.35rem;
 }
 
+.editor-card-head p {
+  margin: 10px 0 0;
+  color: rgba(31, 36, 48, 0.72);
+  line-height: 1.55;
+}
+
+.editor-card-compact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+}
+
+.editor-card-compact .editor-card-head {
+  margin-bottom: 14px;
+}
+
+.editor-card-compact-actions {
+  margin-top: 0;
+  justify-content: flex-end;
+}
+
+.editor-card-meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.editor-card-meta div {
+  min-width: 0;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(177, 122, 35, 0.1);
+}
+
+.editor-card-meta dt {
+  margin-bottom: 4px;
+  color: rgba(31, 36, 48, 0.52);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.editor-card-meta dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: rgba(31, 36, 48, 0.82);
+  font-size: 0.86rem;
+  font-weight: 850;
+}
+
+.roadmap-editor-open {
+  overflow: hidden;
+}
+
+.roadmap-editor-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  justify-items: end;
+}
+
+.roadmap-editor-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(31, 36, 48, 0.42);
+  backdrop-filter: blur(6px);
+}
+
+.roadmap-editor-panel {
+  position: relative;
+  z-index: 1;
+  width: min(720px, calc(100% - 24px));
+  height: calc(100% - 24px);
+  margin: 12px;
+  overflow: auto;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  background: rgba(255, 250, 239, 0.98);
+  box-shadow: -20px 0 70px rgba(31, 36, 48, 0.22);
+}
+
+.roadmap-editor-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(156, 109, 33, 0.14);
+}
+
+.roadmap-editor-header h2 {
+  margin: 6px 0 0;
+  font-size: clamp(1.6rem, 3vw, 2.25rem);
+  line-height: 1.08;
+}
+
+.roadmap-edit-panel {
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
 .danger-button {
   color: #a61b1b;
   border-color: rgba(185, 28, 28, 0.22);
@@ -1662,6 +1771,14 @@ textarea:focus {
     grid-column: 1 / -1;
   }
 
+  .editor-card-compact {
+    grid-template-columns: 1fr;
+  }
+
+  .editor-card-compact-actions {
+    justify-content: flex-start;
+  }
+
   .ticket-workspace {
     grid-template-columns: 1fr;
   }
@@ -1719,6 +1836,7 @@ textarea:focus {
 
   .ticket-toolbar,
   .admin-roadmap-tool-grid,
+  .editor-card-meta,
   .ticket-detail-meta,
   .ticket-edit-grid {
     grid-template-columns: 1fr;
@@ -1727,6 +1845,25 @@ textarea:focus {
   .ticket-search-label,
   .admin-roadmap-search-label {
     grid-column: auto;
+  }
+
+  .roadmap-editor-modal {
+    justify-items: stretch;
+  }
+
+  .roadmap-editor-panel {
+    width: auto;
+    height: calc(100% - 16px);
+    margin: 8px;
+    padding: 18px;
+  }
+
+  .roadmap-editor-header {
+    display: grid;
+  }
+
+  .roadmap-editor-header .secondary-button {
+    width: 100%;
   }
 }
 
