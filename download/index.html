@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#fff8ee">
+  <title>Download Beadlight</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../marketing.css">
+  <link rel="icon" href="../assets/beadlight-icon.png">
+  <link rel="apple-touch-icon" href="../assets/beadlight-icon.png">
+  <style>
+    .download-page { display: grid; min-height: 100vh; place-items: center; padding: 32px 20px; }
+    .download-card { width: min(100%, 540px); padding: clamp(32px, 7vw, 56px); text-align: center; background: rgba(255, 252, 247, .82); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); position: relative; z-index: 1; }
+    .download-icon { width: 84px; height: 84px; border-radius: 22px; box-shadow: 0 14px 30px rgba(91, 63, 30, .16); }
+    .download-card h1 { margin: 22px 0 12px; font-size: clamp(2.25rem, 8vw, 3.4rem); line-height: 1.05; font-weight: 600; }
+    .download-card p { color: var(--muted); line-height: 1.65; }
+    .store-links { display: grid; gap: 12px; margin-top: 28px; }
+    .store-links .secondary-button { background: rgba(255, 250, 242, .9); }
+    .loading-note { margin-top: 20px; font-size: .9rem; }
+    @media (prefers-reduced-motion: no-preference) { .download-icon { animation: gentle-float 2.8s ease-in-out infinite; } @keyframes gentle-float { 50% { transform: translateY(-5px); } } }
+  </style>
+</head>
+<body class="marketing-page download-page">
+  <main class="download-card" id="downloadCard">
+    <img class="download-icon" src="../assets/beadlight-icon.png" alt="Beadlight app icon" width="84" height="84">
+    <h1 id="downloadTitle">Download Beadlight</h1>
+    <p id="downloadMessage">Choose your app store to start praying with Beadlight.</p>
+
+    <div class="store-links" aria-label="Choose an app store">
+      <a class="primary-button" href="https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841">Download on the App Store</a>
+      <a class="secondary-button" href="https://play.google.com/store/apps/details?id=com.merciandigital.beadlight">Get it on Google Play</a>
+    </div>
+
+    <p class="loading-note" id="loadingNote" aria-live="polite">Opening the right store for your device…</p>
+  </main>
+
+  <script>
+    (function () {
+      var appleStore = "https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841";
+      var googlePlay = "https://play.google.com/store/apps/details?id=com.merciandigital.beadlight";
+      var userAgent = navigator.userAgent || navigator.vendor || "";
+      var isAndroid = /Android/i.test(userAgent);
+      var isIOS = /iPad|iPhone|iPod/.test(userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      var title = document.getElementById("downloadTitle");
+      var message = document.getElementById("downloadMessage");
+      var note = document.getElementById("loadingNote");
+      var destination = isAndroid ? googlePlay : (isIOS ? appleStore : null);
+
+      if (!destination) {
+        note.textContent = "Not on a mobile device? Choose a store above, or open this link on your phone.";
+        return;
+      }
+
+      title.textContent = "Opening Beadlight…";
+      message.textContent = isAndroid ? "Taking you to Google Play." : "Taking you to the App Store.";
+      note.textContent = "If the store does not open, use the buttons above.";
+      window.location.replace(destination);
+    }());
+  </script>
+</body>
+</html>
