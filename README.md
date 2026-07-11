@@ -1,19 +1,21 @@
 # Beadlight
 
-Static GitHub Pages site for `beadlight.merciandigital.co.uk`.
+Static GitHub Pages site for `beadlight.app`.
 
 ## GitHub Pages
 
 - Repository: `samwarb/beadlight`
 - Source: `main` branch, repository root
-- Custom domain: `beadlight.merciandigital.co.uk`
+- Custom domain: `beadlight.app`
 
 ## DNS
 
-In IONOS, configure the subdomain as:
+In IONOS, point the apex domain to GitHub Pages:
 
 ```text
-Type: CNAME
-Host/name: beadlight
-Target/value: samwarb.github.io
+Type: A      Host/name: @      Target/value: 185.199.108.153
+Type: A      Host/name: @      Target/value: 185.199.109.153
+Type: A      Host/name: @      Target/value: 185.199.110.153
+Type: A      Host/name: @      Target/value: 185.199.111.153
+Type: CNAME  Host/name: www    Target/value: samwarb.github.io
 ```
