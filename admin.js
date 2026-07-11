@@ -23,7 +23,7 @@ const PRIORITIES = [
 
 const STATUSES_WITHOUT_SPRINT = ["under-consideration", "not-planned"];
 
-const ADMIN_REDIRECT_URL = "https://beadlight.merciandigital.co.uk/admin/";
+const ADMIN_REDIRECT_URL = "https://beadlight.app/admin/";
 
 let client;
 let items = [];

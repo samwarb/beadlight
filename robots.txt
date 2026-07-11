@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://beadlight.merciandigital.co.uk/sitemap.xml
+Sitemap: https://beadlight.app/sitemap.xml
