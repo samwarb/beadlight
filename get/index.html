@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en" data-site-root="..">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Download Beadlight for iPhone or Android.">
+  <meta name="theme-color" content="#faf8f3">
+  <title>Get Beadlight</title>
+  <link rel="canonical" href="https://beadlight.app/get/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../marketing.css">
+  <link rel="icon" href="../assets/beadlight-icon.png">
+  <link rel="apple-touch-icon" href="../assets/beadlight-icon.png">
+  <style>
+    .get-page {
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+      padding: 32px 20px;
+    }
+
+    .get-card {
+      position: relative;
+      z-index: 1;
+      width: min(100%, 590px);
+      padding: clamp(32px, 7vw, 56px);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, .82);
+      box-shadow: var(--shadow-soft);
+      text-align: center;
+    }
+
+    .get-icon {
+      width: 84px;
+      height: 84px;
+      border-radius: 22px;
+      box-shadow: 0 14px 30px rgba(91, 63, 30, .16);
+    }
+
+    .get-card h1 {
+      margin: 22px 0 12px;
+      font-size: clamp(2.25rem, 8vw, 3.4rem);
+      font-weight: 600;
+      line-height: 1.05;
+    }
+
+    .get-intro {
+      margin: 0 auto;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .store-choices {
+      display: grid;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .store-choice {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 12px;
+      min-height: 74px;
+      padding: 14px 18px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .76);
+      color: var(--ink);
+      text-align: left;
+      text-decoration: none;
+      transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+    }
+
+    .store-choice:hover {
+      transform: translateY(-1px);
+      border-color: var(--line-strong);
+      background: #fff;
+      box-shadow: var(--shadow-tight);
+    }
+
+    .store-choice.is-recommended {
+      border-color: rgba(185, 138, 61, .55);
+      background: rgba(255, 250, 242, .94);
+      box-shadow: 0 14px 34px rgba(130, 84, 29, .12);
+    }
+
+    .store-copy {
+      display: grid;
+      gap: 3px;
+    }
+
+    .store-copy strong {
+      font-size: 1rem;
+    }
+
+    .store-copy small {
+      color: var(--muted);
+      font-size: .82rem;
+      line-height: 1.35;
+    }
+
+    .recommended-label {
+      display: none;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(185, 138, 61, .14);
+      color: var(--gold-deep);
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .02em;
+      white-space: nowrap;
+    }
+
+    .store-choice.is-recommended .recommended-label {
+      display: inline-flex;
+    }
+
+    .device-note {
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.5;
+    }
+
+    .home-link {
+      display: inline-flex;
+      margin-top: 24px;
+      color: var(--ink-soft);
+      font-size: .9rem;
+      font-weight: 700;
+      text-underline-offset: 4px;
+    }
+
+    @media (max-width: 480px) {
+      .store-choice {
+        grid-template-columns: 1fr;
+      }
+
+      .recommended-label {
+        justify-self: start;
+      }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .get-icon {
+        animation: gentle-float 2.8s ease-in-out infinite;
+      }
+
+      @keyframes gentle-float {
+        50% { transform: translateY(-5px); }
+      }
+    }
+  </style>
+</head>
+<body class="marketing-page get-page">
+  <main class="get-card">
+    <img class="get-icon" src="../assets/beadlight-icon.png" alt="Beadlight app icon" width="84" height="84">
+    <h1>Get Beadlight</h1>
+    <p class="get-intro">Choose the app store for your device and start praying with Beadlight.</p>
+
+    <div class="store-choices" aria-label="Choose an app store">
+      <a
+        class="store-choice"
+        id="appleStoreChoice"
+        href="https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841"
+        data-analytics-event="get_store_click app_store_click"
+      >
+        <span class="store-copy">
+          <strong>Download on the App Store</strong>
+          <small>For iPhone and iPad</small>
+        </span>
+        <span class="recommended-label">Recommended</span>
+      </a>
+
+      <a
+        class="store-choice"
+        id="googlePlayChoice"
+        href="https://play.google.com/store/apps/details?id=com.merciandigital.beadlight"
+        data-analytics-event="get_store_click google_play_click"
+      >
+        <span class="store-copy">
+          <strong>Get it on Google Play</strong>
+          <small>For Android phones and tablets</small>
+        </span>
+        <span class="recommended-label">Recommended</span>
+      </a>
+    </div>
+
+    <p class="device-note" id="deviceNote" aria-live="polite">Both stores are available—choose the one for your phone.</p>
+    <a class="home-link" href="../">Return to Beadlight</a>
+  </main>
+
+  <script src="../site.js"></script>
+  <script>
+    (function () {
+      var userAgent = navigator.userAgent || navigator.vendor || "";
+      var isAndroid = /Android/i.test(userAgent);
+      var isIOS = /iPad|iPhone|iPod/.test(userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      var choice = isAndroid
+        ? document.getElementById("googlePlayChoice")
+        : (isIOS ? document.getElementById("appleStoreChoice") : null);
+      var note = document.getElementById("deviceNote");
+
+      if (!choice) return;
+
+      choice.classList.add("is-recommended");
+      choice.setAttribute("aria-describedby", "deviceNote");
+      note.textContent = isAndroid
+        ? "Google Play is recommended for this Android device."
+        : "The App Store is recommended for this Apple device.";
+    }());
+  </script>
+</body>
+</html>
