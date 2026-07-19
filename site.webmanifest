@@ -8,8 +8,14 @@
   "theme_color": "#111d31",
   "icons": [
     {
-      "src": "/assets/beadlight-icon.png",
-      "sizes": "1024x1024",
+      "src": "/assets/beadlight-icon-v14-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/beadlight-icon-v14-512.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
