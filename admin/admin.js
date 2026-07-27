@@ -73,6 +73,12 @@ const analyticsStatus = document.getElementById("analyticsStatus");
 const analyticsTotals = document.getElementById("analyticsTotals");
 const analyticsDaily = document.getElementById("analyticsDaily");
 const analyticsMysteries = document.getElementById("analyticsMysteries");
+const websiteAnalyticsTotals = document.getElementById("websiteAnalyticsTotals");
+const websiteAnalyticsSources = document.getElementById("websiteAnalyticsSources");
+const websiteAnalyticsPages = document.getElementById("websiteAnalyticsPages");
+const websiteAnalyticsLocations = document.getElementById("websiteAnalyticsLocations");
+const websiteAnalyticsDevices = document.getElementById("websiteAnalyticsDevices");
+const websiteAnalyticsStatus = document.getElementById("websiteAnalyticsStatus");
 const ticketSummary = document.getElementById("ticketSummary");
 const ticketSearch = document.getElementById("ticketSearch");
 const ticketStatusFilter = document.getElementById("ticketStatusFilter");
@@ -110,6 +116,7 @@ async function init() {
   const signOutBtn = document.getElementById("signOutBtn");
   const addBtn = document.getElementById("addBtn");
   const refreshAnalyticsBtn = document.getElementById("refreshAnalyticsBtn");
+  const refreshWebsiteAnalyticsBtn = document.getElementById("refreshWebsiteAnalyticsBtn");
   const refreshTicketsBtn = document.getElementById("refreshTicketsBtn");
 
   if (loginBtn) loginBtn.addEventListener("click", sendMagicLink);
@@ -117,6 +124,7 @@ async function init() {
   if (headerSignOutBtn) headerSignOutBtn.addEventListener("click", signOut);
   if (addBtn) addBtn.addEventListener("click", addItem);
   if (refreshAnalyticsBtn) refreshAnalyticsBtn.addEventListener("click", loadAnalytics);
+  if (refreshWebsiteAnalyticsBtn) refreshWebsiteAnalyticsBtn.addEventListener("click", loadWebsiteAnalytics);
   if (refreshTicketsBtn) refreshTicketsBtn.addEventListener("click", loadTickets);
   setupRoadmapAdminFilters();
 
@@ -255,7 +263,29 @@ async function showEditor(session) {
   if (headerSignOutBtn) headerSignOutBtn.classList.remove("hidden");
 
   switchAdminSection("analytics");
-  await Promise.all([loadAnalytics(), loadItems(), loadTickets()]);
+  await Promise.all([loadAnalytics(), loadWebsiteAnalytics(), loadItems(), loadTickets()]);
+}
+
+async function loadWebsiteAnalytics() {
+  if (websiteAnalyticsStatus) websiteAnalyticsStatus.textContent = "Loading website analytics...";
+  const { data, error } = await client.functions.invoke("ga4-dashboard");
+  if (error || data?.error) {
+    if (websiteAnalyticsStatus) websiteAnalyticsStatus.textContent = "Could not load website analytics: " + (data?.error || error.message);
+    return;
+  }
+  const values = data.totals || [];
+  websiteAnalyticsTotals.innerHTML = [renderAnalyticsCard(formatNumber(values[0]), "Active users"), renderAnalyticsCard(formatNumber(values[1]), "Sessions"), renderAnalyticsCard(formatNumber(values[2]), "Page views"), renderAnalyticsCard(formatNumber(values[3]), "Events")].join("");
+  renderWebsiteTable(websiteAnalyticsSources, data.sources, ["Source / medium", "Sessions", "Users"]);
+  renderWebsiteTable(websiteAnalyticsPages, data.pages, ["Page", "Views", "Users"]);
+  renderWebsiteTable(websiteAnalyticsLocations, data.locations, ["Country / region", "Users"]);
+  renderWebsiteTable(websiteAnalyticsDevices, data.devices, ["Device / OS", "Users"]);
+  if (websiteAnalyticsStatus) websiteAnalyticsStatus.textContent = "Website analytics loaded.";
+}
+
+function renderWebsiteTable(container, rows, headings) {
+  if (!container) return;
+  if (!rows?.length) { container.innerHTML = `<div class="analytics-empty">No data available yet.</div>`; return; }
+  container.innerHTML = `<div class="analytics-table-scroll"><table class="analytics-table"><thead><tr>${headings.map((heading) => `<th>${escapeHtml(heading)}</th>`).join("")}</tr></thead><tbody>${rows.map((row) => `<tr><td>${escapeHtml(row.dimensions.join(" / "))}</td>${row.metrics.map((metric) => `<td>${escapeHtml(formatNumber(metric))}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
 }
 
 function showLogin() {
