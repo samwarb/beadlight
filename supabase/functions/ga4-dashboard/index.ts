@@ -57,7 +57,7 @@ Deno.serve(async (request) => {
       report(token, property, { dateRanges, dimensions: [{ name: "pagePath" }], metrics: [{ name: "screenPageViews" }, { name: "activeUsers" }], limit: 10, orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }] }),
       report(token, property, { dateRanges, dimensions: [{ name: "country" }, { name: "region" }], metrics: [{ name: "activeUsers" }], limit: 10, orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }] }),
       report(token, property, { dateRanges, dimensions: [{ name: "deviceCategory" }, { name: "operatingSystem" }], metrics: [{ name: "activeUsers" }], limit: 10, orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }] }),
-      report(token, property, { dateRanges, dimensions: [{ name: "eventName" }], metrics: [{ name: "eventCount" }], dimensionFilter: { filter: { fieldName: "eventName", inListFilter: { values: ["click", "ios_store_click", "android_store_click"] } } } })
+      report(token, property, { dateRanges, dimensions: [{ name: "eventName" }, { name: "linkDomain" }, { name: "linkUrl" }], metrics: [{ name: "eventCount" }], dimensionFilter: { filter: { fieldName: "eventName", inListFilter: { values: ["click", "ios_store_click", "android_store_click"] } } }, limit: 20, orderBys: [{ metric: { metricName: "eventCount" }, desc: true }] })
     ]);
     return json({ range: "Last 30 days", totals: rows(totals)[0]?.metrics || [], sources: rows(sources), pages: rows(pages), locations: rows(locations), devices: rows(devices), clicks: rows(clicks) });
   } catch (error) {

@@ -78,6 +78,7 @@ const websiteAnalyticsSources = document.getElementById("websiteAnalyticsSources
 const websiteAnalyticsPages = document.getElementById("websiteAnalyticsPages");
 const websiteAnalyticsLocations = document.getElementById("websiteAnalyticsLocations");
 const websiteAnalyticsDevices = document.getElementById("websiteAnalyticsDevices");
+const websiteAnalyticsClicks = document.getElementById("websiteAnalyticsClicks");
 const websiteAnalyticsStatus = document.getElementById("websiteAnalyticsStatus");
 const ticketSummary = document.getElementById("ticketSummary");
 const ticketSearch = document.getElementById("ticketSearch");
@@ -279,6 +280,7 @@ async function loadWebsiteAnalytics() {
   renderWebsiteTable(websiteAnalyticsPages, data.pages, ["Page", "Views", "Users"]);
   renderWebsiteTable(websiteAnalyticsLocations, data.locations, ["Country / region", "Users"]);
   renderWebsiteTable(websiteAnalyticsDevices, data.devices, ["Device / OS", "Users"]);
+  renderWebsiteTable(websiteAnalyticsClicks, data.clicks, ["Event / destination", "Clicks"]);
   if (websiteAnalyticsStatus) websiteAnalyticsStatus.textContent = "Website analytics loaded.";
 }
 
