@@ -1,5 +1,7 @@
 # Beadlight
 
+> Analytics currently loads by default and can be rejected through the site's privacy controls. Review this behaviour against UK cookie-consent requirements before production use.
+
 Static GitHub Pages site for `beadlight.app`.
 
 ## GitHub Pages
