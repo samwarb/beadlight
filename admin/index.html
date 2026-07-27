@@ -110,6 +110,25 @@
 
           <div id="analyticsStatus" class="admin-status"></div>
         </div>
+
+        <div class="admin-section-card">
+          <div class="admin-section-heading">
+            <div>
+              <p class="admin-kicker">Website traffic</p>
+              <h2>Google Analytics summary</h2>
+              <p>Last 30 days of website visits, sources, pages, locations, devices and store-link clicks.</p>
+            </div>
+            <button class="secondary-button" id="refreshWebsiteAnalyticsBtn" type="button">Refresh website stats</button>
+          </div>
+          <div class="analytics-grid" id="websiteAnalyticsTotals" aria-live="polite"></div>
+          <div class="analytics-tables">
+            <article class="analytics-table-card"><h3>Traffic sources</h3><div id="websiteAnalyticsSources"></div></article>
+            <article class="analytics-table-card"><h3>Top pages</h3><div id="websiteAnalyticsPages"></div></article>
+            <article class="analytics-table-card"><h3>Countries and regions</h3><div id="websiteAnalyticsLocations"></div></article>
+            <article class="analytics-table-card"><h3>Devices</h3><div id="websiteAnalyticsDevices"></div></article>
+          </div>
+          <div id="websiteAnalyticsStatus" class="admin-status"></div>
+        </div>
       </section>
 
       <section class="admin-workspace-section" id="roadmapSection" data-admin-section="roadmap" aria-labelledby="roadmapAdminTitle">
