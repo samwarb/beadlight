@@ -89,6 +89,9 @@ const ticketCount = document.getElementById("ticketCount");
 const ticketEmpty = document.getElementById("ticketEmpty");
 const ticketDetail = document.getElementById("ticketDetail");
 const ticketStatus = document.getElementById("ticketStatus");
+const copyBlogAgentBriefBtn = document.getElementById("copyBlogAgentBriefBtn");
+const blogAgentBrief = document.getElementById("blogAgentBrief");
+const blogAgentCopyStatus = document.getElementById("blogAgentCopyStatus");
 
 function initClient() {
   const config = window.BEADLIGHT_SUPABASE || {};
@@ -127,6 +130,7 @@ async function init() {
   if (refreshAnalyticsBtn) refreshAnalyticsBtn.addEventListener("click", loadAnalytics);
   if (refreshWebsiteAnalyticsBtn) refreshWebsiteAnalyticsBtn.addEventListener("click", loadWebsiteAnalytics);
   if (refreshTicketsBtn) refreshTicketsBtn.addEventListener("click", loadTickets);
+  if (copyBlogAgentBriefBtn) copyBlogAgentBriefBtn.addEventListener("click", copyBlogAgentBrief);
   setupRoadmapAdminFilters();
 
   document.querySelectorAll("[data-admin-tab]").forEach((button) => {
@@ -180,6 +184,40 @@ function switchAdminSection(sectionName) {
   document.querySelectorAll("[data-admin-section]").forEach((section) => {
     section.classList.toggle("is-active", section.dataset.adminSection === sectionName);
   });
+}
+
+async function copyBlogAgentBrief() {
+  if (!blogAgentBrief) return;
+
+  const instruction = blogAgentBrief.value;
+
+  try {
+    await navigator.clipboard.writeText(instruction);
+  } catch (_error) {
+    blogAgentBrief.focus();
+    blogAgentBrief.select();
+    const copied = document.execCommand("copy");
+    blogAgentBrief.setSelectionRange(0, 0);
+
+    if (!copied) {
+      if (blogAgentCopyStatus) {
+        blogAgentCopyStatus.textContent = "Select the instruction and copy it manually.";
+      }
+      return;
+    }
+  }
+
+  if (blogAgentCopyStatus) {
+    blogAgentCopyStatus.textContent = "Agent instruction copied.";
+  }
+
+  if (copyBlogAgentBriefBtn) {
+    const originalLabel = copyBlogAgentBriefBtn.textContent;
+    copyBlogAgentBriefBtn.textContent = "Copied";
+    window.setTimeout(() => {
+      copyBlogAgentBriefBtn.textContent = originalLabel;
+    }, 1800);
+  }
 }
 
 async function sendMagicLink() {

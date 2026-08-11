@@ -1,0 +1,25 @@
+title: Beadlight
+description: Quiet guides and practical resources for praying the Rosary with confidence and calm.
+url: "https://beadlight.app"
+baseurl: ""
+lang: en-GB
+timezone: Europe/London
+
+permalink: /blog/:title/
+future: false
+show_drafts: false
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge
+
+defaults:
+  - scope:
+      path: "_posts"
+      type: posts
+    values:
+      layout: blog-post
+      author: Beadlight
+      category: Reflection
+      published: true

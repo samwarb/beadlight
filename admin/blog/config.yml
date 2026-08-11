@@ -1,0 +1,157 @@
+backend:
+  name: github
+  repo: samwarb/beadlight
+  branch: main
+
+site_url: https://beadlight.app
+display_url: https://beadlight.app/blog/
+logout_redirect_url: https://beadlight.app/admin/
+app_title: Beadlight Blog Studio
+logo:
+  src: /assets/beadlight-icon-v14-192.png
+  show_in_header: true
+
+# Images are committed beside the website, giving every post a durable URL.
+media_folder: assets/blog
+public_folder: /assets/blog
+publish_mode: simple
+
+media_libraries:
+  all:
+    max_file_size: 5242880
+    slugify_filename: true
+    transformations:
+      raster_image:
+        format: webp
+        quality: 85
+        width: 1920
+        height: 1920
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: "-"
+  timezone: local
+
+field_defaults:
+  richtext:
+    sanitize_preview: true
+    linked_images: false
+    use_markdown_shortcuts: true
+
+commit_messages:
+  create: "Publish blog post: {{slug}}"
+  update: "Update blog post: {{slug}}"
+  delete: "Remove blog post: {{slug}}"
+  uploadMedia: "Add blog image: {{path}}"
+  deleteMedia: "Remove blog image: {{path}}"
+
+collections:
+  - name: posts
+    label: Blog posts
+    label_singular: Blog post
+    description: Write, preview and publish entries for the Beadlight journal.
+    folder: _posts
+    create: true
+    delete: true
+    extension: md
+    format: frontmatter
+    slug: "{{date | date('YYYY-MM-DD')}}-{{fields.slug}}"
+    preview_path: "blog/{{fields.slug}}/"
+    preview_path_date_field: date
+    summary: "{{title}} — {{date}}"
+    sortable_fields:
+      - date
+      - title
+      - category
+      - featured
+    fields:
+      - label: Layout
+        name: layout
+        widget: hidden
+        default: blog-post
+
+      - label: Title
+        name: title
+        widget: string
+        minlength: 10
+        maxlength: 160
+        hint: A clear, inviting headline. Aim for 45–65 characters.
+
+      - label: URL name
+        name: slug
+        widget: string
+        pattern:
+          - "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          - Use lowercase words separated by hyphens, with no spaces.
+        hint: For example, finding-calm-in-the-rosary. Do not change this after the post is live.
+
+      - label: Description
+        name: description
+        widget: text
+        minlength: 80
+        maxlength: 200
+        hint: One or two sentences for the blog card and search results. Aim for 120–160 characters.
+
+      - label: Publication date
+        name: date
+        widget: datetime
+        default: "{{now}}"
+        date_format: YYYY-MM-DD
+        time_format: HH:mm
+        picker_utc: false
+
+      - label: Author
+        name: author
+        widget: string
+        default: Beadlight
+
+      - label: Category
+        name: category
+        widget: select
+        default: Reflection
+        options:
+          - Prayer guide
+          - Reflection
+          - Beadlight news
+          - Faith and life
+
+      - label: Tags
+        name: tags
+        widget: list
+        required: false
+        default: []
+        max: 6
+        hint: Add a few specific subjects, such as Rosary, prayer habits or Joyful Mysteries.
+
+      - label: Cover image
+        name: image
+        widget: image
+        required: false
+        choose_url: false
+        accept: image/avif,image/jpeg,image/png,image/webp
+        hint: Use a calm landscape image, ideally WebP or JPEG and under 1 MB.
+
+      - label: Cover image description
+        name: image_alt
+        widget: string
+        required: false
+        maxlength: 180
+        hint: Describe the image for readers who cannot see it. Leave blank only when no cover image is used.
+
+      - label: Feature on the blog
+        name: featured
+        widget: boolean
+        default: false
+        required: false
+
+      - label: Published
+        name: published
+        widget: boolean
+        default: true
+        hint: Turn this off to keep the article out of the public website while you work.
+
+      - label: Article
+        name: body
+        widget: richtext
+        hint: Use headings in order, short paragraphs, helpful links and descriptive image text.

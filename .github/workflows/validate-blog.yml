@@ -1,0 +1,38 @@
+name: Validate blog and site
+
+on:
+  pull_request:
+    paths:
+      - "_config.yml"
+      - "_layouts/**"
+      - "_posts/**"
+      - "admin/blog/**"
+      - "assets/blog/**"
+      - "blog/**"
+      - "marketing.css"
+      - "sitemap.xml"
+      - "scripts/validate_blog.py"
+      - ".github/workflows/validate-blog.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out site
+        uses: actions/checkout@v7
+
+      - name: Validate blog post files
+        run: python3 scripts/validate_blog.py
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+
+      - name: Build the GitHub Pages site
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site

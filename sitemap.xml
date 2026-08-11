@@ -1,3 +1,7 @@
+---
+layout: null
+sitemap: false
+---
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -38,8 +42,16 @@
   </url>
   <url>
     <loc>https://beadlight.app/blog/</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+{% for post in site.posts %}
+  <url>
+    <loc>{{ post.url | absolute_url | xml_escape }}</loc>
+    <lastmod>{{ post.date | date_to_xmlschema }}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+{% endfor %}
 </urlset>
