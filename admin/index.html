@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Beadlight Admin</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="stylesheet" href="../styles.css?v=20260627-roadmap-editor">
+  <link rel="stylesheet" href="../styles.css?v=20260811-blog-studio">
   <link rel="icon" href="../assets/beadlight-icon-v14-192.png">
 </head>
 <body>
@@ -30,7 +30,7 @@
     <section class="admin-hero">
       <p class="eyebrow">Private admin</p>
       <h1>Beadlight control centre</h1>
-      <p class="lead">Prayer analytics, public roadmap management and customer support tickets in one secure workspace.</p>
+      <p class="lead">Prayer analytics, blog publishing, public roadmap management and customer support tickets in one secure workspace.</p>
     </section>
 
     <section class="admin-panel admin-login-panel" id="loginPanel">
@@ -71,6 +71,14 @@
           <span>
             <strong>Roadmap</strong>
             <small>Features and releases</small>
+          </span>
+        </button>
+
+        <button class="admin-workspace-tab" type="button" data-admin-tab="blog" aria-selected="false">
+          <span class="admin-tab-icon">✦</span>
+          <span>
+            <strong>Blog</strong>
+            <small>Write and publish</small>
           </span>
         </button>
 
@@ -194,6 +202,74 @@
         </div>
       </section>
 
+      <section class="admin-workspace-section" id="blogSection" data-admin-section="blog" aria-labelledby="blogAdminTitle">
+        <div class="admin-section-card admin-section-card-blog">
+          <div class="admin-section-heading">
+            <div>
+              <p class="admin-kicker">Beadlight journal</p>
+              <h2 id="blogAdminTitle">Blog publishing studio</h2>
+              <p>Create beautifully formatted posts, add images, preview the finished article and publish it directly to beadlight.app.</p>
+            </div>
+            <a class="primary-button" href="./blog/">Open blog studio</a>
+          </div>
+
+          <div class="admin-blog-launch-grid">
+            <article class="admin-blog-callout">
+              <span class="admin-blog-callout-icon" aria-hidden="true">✎</span>
+              <div>
+                <h3>Everything needed to publish</h3>
+                <p>The studio includes headings, bold and italic text, links, lists, quotations, images, a live preview and publish controls. Posts become fast, shareable pages at clean <strong>/blog/post-name/</strong> addresses.</p>
+                <a class="secondary-button" href="../blog/" target="_blank" rel="noopener">View public blog</a>
+              </div>
+            </article>
+
+            <article class="admin-blog-first-login">
+              <p class="admin-kicker">First visit only</p>
+              <h3>Connect the studio to GitHub</h3>
+              <ol>
+                <li>Choose <strong>Sign In with Token</strong>.</li>
+                <li>Use the studio’s GitHub link to create a fine-grained token.</li>
+                <li>Limit it to <strong>samwarb/beadlight</strong>, allow <strong>Contents: read and write</strong>, and set an expiry.</li>
+              </ol>
+              <p class="admin-note">The token stays in this browser. It is never added to the website or repository.</p>
+            </article>
+          </div>
+
+          <div class="admin-blog-workflow" aria-label="Blog publishing workflow">
+            <article>
+              <span>1</span>
+              <h3>Write</h3>
+              <p>Start a post yourself or ask an AI agent to prepare one using the publishing guide.</p>
+            </article>
+            <article>
+              <span>2</span>
+              <h3>Preview</h3>
+              <p>Check the wording, layout, image and alternative text before it goes live.</p>
+            </article>
+            <article>
+              <span>3</span>
+              <h3>Publish</h3>
+              <p>Save in the studio and GitHub Pages builds the public article automatically.</p>
+            </article>
+          </div>
+
+          <div class="admin-blog-agent-card">
+            <div>
+              <p class="admin-kicker">Daily AI workflow</p>
+              <h3>Copy a ready-made agent instruction</h3>
+              <p>This asks an agent to prepare a source-backed post and open it for review without publishing it prematurely.</p>
+            </div>
+            <label for="blogAgentBrief">Agent instruction</label>
+            <textarea id="blogAgentBrief" rows="7" readonly>Work in the GitHub repository samwarb/beadlight. Read BLOG_AGENT_GUIDE.md completely, then prepare one original Beadlight blog post for today's date. Keep Catholic teaching and factual claims source-backed, use the established Beadlight voice and design, add an accessible optimised image when useful, and follow the required Markdown front matter exactly. Validate the post locally, create a reviewable branch and pull request, and do not merge or publish until Sam approves it.</textarea>
+            <div class="admin-actions">
+              <button class="secondary-button" id="copyBlogAgentBriefBtn" type="button">Copy agent instruction</button>
+              <a href="https://github.com/samwarb/beadlight/blob/main/BLOG_AGENT_GUIDE.md" target="_blank" rel="noopener">Open the full agent guide <span aria-hidden="true">→</span></a>
+            </div>
+            <p class="admin-note" id="blogAgentCopyStatus" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+
       <section class="admin-workspace-section" id="ticketsSection" data-admin-section="tickets" aria-labelledby="ticketsTitle">
         <div class="admin-section-card admin-section-card-tickets">
           <div class="admin-section-heading">
@@ -281,7 +357,7 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../supabase-config.js?v=20260627-roadmap-editor"></script>
-  <script src="admin.js?v=20260627-roadmap-editor"></script>
+  <script src="../supabase-config.js?v=20260811-blog-studio"></script>
+  <script src="admin.js?v=20260811-blog-studio"></script>
 </body>
 </html>
