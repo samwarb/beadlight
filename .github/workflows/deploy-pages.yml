@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+  # Rebuild at 09:00 Europe/London during British Summer Time so future-dated
+  # posts become visible on their scheduled publication day.
+  schedule:
+    - cron: '0 8 * * *'
   workflow_dispatch:
 
 permissions:
