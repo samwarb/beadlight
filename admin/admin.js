@@ -517,10 +517,7 @@ function renderGrowthAnalyticsOnboarding(rows) {
   const baseline = new Map();
 
   totals.forEach((row) => {
-    const current = baseline.get(row.platform);
-    if (!current || row.onboarding_page_index < current.onboarding_page_index) {
-      baseline.set(row.platform, row);
-    }
+    if (row.onboarding_page_index === 0) baseline.set(row.platform, row);
   });
 
   const values = totals.map((row) => {
