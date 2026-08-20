@@ -514,21 +514,27 @@ function renderGrowthAnalyticsDaily(rows) {
 
 function renderGrowthAnalyticsOnboarding(rows) {
   const totals = aggregateGrowthOnboardingPages(rows);
-  const baseline = new Map();
+  const platforms = [...new Set(totals.map((row) => row.platform))].sort();
+  const byPlatformPage = new Map(
+    totals.map((row) => [`${row.platform}:${row.onboarding_page_index}`, row])
+  );
+  const values = platforms.flatMap((platform) => {
+    const firstPage = byPlatformPage.get(`${platform}:0`);
 
-  totals.forEach((row) => {
-    if (row.onboarding_page_index === 0) baseline.set(row.platform, row);
-  });
+    return Array.from({ length: 10 }, (_, pageIndex) => {
+      const row = byPlatformPage.get(`${platform}:${pageIndex}`) || {
+        page_viewers: 0,
+        page_view_events: 0
+      };
 
-  const values = totals.map((row) => {
-    const firstPage = baseline.get(row.platform);
-    return [
-      titleCase(row.platform),
-      `Page ${row.onboarding_page_index + 1}`,
-      formatNumber(row.page_viewers),
-      formatNumber(row.page_view_events),
-      formatRate(row.page_viewers, firstPage ? firstPage.page_viewers : 0)
-    ];
+      return [
+        titleCase(platform),
+        `Page ${pageIndex + 1}`,
+        formatNumber(row.page_viewers),
+        formatNumber(row.page_view_events),
+        formatRate(row.page_viewers, firstPage ? firstPage.page_viewers : 0)
+      ];
+    });
   });
 
   renderGrowthAnalyticsTable(
