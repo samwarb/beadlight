@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Beadlight Admin</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="stylesheet" href="../styles.css?v=20260811-blog-studio">
+  <link rel="stylesheet" href="../styles.css?v=20260820-growth-funnel">
   <link rel="icon" href="../assets/beadlight-icon-v14-192.png">
 </head>
 <body>
@@ -117,6 +117,55 @@
           </div>
 
           <div id="analyticsStatus" class="admin-status"></div>
+        </div>
+
+        <div class="admin-section-card admin-section-card-analytics growth-funnel-section">
+          <div class="admin-section-heading growth-funnel-heading">
+            <div>
+              <p class="admin-kicker">Acquisition to account</p>
+              <h2 id="growthAnalyticsTitle">Growth funnel</h2>
+              <p>Onboarding, paywall, purchase, trial and account outcomes captured by the app.</p>
+            </div>
+
+            <div class="growth-funnel-controls" aria-label="Growth funnel controls">
+              <label for="growthAnalyticsRange">
+                <span>Period</span>
+                <select id="growthAnalyticsRange">
+                  <option value="7">Last 7 days</option>
+                  <option value="30" selected>Last 30 days</option>
+                  <option value="90">Last 90 days</option>
+                </select>
+              </label>
+              <button class="secondary-button" id="refreshGrowthAnalyticsBtn" type="button">Refresh growth data</button>
+            </div>
+          </div>
+
+          <p id="growthAnalyticsFreshness" class="growth-analytics-freshness" aria-live="polite"></p>
+          <div class="analytics-grid" id="growthAnalyticsTotals" aria-live="polite"></div>
+
+          <div class="analytics-tables growth-analytics-tables">
+            <article class="analytics-table-card">
+              <h3>Daily funnel by platform</h3>
+              <div id="growthAnalyticsDaily"></div>
+            </article>
+
+            <article class="analytics-table-card">
+              <h3>Onboarding page drop-off</h3>
+              <div id="growthAnalyticsOnboarding"></div>
+            </article>
+
+            <article class="analytics-table-card">
+              <h3>Paywall and account sources</h3>
+              <div id="growthAnalyticsSources"></div>
+            </article>
+
+            <article class="analytics-table-card">
+              <h3>Products and trial eligibility</h3>
+              <div id="growthAnalyticsProducts"></div>
+            </article>
+          </div>
+
+          <div id="growthAnalyticsStatus" class="admin-status"></div>
         </div>
 
         <div class="admin-section-card">
@@ -357,7 +406,7 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../supabase-config.js?v=20260811-blog-studio"></script>
-  <script src="admin.js?v=20260811-blog-studio"></script>
+  <script src="../supabase-config.js?v=20260820-growth-funnel"></script>
+  <script src="admin.js?v=20260820-growth-funnel"></script>
 </body>
 </html>

@@ -73,6 +73,15 @@ const analyticsStatus = document.getElementById("analyticsStatus");
 const analyticsTotals = document.getElementById("analyticsTotals");
 const analyticsDaily = document.getElementById("analyticsDaily");
 const analyticsMysteries = document.getElementById("analyticsMysteries");
+const growthAnalyticsRange = document.getElementById("growthAnalyticsRange");
+const refreshGrowthAnalyticsBtn = document.getElementById("refreshGrowthAnalyticsBtn");
+const growthAnalyticsFreshness = document.getElementById("growthAnalyticsFreshness");
+const growthAnalyticsTotals = document.getElementById("growthAnalyticsTotals");
+const growthAnalyticsDaily = document.getElementById("growthAnalyticsDaily");
+const growthAnalyticsOnboarding = document.getElementById("growthAnalyticsOnboarding");
+const growthAnalyticsSources = document.getElementById("growthAnalyticsSources");
+const growthAnalyticsProducts = document.getElementById("growthAnalyticsProducts");
+const growthAnalyticsStatus = document.getElementById("growthAnalyticsStatus");
 const websiteAnalyticsTotals = document.getElementById("websiteAnalyticsTotals");
 const websiteAnalyticsSources = document.getElementById("websiteAnalyticsSources");
 const websiteAnalyticsPages = document.getElementById("websiteAnalyticsPages");
@@ -128,6 +137,8 @@ async function init() {
   if (headerSignOutBtn) headerSignOutBtn.addEventListener("click", signOut);
   if (addBtn) addBtn.addEventListener("click", addItem);
   if (refreshAnalyticsBtn) refreshAnalyticsBtn.addEventListener("click", loadAnalytics);
+  if (refreshGrowthAnalyticsBtn) refreshGrowthAnalyticsBtn.addEventListener("click", loadGrowthAnalytics);
+  if (growthAnalyticsRange) growthAnalyticsRange.addEventListener("change", loadGrowthAnalytics);
   if (refreshWebsiteAnalyticsBtn) refreshWebsiteAnalyticsBtn.addEventListener("click", loadWebsiteAnalytics);
   if (refreshTicketsBtn) refreshTicketsBtn.addEventListener("click", loadTickets);
   if (copyBlogAgentBriefBtn) copyBlogAgentBriefBtn.addEventListener("click", copyBlogAgentBrief);
@@ -302,7 +313,7 @@ async function showEditor(session) {
   if (headerSignOutBtn) headerSignOutBtn.classList.remove("hidden");
 
   switchAdminSection("analytics");
-  await Promise.all([loadAnalytics(), loadWebsiteAnalytics(), loadItems(), loadTickets()]);
+  await Promise.all([loadAnalytics(), loadGrowthAnalytics(), loadWebsiteAnalytics(), loadItems(), loadTickets()]);
 }
 
 async function loadWebsiteAnalytics() {
@@ -375,6 +386,283 @@ async function loadAnalytics() {
   renderDailyAnalytics(dashboard.daily || []);
   renderMysteryAnalytics(dashboard.mysteries || []);
   setAnalyticsStatus("Prayer analytics loaded.");
+}
+
+async function loadGrowthAnalytics() {
+  const daysBack = getGrowthAnalyticsDays();
+  renderGrowthAnalyticsLoading();
+  setGrowthAnalyticsStatus(`Loading growth funnel for the last ${daysBack} days...`);
+
+  const { data, error } = await client.rpc("get_growth_funnel_dashboard", {
+    days_back: daysBack
+  });
+
+  if (error || data?.error) {
+    const message = error?.message || data?.error || "Growth analytics are unavailable.";
+    renderGrowthAnalyticsEmpty(message);
+    setGrowthAnalyticsStatus("Could not load growth analytics: " + message, true);
+    return;
+  }
+
+  const dashboard = data || {};
+
+  if (!dashboard.summary) {
+    renderGrowthAnalyticsEmpty("The growth dashboard update is not deployed yet.");
+    setGrowthAnalyticsStatus(
+      "Growth analytics need the admin dashboard migration before these fields can be shown.",
+      true
+    );
+    return;
+  }
+
+  renderGrowthAnalyticsSummary(dashboard.summary);
+  renderGrowthAnalyticsDaily(dashboard.daily || []);
+  renderGrowthAnalyticsOnboarding(dashboard.onboarding_page_totals || dashboard.onboarding_pages || []);
+  renderGrowthAnalyticsSources(dashboard.sources || []);
+  renderGrowthAnalyticsProducts(dashboard.products || []);
+  renderGrowthAnalyticsFreshness(dashboard.freshness || {}, daysBack);
+  setGrowthAnalyticsStatus("Growth funnel loaded.");
+}
+
+function getGrowthAnalyticsDays() {
+  const daysBack = Number(growthAnalyticsRange ? growthAnalyticsRange.value : 30);
+  return [7, 30, 90].includes(daysBack) ? daysBack : 30;
+}
+
+function renderGrowthAnalyticsLoading() {
+  if (growthAnalyticsTotals) {
+    growthAnalyticsTotals.innerHTML = [
+      "Active devices",
+      "Onboarding starts",
+      "Onboarding complete",
+      "Onboarding skipped",
+      "Onboarding completion",
+      "Paywall views",
+      "Purchase starts",
+      "Purchase successes",
+      "Purchase conversion",
+      "Account starts",
+      "Accounts created",
+      "Account success"
+    ].map((label) => renderAnalyticsCard("...", label)).join("");
+  }
+
+  const loading = `<div class="analytics-empty">Loading growth data...</div>`;
+  if (growthAnalyticsFreshness) growthAnalyticsFreshness.textContent = "";
+  if (growthAnalyticsDaily) growthAnalyticsDaily.innerHTML = loading;
+  if (growthAnalyticsOnboarding) growthAnalyticsOnboarding.innerHTML = loading;
+  if (growthAnalyticsSources) growthAnalyticsSources.innerHTML = loading;
+  if (growthAnalyticsProducts) growthAnalyticsProducts.innerHTML = loading;
+}
+
+function renderGrowthAnalyticsEmpty(message) {
+  if (growthAnalyticsTotals) growthAnalyticsTotals.innerHTML = "";
+  if (growthAnalyticsFreshness) growthAnalyticsFreshness.textContent = "";
+
+  const empty = `<div class="analytics-empty">${escapeHtml(message)}</div>`;
+  if (growthAnalyticsDaily) growthAnalyticsDaily.innerHTML = empty;
+  if (growthAnalyticsOnboarding) growthAnalyticsOnboarding.innerHTML = empty;
+  if (growthAnalyticsSources) growthAnalyticsSources.innerHTML = empty;
+  if (growthAnalyticsProducts) growthAnalyticsProducts.innerHTML = empty;
+}
+
+function renderGrowthAnalyticsSummary(summary) {
+  if (!growthAnalyticsTotals) return;
+
+  const cards = [
+    [summary.active_devices, "Active devices"],
+    [summary.onboarding_starters, "Onboarding starts"],
+    [summary.onboarding_completers, "Onboarding complete"],
+    [summary.onboarding_skippers, "Onboarding skipped"],
+    [formatRate(summary.onboarding_completers, summary.onboarding_starters), "Onboarding completion"],
+    [summary.paywall_viewers, "Paywall views"],
+    [summary.purchase_starters, "Purchase starts"],
+    [summary.purchase_converters, "Purchase successes"],
+    [formatRate(summary.purchase_converters, summary.purchase_starters), "Purchase conversion"],
+    [summary.account_starters, "Account starts"],
+    [summary.account_successes, "Accounts created"],
+    [formatRate(summary.account_successes, summary.account_starters), "Account success"]
+  ];
+
+  growthAnalyticsTotals.innerHTML = cards.map(([value, label]) => {
+    const displayValue = typeof value === "string" ? value : formatNumber(value);
+    return renderAnalyticsCard(displayValue, label);
+  }).join("");
+}
+
+function renderGrowthAnalyticsDaily(rows) {
+  const values = (rows || []).map((row) => [
+    formatDate(row.activity_date),
+    titleCase(row.platform || "unknown"),
+    formatNumber(row.onboarding_starters),
+    formatNumber(row.onboarding_completers),
+    formatNumber(row.onboarding_skippers),
+    formatNumber(row.paywall_viewers),
+    formatNumber(row.purchase_starters),
+    formatNumber(row.purchase_converters),
+    formatNumber(row.account_starters),
+    formatNumber(row.account_successes)
+  ]);
+
+  renderGrowthAnalyticsTable(
+    growthAnalyticsDaily,
+    ["Date", "Platform", "Onboarding starts", "Onboarding complete", "Onboarding skipped", "Paywall views", "Purchase starts", "Purchase successes", "Account starts", "Accounts created"],
+    values,
+    "No funnel events have been received in this period yet."
+  );
+}
+
+function renderGrowthAnalyticsOnboarding(rows) {
+  const totals = aggregateGrowthOnboardingPages(rows);
+  const baseline = new Map();
+
+  totals.forEach((row) => {
+    const current = baseline.get(row.platform);
+    if (!current || row.onboarding_page_index < current.onboarding_page_index) {
+      baseline.set(row.platform, row);
+    }
+  });
+
+  const values = totals.map((row) => {
+    const firstPage = baseline.get(row.platform);
+    return [
+      titleCase(row.platform),
+      `Page ${row.onboarding_page_index + 1}`,
+      formatNumber(row.page_viewers),
+      formatNumber(row.page_view_events),
+      formatRate(row.page_viewers, firstPage ? firstPage.page_viewers : 0)
+    ];
+  });
+
+  renderGrowthAnalyticsTable(
+    growthAnalyticsOnboarding,
+    ["Platform", "Page", "Viewers", "Events", "Retention from page 1"],
+    values,
+    "No onboarding page views have been received in this period yet."
+  );
+}
+
+function aggregateGrowthOnboardingPages(rows) {
+  const totals = new Map();
+
+  (rows || []).forEach((row) => {
+    const pageIndex = Number(row.onboarding_page_index);
+    if (!Number.isInteger(pageIndex) || pageIndex < 0 || pageIndex > 9) return;
+
+    const platform = row.platform || "unknown";
+    const key = `${platform}:${pageIndex}`;
+    const current = totals.get(key) || {
+      platform,
+      onboarding_page_index: pageIndex,
+      page_viewers: 0,
+      page_view_events: 0
+    };
+
+    current.page_viewers += Number(row.page_viewers || 0);
+    current.page_view_events += Number(row.page_view_events || 0);
+    totals.set(key, current);
+  });
+
+  return [...totals.values()].sort((a, b) => {
+    return String(a.platform).localeCompare(String(b.platform))
+      || a.onboarding_page_index - b.onboarding_page_index;
+  });
+}
+
+function renderGrowthAnalyticsSources(rows) {
+  const values = (rows || []).map((row) => [
+    growthSourceLabel(row.source),
+    titleCase(row.platform || "unknown"),
+    formatNumber(row.paywall_viewers),
+    formatNumber(row.purchase_starts),
+    formatNumber(row.purchase_successes),
+    formatNumber(row.purchase_cancellations),
+    formatNumber(row.purchase_failures),
+    formatNumber(row.account_prompt_viewers),
+    formatNumber(row.account_starters),
+    formatNumber(row.account_successes)
+  ]);
+
+  renderGrowthAnalyticsTable(
+    growthAnalyticsSources,
+    ["Source", "Platform", "Paywall views", "Purchase starts", "Purchase successes", "Cancelled", "Failed", "Account prompts", "Account starts", "Accounts created"],
+    values,
+    "No paywall or account source events have been received in this period yet."
+  );
+}
+
+function renderGrowthAnalyticsProducts(rows) {
+  const values = (rows || []).map((row) => [
+    titleCase(row.product_id || "unknown product"),
+    titleCase(row.platform || "unknown"),
+    formatNumber(row.purchase_starts),
+    formatNumber(row.purchase_successes),
+    formatNumber(row.purchase_cancellations),
+    formatNumber(row.purchase_failures),
+    formatOptionalNumber(row.trial_eligible_starts),
+    formatOptionalNumber(row.trial_eligible_successes),
+    formatOptionalNumber(row.trial_ineligible_starts),
+    formatOptionalNumber(row.trial_ineligible_successes),
+    formatOptionalNumber(row.trial_unknown_starts),
+    formatOptionalNumber(row.trial_unknown_successes)
+  ]);
+
+  renderGrowthAnalyticsTable(
+    growthAnalyticsProducts,
+    ["Product", "Platform", "Starts", "Successes", "Cancelled", "Failed", "Eligible starts", "Eligible successes", "Ineligible starts", "Ineligible successes", "Unknown starts", "Unknown successes"],
+    values,
+    "No product or trial outcome events have been received in this period yet."
+  );
+}
+
+function renderGrowthAnalyticsTable(container, headings, rows, emptyMessage) {
+  if (!container) return;
+
+  if (!rows.length) {
+    container.innerHTML = `<div class="analytics-empty">${escapeHtml(emptyMessage)}</div>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="analytics-table-scroll">
+      <table class="analytics-table">
+        <thead><tr>${headings.map((heading) => `<th>${escapeHtml(heading)}</th>`).join("")}</tr></thead>
+        <tbody>
+          ${rows.map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderGrowthAnalyticsFreshness(freshness, daysBack) {
+  if (!growthAnalyticsFreshness) return;
+
+  if (!freshness.latest_received_at) {
+    growthAnalyticsFreshness.textContent = `No growth events have been received in the last ${daysBack} days.`;
+    return;
+  }
+
+  growthAnalyticsFreshness.textContent = `Latest growth event received ${formatDateTime(freshness.latest_received_at)}.`;
+}
+
+function setGrowthAnalyticsStatus(message, isError = false) {
+  if (!growthAnalyticsStatus) return;
+  growthAnalyticsStatus.textContent = message;
+  growthAnalyticsStatus.classList.toggle("error-text", isError);
+}
+
+function growthSourceLabel(source) {
+  const labels = {
+    onboarding_paywall: "Onboarding",
+    guided_mode_paywall: "Guided mode",
+    post_rosary_completion: "Post-rosary completion",
+    return_reminder: "Return reminder",
+    onboarding: "Onboarding",
+    unknown: "Unknown source"
+  };
+
+  return labels[source] || titleCase(source || "unknown source");
 }
 
 function renderAnalyticsLoading() {
@@ -1762,6 +2050,22 @@ function setTicketStatus(message, isError = false) {
 
 function formatNumber(value) {
   return new Intl.NumberFormat("en-GB").format(Number(value || 0));
+}
+
+function formatOptionalNumber(value) {
+  return value === null || value === undefined ? "—" : formatNumber(value);
+}
+
+function formatRate(numerator, denominator) {
+  const top = Number(numerator || 0);
+  const bottom = Number(denominator || 0);
+
+  if (!bottom) return "—";
+
+  return new Intl.NumberFormat("en-GB", {
+    style: "percent",
+    maximumFractionDigits: 1
+  }).format(top / bottom);
 }
 
 function formatDate(value) {
