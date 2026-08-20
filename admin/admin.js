@@ -240,25 +240,6 @@ async function sendMagicLink() {
     return;
   }
 
-  setLoginStatus("Checking admin access...");
-
-  let isAdmin = false;
-
-  try {
-    isAdmin = await isAuthorizedAdminEmail(email);
-  } catch (error) {
-    setLoginStatus(
-      error.message || "Could not verify admin access. Please try again later.",
-      true
-    );
-    return;
-  }
-
-  if (!isAdmin) {
-    setLoginStatus("Unauthorised user.", true);
-    return;
-  }
-
   setLoginStatus("Sending magic link...");
 
   const { error } = await client.auth.signInWithOtp({
@@ -273,7 +254,7 @@ async function sendMagicLink() {
     return;
   }
 
-  setLoginStatus("Magic link sent. Check your email, then open the newest link.");
+  setLoginStatus("If the address is approved, a magic link has been sent. Check your email, then open the newest link.");
 }
 
 async function showEditor(session) {

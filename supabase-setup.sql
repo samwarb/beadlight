@@ -11,6 +11,25 @@ insert into public.admin_users (email)
 values ('swgwarburton@gmail.com')
 on conflict (email) do nothing;
 
+-- Admin checks run after a user has authenticated. Keep this function
+-- unavailable to anonymous callers so the admin list cannot be enumerated.
+create or replace function public.is_admin_email(check_email text)
+returns boolean
+language sql
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1
+    from public.admin_users
+    where lower(email) = lower(check_email)
+  );
+$$;
+
+revoke all on function public.is_admin_email(text) from public;
+revoke all on function public.is_admin_email(text) from anon;
+grant execute on function public.is_admin_email(text) to authenticated;
+
 create table if not exists public.roadmap_items (
   id uuid primary key default gen_random_uuid(),
   title text not null,
