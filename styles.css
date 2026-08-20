@@ -1656,6 +1656,47 @@ textarea:focus {
   color: var(--muted);
 }
 
+.growth-funnel-heading {
+  align-items: end;
+}
+
+.growth-funnel-controls {
+  display: flex;
+  align-items: end;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.growth-funnel-controls label {
+  display: grid;
+  gap: 6px;
+  min-width: 150px;
+}
+
+.growth-funnel-controls label > span {
+  color: #736a5c;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.growth-funnel-controls select {
+  min-height: 42px;
+}
+
+.growth-analytics-freshness {
+  min-height: 1.25rem;
+  margin: -4px 0 18px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.growth-analytics-tables {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 /* Tickets */
 
 .ticket-summary-grid {
@@ -1982,6 +2023,10 @@ textarea:focus {
   }
 
   .analytics-tables {
+    grid-template-columns: 1fr;
+  }
+
+  .growth-analytics-tables {
     grid-template-columns: 1fr;
   }
 
