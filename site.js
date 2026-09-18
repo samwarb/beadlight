@@ -1,5 +1,6 @@
 (function () {
   const root = document.documentElement.dataset.siteRoot || ".";
+  const isSpanish = document.documentElement.lang === "es";
   const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   let revealObserver = null;
 
@@ -88,15 +89,25 @@
     const targets = document.querySelectorAll("[data-daily-mystery]");
     if (!targets.length) return;
 
-    const mysteriesByDay = [
-      "Glorious Mysteries",
-      "Joyful Mysteries",
-      "Sorrowful Mysteries",
-      "Glorious Mysteries",
-      "Luminous Mysteries",
-      "Sorrowful Mysteries",
-      "Joyful Mysteries"
-    ];
+    const mysteriesByDay = isSpanish
+      ? [
+        "Misterios Gloriosos",
+        "Misterios Gozosos",
+        "Misterios Dolorosos",
+        "Misterios Gloriosos",
+        "Misterios Luminosos",
+        "Misterios Dolorosos",
+        "Misterios Gozosos"
+      ]
+      : [
+        "Glorious Mysteries",
+        "Joyful Mysteries",
+        "Sorrowful Mysteries",
+        "Glorious Mysteries",
+        "Luminous Mysteries",
+        "Sorrowful Mysteries",
+        "Joyful Mysteries"
+      ];
 
     const mystery = mysteriesByDay[new Date().getDay()];
     targets.forEach((target) => {
@@ -217,7 +228,7 @@
       const items = await loadRoadmapItems();
       renderRoadmapPreview(mount, items);
     } catch (error) {
-      mount.innerHTML = `<div class="empty-state">Roadmap preview is temporarily unavailable.</div>`;
+      mount.innerHTML = `<div class="empty-state">${isSpanish ? "La vista previa de la hoja de ruta no está disponible temporalmente." : "Roadmap preview is temporarily unavailable."}</div>`;
     }
   }
 
@@ -271,14 +282,14 @@
       .slice(0, 3);
 
     if (!selected.length) {
-      mount.innerHTML = `<div class="empty-state">No public roadmap items are available yet.</div>`;
+      mount.innerHTML = `<div class="empty-state">${isSpanish ? "Todavía no hay elementos públicos de la hoja de ruta disponibles." : "No public roadmap items are available yet."}</div>`;
       return;
     }
 
     mount.innerHTML = selected.map((item) => `
       <article class="roadmap-preview-card">
         <span>${escapeHtml(statusLabel(item.status))}</span>
-        <h3>${escapeHtml(item.title || "Roadmap item")}</h3>
+        <h3>${escapeHtml(item.title || (isSpanish ? "Elemento de la hoja de ruta" : "Roadmap item"))}</h3>
         <p>${escapeHtml(item.summary || "")}</p>
       </article>
     `).join("");
@@ -287,15 +298,23 @@
   }
 
   function statusLabel(value) {
-    const labels = {
-      "in-progress": "In progress",
-      planned: "Planned",
-      "under-consideration": "Under consideration",
-      released: "Released",
-      "not-planned": "Not planned"
-    };
+    const labels = isSpanish
+      ? {
+        "in-progress": "En progreso",
+        planned: "Planificado",
+        "under-consideration": "En consideración",
+        released: "Publicado",
+        "not-planned": "No planificado"
+      }
+      : {
+        "in-progress": "In progress",
+        planned: "Planned",
+        "under-consideration": "Under consideration",
+        released: "Released",
+        "not-planned": "Not planned"
+      };
 
-    return labels[value] || value || "Roadmap";
+    return labels[value] || value || (isSpanish ? "Hoja de ruta" : "Roadmap");
   }
 
   function escapeHtml(value) {

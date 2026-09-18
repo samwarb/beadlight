@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="es" data-site-root="../.." data-privacy-path="../privacy/">
+<head>
+<script src="../../cookie-consent.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Soporte de Beadlight - Ayuda y comentarios</title>
+  <meta name="description" content="Contacta con el soporte de Beadlight, informa de un error o sugiere una mejora para la aplicación católica del Rosario.">
+  <link rel="canonical" href="https://beadlight.app/es/support/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Beadlight">
+  <meta property="og:title" content="Soporte de Beadlight">
+  <meta property="og:description" content="Envía solicitudes de soporte, informes de errores y sugerencias para Beadlight.">
+  <meta property="og:url" content="https://beadlight.app/es/support/">
+  <meta property="og:image" content="https://beadlight.app/assets/app-preview.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Soporte de Beadlight">
+  <meta name="twitter:description" content="Contacta con el soporte de Beadlight, informa de un error o sugiere una mejora.">
+  <meta name="twitter:image" content="https://beadlight.app/assets/app-preview.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="../../marketing.css">
+  <link rel="icon" href="../../assets/beadlight-icon-v14-192.png">
+  <link rel="apple-touch-icon" href="../../assets/beadlight-icon-v14-192.png">
+  <link rel="manifest" href="../../site.webmanifest">
+</head>
+
+<body class="marketing-page support-public-page">
+  <a class="skip-link" href="#main">Ir al contenido</a>
+
+  <header class="site-header marketing-header" data-site-header>
+    <a class="brand" href="../" aria-label="Inicio de Beadlight">
+      <img src="../../assets/beadlight-icon-v14-192.png" alt="" width="50" height="50">
+      <span>
+        <strong>Beadlight</strong>
+        <small>Compañero de oración del Rosario</small>
+      </span>
+    </a>
+
+    <nav class="site-nav" id="siteNav" aria-label="Navegación principal">
+      <a href="../#features">Funciones</a>
+      <a href="../#guided-audio">Audio guiado</a>
+      <a href="../#pricing">Precios</a>
+      <a href="../#story">Nuestra historia</a>
+      <a href="../support/" aria-current="page" data-analytics-event="support_navigation">Soporte</a>
+      <a href="../../blog/">Blog</a>
+    </nav>
+
+    <div class="header-actions">
+      <a class="nav-pill" href="../download/" data-analytics-event="download_click">Descarga gratis</a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="siteNav" data-menu-toggle>
+        <span>Menú</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="support-page" id="main">
+    <section class="support-hero">
+      <div>
+        <p class="eyebrow">Soporte y sugerencias</p>
+        <h1>¿Cómo podemos ayudarte?</h1>
+        <p class="lead">
+          Envía una solicitud de soporte, informa de un error o sugiere una mejora para Beadlight.
+        </p>
+      </div>
+    </section>
+
+    <section class="support-layout">
+      <form id="supportForm" class="support-form-card">
+        <div class="form-head">
+          <p class="eyebrow">Enviar una solicitud</p>
+          <h2>Cuéntanos qué necesitas</h2>
+          <p>
+            Completa los datos siguientes y tu solicitud se enviará al soporte de Beadlight.
+          </p>
+        </div>
+
+        <div class="support-form-grid">
+          <label>
+            Tu nombre
+            <input id="ticketName" name="name" type="text" placeholder="Tu nombre" required>
+          </label>
+
+          <label>
+            Tu correo electrónico
+            <input id="ticketEmail" name="email" type="email" placeholder="tu@ejemplo.com" required>
+          </label>
+
+          <label>
+            Tipo de solicitud
+            <select id="ticketType" name="type" required>
+              <option value="">Selecciona una opción</option>
+              <option value="Support needed">Soporte necesario</option>
+              <option value="Suggestion">Sugerencia</option>
+              <option value="Bug report">Informe de error</option>
+              <option value="Feature request">Solicitud de función</option>
+              <option value="Subscription / purchase issue">Problema de suscripción o compra</option>
+              <option value="Other">Otro</option>
+            </select>
+          </label>
+
+          <label>
+            Prioridad
+            <select id="ticketPriority" name="priority" required>
+              <option value="Normal">Normal</option>
+              <option value="Low">Baja</option>
+              <option value="High">Alta</option>
+              <option value="Urgent">Urgente</option>
+            </select>
+          </label>
+
+          <label class="wide">
+            Asunto
+            <input id="ticketSubject" name="subject" type="text" placeholder="Describe brevemente el problema o la idea" required>
+          </label>
+
+          <label class="wide">
+            Mensaje
+            <textarea id="ticketMessage" name="message" rows="7" placeholder="Cuéntanos qué ocurrió, qué esperabas o qué te gustaría que añadiéramos." required></textarea>
+          </label>
+
+          <label class="wide">
+            Datos del dispositivo y de la aplicación
+            <input id="ticketDevice" name="device" type="text" placeholder="p. ej., iPhone 15, iOS 18 y versión de Beadlight si la sabes">
+          </label>
+        </div>
+
+        <div class="support-actions">
+          <button id="supportSubmitBtn" class="primary-button" type="submit">Enviar solicitud</button>
+          <button class="secondary-button" type="reset">Borrar formulario</button>
+        </div>
+
+        <p id="supportStatus" class="support-status">
+          Tu solicitud se enviará de forma segura a través del soporte de Beadlight.
+        </p>
+      </form>
+
+      <aside class="support-info-card">
+        <p class="eyebrow">Antes de enviar</p>
+        <h2>Datos útiles</h2>
+
+        <p>
+          Cuantos más detalles incluyas, más fácil será entender el problema o la sugerencia.
+        </p>
+
+        <ul>
+          <li>Qué intentabas hacer</li>
+          <li>Qué salió mal o qué esperabas</li>
+          <li>El modelo de tu dispositivo, el sistema operativo y la versión de Beadlight si la sabes</li>
+          <li>Si está relacionado con el audio guiado, los misterios, las suscripciones o la hoja de ruta</li>
+        </ul>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <a class="brand" href="../" aria-label="Inicio de Beadlight">
+        <img src="../../assets/beadlight-icon-v14-192.png" alt="" width="44" height="44">
+        <span><strong>Beadlight</strong></span>
+      </a>
+      <p>Beadlight se ocupa de la secuencia para que puedas concentrarte en la oración.</p>
+    </div>
+
+    <nav aria-label="Navegación del pie de página">
+      <a href="../#features">Funciones</a>
+      <a href="../#pricing">Precios</a>
+      <a href="../#story">Nuestra historia</a>
+      <a href="../privacy/">Privacidad</a>
+      <a href="../support/" data-analytics-event="support_navigation">Soporte</a>
+      <a href="../../roadmap/">Hoja de ruta</a>
+      <a href="../../blog/">Blog</a>
+      <a href="../../how-to-pray-the-rosary/">Cómo rezar el Rosario</a>
+      <a href="../download/" data-analytics-event="download_click">Descarga la aplicación</a>
+    </nav>
+
+    <p class="copyright">&copy; 2026 Beadlight. Beadlight está operada por Sam Warburton, que trabaja con el nombre comercial Mercian Digital.</p>
+  </footer>
+
+  <script src="../../supabase-config.js"></script>
+  <a class="mobile-download-bar" href="../download/" data-analytics-event="download_click">Descarga Beadlight gratis</a>
+
+  <script>
+    const SUPPORT_FUNCTION_URL = "https://ibfdpdjknxcbvuqmvimz.supabase.co/functions/v1/dynamic-endpoint";
+
+    const supportForm = document.getElementById("supportForm");
+    const supportStatus = document.getElementById("supportStatus");
+    const supportSubmitBtn = document.getElementById("supportSubmitBtn");
+
+    supportForm.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const config = window.BEADLIGHT_SUPABASE || {};
+      const anonKey = config.anonKey;
+
+      if (!anonKey) {
+        showSupportStatus("Falta la clave pública de Supabase en el formulario de soporte. Comprueba supabase-config.js.", true);
+        return;
+      }
+
+      const payload = {
+        name: document.getElementById("ticketName").value.trim(),
+        email: document.getElementById("ticketEmail").value.trim(),
+        type: document.getElementById("ticketType").value,
+        priority: document.getElementById("ticketPriority").value,
+        subject: document.getElementById("ticketSubject").value.trim(),
+        message: document.getElementById("ticketMessage").value.trim(),
+        device: document.getElementById("ticketDevice").value.trim()
+      };
+
+      if (!payload.name || !payload.email || !payload.type || !payload.subject || !payload.message) {
+        showSupportStatus("Completa todos los campos obligatorios antes de enviar.", true);
+        return;
+      }
+
+      supportSubmitBtn.disabled = true;
+      supportSubmitBtn.textContent = "Enviando…";
+      showSupportStatus("Enviando tu solicitud…", false);
+
+      try {
+        const response = await fetch(SUPPORT_FUNCTION_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + anonKey,
+            "apikey": anonKey
+          },
+          body: JSON.stringify(payload)
+        });
+
+        let result = {};
+
+        try {
+          result = await response.json();
+        } catch (jsonError) {
+          result = {};
+        }
+
+        if (!response.ok) {
+          throw new Error(result.error || result.message || "No se pudo enviar la solicitud.");
+        }
+
+        supportForm.reset();
+        showSupportStatus("Solicitud enviada. Gracias; la revisaremos lo antes posible.", false);
+      } catch (error) {
+        showSupportStatus(
+          error.message || "Algo salió mal. Inténtalo de nuevo más tarde.",
+          true
+        );
+      } finally {
+        supportSubmitBtn.disabled = false;
+        supportSubmitBtn.textContent = "Enviar solicitud";
+      }
+    });
+
+    function showSupportStatus(message, isError) {
+      supportStatus.textContent = message;
+      supportStatus.classList.toggle("error-text", isError);
+    }
+
+  </script>
+  <script src="../../site.js" defer></script>
+</body>
+</html>

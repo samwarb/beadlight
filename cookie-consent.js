@@ -26,9 +26,13 @@
     if (consent === "accept") return;
     const banner = document.createElement("aside");
     banner.id = "cookieConsentBanner";
-    banner.setAttribute("aria-label", "Cookie preferences");
+    const isSpanish = document.documentElement.lang === "es";
     const root = document.documentElement.dataset.siteRoot || ".";
-    banner.innerHTML = `<div class="cookie-consent-copy"><strong>Privacy choices</strong><p>Beadlight uses Google Analytics to understand visits, traffic sources and store-link clicks. Analytics is active unless you reject it.</p><a href="${root}/privacy/">Read our privacy policy</a></div><div class="cookie-consent-actions"><button type="button" data-cookie-choice="reject">Reject analytics</button><button type="button" data-cookie-choice="accept">Keep analytics on</button></div>`;
+    const privacyPath = document.documentElement.dataset.privacyPath || `${root}/privacy/`;
+    banner.setAttribute("aria-label", isSpanish ? "Preferencias de privacidad" : "Cookie preferences");
+    banner.innerHTML = isSpanish
+      ? `<div class="cookie-consent-copy"><strong>Opciones de privacidad</strong><p>Beadlight utiliza Google Analytics para comprender las visitas, las fuentes de tráfico y los clics en enlaces a las tiendas. La analítica está activa salvo que la rechaces.</p><a href="${privacyPath}">Lee nuestra política de privacidad</a></div><div class="cookie-consent-actions"><button type="button" data-cookie-choice="reject">Rechazar analítica</button><button type="button" data-cookie-choice="accept">Mantener la analítica</button></div>`
+      : `<div class="cookie-consent-copy"><strong>Privacy choices</strong><p>Beadlight uses Google Analytics to understand visits, traffic sources and store-link clicks. Analytics is active unless you reject it.</p><a href="${privacyPath}">Read our privacy policy</a></div><div class="cookie-consent-actions"><button type="button" data-cookie-choice="reject">Reject analytics</button><button type="button" data-cookie-choice="accept">Keep analytics on</button></div>`;
     document.body.appendChild(banner);
     banner.addEventListener("click", function (event) {
       const button = event.target.closest("[data-cookie-choice]");
@@ -46,7 +50,7 @@
     const button = document.createElement("button");
     button.id = "cookieConsentSettings";
     button.type = "button";
-    button.textContent = "Privacy settings";
+    button.textContent = document.documentElement.lang === "es" ? "Configuración de privacidad" : "Privacy settings";
     button.addEventListener("click", function () {
       try { window.localStorage.removeItem(CONSENT_KEY); } catch (error) {}
       button.remove();

@@ -35,6 +35,30 @@ sitemap: false
     <priority>0.4</priority>
   </url>
   <url>
+    <loc>https://beadlight.app/es/</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://beadlight.app/es/support/</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://beadlight.app/es/privacy/</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://beadlight.app/es/delete-account/</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
     <loc>https://beadlight.app/how-to-pray-the-rosary/</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>monthly</changefreq>
