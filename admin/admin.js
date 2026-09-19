@@ -47,12 +47,14 @@ const TICKET_PRIORITIES = [
 const STATUSES_WITHOUT_SPRINT = ["under-consideration", "not-planned"];
 const ADMIN_REDIRECT_URL = "https://beadlight.app/admin/";
 const ADMIN_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+const ALL_TIME_START_DATE = "2000-01-01";
 const DATE_RANGE_PRESETS = [
   ["today", "Today", 0],
   ["yesterday", "Yesterday", 0],
   ["last_7_days", "Last 7 days", 6],
   ["last_30_days", "Last 30 days", 29],
-  ["last_90_days", "Last 90 days", 89]
+  ["last_90_days", "Last 90 days", 89],
+  ["all_time", "All time", 0]
 ];
 const dateRangeState = {};
 
@@ -123,6 +125,14 @@ function shiftLocalDate(date, days) {
 function getPresetDateRange(preset) {
   const presetConfig = DATE_RANGE_PRESETS.find(([key]) => key === preset) || DATE_RANGE_PRESETS[3];
   const today = new Date();
+  if (presetConfig[0] === "all_time") {
+    return {
+      start: ALL_TIME_START_DATE,
+      end: getLocalDateInputValue(today),
+      preset: presetConfig[0]
+    };
+  }
+
   const end = presetConfig[0] === "yesterday" ? shiftLocalDate(today, -1) : today;
   const start = shiftLocalDate(end, -presetConfig[2]);
 
@@ -138,6 +148,7 @@ function getDateRange(key) {
 }
 
 function formatDateRangeLabel(range) {
+  if (range?.preset === "all_time") return "All time";
   return `${formatDate(range.start)} – ${formatDate(range.end)}`;
 }
 
