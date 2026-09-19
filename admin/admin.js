@@ -49,7 +49,7 @@ const ADMIN_REDIRECT_URL = "https://beadlight.app/admin/";
 const ADMIN_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 const DATE_RANGE_PRESETS = [
   ["today", "Today", 0],
-  ["yesterday", "Yesterday", 1],
+  ["yesterday", "Yesterday", 0],
   ["last_7_days", "Last 7 days", 6],
   ["last_30_days", "Last 30 days", 29],
   ["last_90_days", "Last 90 days", 89]
