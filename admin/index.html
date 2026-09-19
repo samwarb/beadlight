@@ -99,7 +99,25 @@
               <h2 id="analyticsTitle">Prayer analytics</h2>
               <p>Anonymous prayer progress recorded from Beadlight app sessions.</p>
             </div>
-            <button class="secondary-button" id="refreshAnalyticsBtn" type="button">Refresh stats</button>
+            <div class="admin-section-actions">
+              <div class="admin-date-range" data-date-range="prayer" data-date-range-label="Prayer analytics">
+                <div class="admin-date-range-presets" role="group" aria-label="Prayer analytics date presets">
+                  <button class="admin-date-preset" type="button" data-date-range-preset="today">Today</button>
+                  <button class="admin-date-preset" type="button" data-date-range-preset="yesterday">Yesterday</button>
+                  <button class="admin-date-preset" type="button" data-date-range-preset="last_7_days">Last 7 days</button>
+                  <button class="admin-date-preset is-active" type="button" data-date-range-preset="last_30_days">Last 30 days</button>
+                  <button class="admin-date-preset" type="button" data-date-range-preset="last_90_days">Last 90 days</button>
+                </div>
+                <div class="admin-date-range-fields">
+                  <label><span>From</span><input type="date" data-date-range-start></label>
+                  <span class="admin-date-range-separator">to</span>
+                  <label><span>To</span><input type="date" data-date-range-end></label>
+                  <button class="secondary-button" type="button" data-date-range-apply>Apply</button>
+                </div>
+                <p class="admin-date-range-summary" data-date-range-summary aria-live="polite"></p>
+              </div>
+              <button class="secondary-button" id="refreshAnalyticsBtn" type="button">Refresh stats</button>
+            </div>
           </div>
 
           <div class="analytics-grid" id="analyticsTotals" aria-live="polite"></div>
@@ -127,15 +145,23 @@
               <p>Onboarding, paywall, purchase, trial and account outcomes captured by the app.</p>
             </div>
 
-            <div class="growth-funnel-controls" aria-label="Growth funnel controls">
-              <label for="growthAnalyticsRange">
-                <span>Period</span>
-                <select id="growthAnalyticsRange">
-                  <option value="7">Last 7 days</option>
-                  <option value="30" selected>Last 30 days</option>
-                  <option value="90">Last 90 days</option>
-                </select>
-              </label>
+            <div class="admin-section-actions">
+              <div class="admin-date-range" data-date-range="growth" data-date-range-label="Growth funnel">
+                <div class="admin-date-range-presets" role="group" aria-label="Growth funnel date presets">
+                  <button class="admin-date-preset" type="button" data-date-range-preset="today">Today</button>
+                  <button class="admin-date-preset" type="button" data-date-range-preset="yesterday">Yesterday</button>
+                  <button class="admin-date-preset" type="button" data-date-range-preset="last_7_days">Last 7 days</button>
+                  <button class="admin-date-preset is-active" type="button" data-date-range-preset="last_30_days">Last 30 days</button>
+                  <button class="admin-date-preset" type="button" data-date-range-preset="last_90_days">Last 90 days</button>
+                </div>
+                <div class="admin-date-range-fields">
+                  <label><span>From</span><input type="date" data-date-range-start></label>
+                  <span class="admin-date-range-separator">to</span>
+                  <label><span>To</span><input type="date" data-date-range-end></label>
+                  <button class="secondary-button" type="button" data-date-range-apply>Apply</button>
+                </div>
+                <p class="admin-date-range-summary" data-date-range-summary aria-live="polite"></p>
+              </div>
               <button class="secondary-button" id="refreshGrowthAnalyticsBtn" type="button">Refresh growth data</button>
             </div>
           </div>
@@ -173,9 +199,27 @@
             <div>
               <p class="admin-kicker">Website traffic</p>
               <h2>Google Analytics summary</h2>
-              <p>Last 30 days of website visits, sources, pages, locations, devices and store-link clicks.</p>
+              <p>Website visits, sources, pages, locations, devices and store-link clicks for the selected period.</p>
             </div>
-            <button class="secondary-button" id="refreshWebsiteAnalyticsBtn" type="button">Refresh website stats</button>
+            <div class="admin-section-actions">
+              <div class="admin-date-range" data-date-range="website" data-date-range-label="Website analytics">
+                <div class="admin-date-range-presets" role="group" aria-label="Website analytics date presets">
+                  <button class="admin-date-preset" type="button" data-date-range-preset="today">Today</button>
+                  <button class="admin-date-preset" type="button" data-date-range-preset="yesterday">Yesterday</button>
+                  <button class="admin-date-preset" type="button" data-date-range-preset="last_7_days">Last 7 days</button>
+                  <button class="admin-date-preset is-active" type="button" data-date-range-preset="last_30_days">Last 30 days</button>
+                  <button class="admin-date-preset" type="button" data-date-range-preset="last_90_days">Last 90 days</button>
+                </div>
+                <div class="admin-date-range-fields">
+                  <label><span>From</span><input type="date" data-date-range-start></label>
+                  <span class="admin-date-range-separator">to</span>
+                  <label><span>To</span><input type="date" data-date-range-end></label>
+                  <button class="secondary-button" type="button" data-date-range-apply>Apply</button>
+                </div>
+                <p class="admin-date-range-summary" data-date-range-summary aria-live="polite"></p>
+              </div>
+              <button class="secondary-button" id="refreshWebsiteAnalyticsBtn" type="button">Refresh website stats</button>
+            </div>
           </div>
           <div class="analytics-grid" id="websiteAnalyticsTotals" aria-live="polite"></div>
           <div class="analytics-tables">

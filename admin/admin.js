@@ -46,6 +46,15 @@ const TICKET_PRIORITIES = [
 
 const STATUSES_WITHOUT_SPRINT = ["under-consideration", "not-planned"];
 const ADMIN_REDIRECT_URL = "https://beadlight.app/admin/";
+const ADMIN_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+const DATE_RANGE_PRESETS = [
+  ["today", "Today", 0],
+  ["yesterday", "Yesterday", 1],
+  ["last_7_days", "Last 7 days", 6],
+  ["last_30_days", "Last 30 days", 29],
+  ["last_90_days", "Last 90 days", 89]
+];
+const dateRangeState = {};
 
 let client;
 let items = [];
@@ -73,7 +82,6 @@ const analyticsStatus = document.getElementById("analyticsStatus");
 const analyticsTotals = document.getElementById("analyticsTotals");
 const analyticsDaily = document.getElementById("analyticsDaily");
 const analyticsMysteries = document.getElementById("analyticsMysteries");
-const growthAnalyticsRange = document.getElementById("growthAnalyticsRange");
 const refreshGrowthAnalyticsBtn = document.getElementById("refreshGrowthAnalyticsBtn");
 const growthAnalyticsFreshness = document.getElementById("growthAnalyticsFreshness");
 const growthAnalyticsTotals = document.getElementById("growthAnalyticsTotals");
@@ -101,6 +109,122 @@ const ticketStatus = document.getElementById("ticketStatus");
 const copyBlogAgentBriefBtn = document.getElementById("copyBlogAgentBriefBtn");
 const blogAgentBrief = document.getElementById("blogAgentBrief");
 const blogAgentCopyStatus = document.getElementById("blogAgentCopyStatus");
+
+function getLocalDateInputValue(date = new Date()) {
+  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
+}
+
+function shiftLocalDate(date, days) {
+  const shifted = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  shifted.setDate(shifted.getDate() + days);
+  return shifted;
+}
+
+function getPresetDateRange(preset) {
+  const presetConfig = DATE_RANGE_PRESETS.find(([key]) => key === preset) || DATE_RANGE_PRESETS[3];
+  const today = new Date();
+  const end = presetConfig[0] === "yesterday" ? shiftLocalDate(today, -1) : today;
+  const start = shiftLocalDate(end, -presetConfig[2]);
+
+  return {
+    start: getLocalDateInputValue(start),
+    end: getLocalDateInputValue(end),
+    preset: presetConfig[0]
+  };
+}
+
+function getDateRange(key) {
+  return dateRangeState[key] || getPresetDateRange("last_30_days");
+}
+
+function formatDateRangeLabel(range) {
+  return `${formatDate(range.start)} – ${formatDate(range.end)}`;
+}
+
+function isValidDateRange(range) {
+  return Boolean(range?.start && range?.end && /^\d{4}-\d{2}-\d{2}$/.test(range.start) && /^\d{4}-\d{2}-\d{2}$/.test(range.end) && range.start <= range.end);
+}
+
+function updateDateRangeControl(key) {
+  const control = document.querySelector(`[data-date-range="${key}"]`);
+  const range = getDateRange(key);
+  if (!control) return;
+
+  const startInput = control.querySelector("[data-date-range-start]");
+  const endInput = control.querySelector("[data-date-range-end]");
+  const summary = control.querySelector("[data-date-range-summary]");
+
+  if (startInput) startInput.value = range.start;
+  if (endInput) endInput.value = range.end;
+  control.querySelectorAll("[data-date-range-preset]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.dateRangePreset === range.preset);
+  });
+  if (summary) summary.textContent = isValidDateRange(range) ? formatDateRangeLabel(range) : "Choose a valid date range.";
+}
+
+function setDateRange(key, range) {
+  dateRangeState[key] = { start: range.start, end: range.end, preset: range.preset || null };
+  updateDateRangeControl(key);
+}
+
+function applyDateRange(key) {
+  const control = document.querySelector(`[data-date-range="${key}"]`);
+  if (!control) return;
+
+  const startInput = control.querySelector("[data-date-range-start]");
+  const endInput = control.querySelector("[data-date-range-end]");
+  const range = {
+    start: startInput ? startInput.value : "",
+    end: endInput ? endInput.value : "",
+    preset: dateRangeState[key]?.start === (startInput ? startInput.value : "")
+      && dateRangeState[key]?.end === (endInput ? endInput.value : "")
+      ? dateRangeState[key].preset
+      : null
+  };
+
+  setDateRange(key, range);
+  if (!isValidDateRange(range)) return;
+
+  const loaders = {
+    prayer: loadAnalytics,
+    growth: loadGrowthAnalytics,
+    website: loadWebsiteAnalytics
+  };
+  if (loaders[key]) loaders[key](range);
+}
+
+function setupDateRangeControls() {
+  document.querySelectorAll("[data-date-range]").forEach((control) => {
+    const key = control.dataset.dateRange;
+    const initialRange = getPresetDateRange("last_30_days");
+    dateRangeState[key] = initialRange;
+
+    const today = getLocalDateInputValue();
+    const startInput = control.querySelector("[data-date-range-start]");
+    const endInput = control.querySelector("[data-date-range-end]");
+    if (startInput) startInput.max = today;
+    if (endInput) endInput.max = today;
+
+    control.querySelectorAll("[data-date-range-preset]").forEach((button) => {
+      button.addEventListener("click", () => {
+        setDateRange(key, getPresetDateRange(button.dataset.dateRangePreset));
+        applyDateRange(key);
+      });
+    });
+
+    [startInput, endInput].forEach((input) => {
+      if (!input) return;
+      input.addEventListener("input", () => {
+        dateRangeState[key] = { start: startInput.value, end: endInput.value, preset: null };
+        updateDateRangeControl(key);
+      });
+    });
+
+    const applyButton = control.querySelector("[data-date-range-apply]");
+    if (applyButton) applyButton.addEventListener("click", () => applyDateRange(key));
+    updateDateRangeControl(key);
+  });
+}
 
 function initClient() {
   const config = window.BEADLIGHT_SUPABASE || {};
@@ -136,10 +260,10 @@ async function init() {
   if (signOutBtn) signOutBtn.addEventListener("click", signOut);
   if (headerSignOutBtn) headerSignOutBtn.addEventListener("click", signOut);
   if (addBtn) addBtn.addEventListener("click", addItem);
-  if (refreshAnalyticsBtn) refreshAnalyticsBtn.addEventListener("click", loadAnalytics);
-  if (refreshGrowthAnalyticsBtn) refreshGrowthAnalyticsBtn.addEventListener("click", loadGrowthAnalytics);
-  if (growthAnalyticsRange) growthAnalyticsRange.addEventListener("change", loadGrowthAnalytics);
-  if (refreshWebsiteAnalyticsBtn) refreshWebsiteAnalyticsBtn.addEventListener("click", loadWebsiteAnalytics);
+  setupDateRangeControls();
+  if (refreshAnalyticsBtn) refreshAnalyticsBtn.addEventListener("click", () => loadAnalytics(getDateRange("prayer")));
+  if (refreshGrowthAnalyticsBtn) refreshGrowthAnalyticsBtn.addEventListener("click", () => loadGrowthAnalytics(getDateRange("growth")));
+  if (refreshWebsiteAnalyticsBtn) refreshWebsiteAnalyticsBtn.addEventListener("click", () => loadWebsiteAnalytics(getDateRange("website")));
   if (refreshTicketsBtn) refreshTicketsBtn.addEventListener("click", loadTickets);
   if (copyBlogAgentBriefBtn) copyBlogAgentBriefBtn.addEventListener("click", copyBlogAgentBrief);
   setupRoadmapAdminFilters();
@@ -294,14 +418,27 @@ async function showEditor(session) {
   if (headerSignOutBtn) headerSignOutBtn.classList.remove("hidden");
 
   switchAdminSection("analytics");
-  await Promise.all([loadAnalytics(), loadGrowthAnalytics(), loadWebsiteAnalytics(), loadItems(), loadTickets()]);
+  await Promise.all([
+    loadAnalytics(getDateRange("prayer")),
+    loadGrowthAnalytics(getDateRange("growth")),
+    loadWebsiteAnalytics(getDateRange("website")),
+    loadItems(),
+    loadTickets()
+  ]);
 }
 
-async function loadWebsiteAnalytics() {
-  if (websiteAnalyticsStatus) websiteAnalyticsStatus.textContent = "Loading website analytics...";
-  const { data, error } = await client.functions.invoke("ga4-dashboard");
+async function loadWebsiteAnalytics(range = getDateRange("website")) {
+  if (!isValidDateRange(range)) return;
+  if (websiteAnalyticsStatus) websiteAnalyticsStatus.textContent = `Loading website analytics for ${formatDateRangeLabel(range)}...`;
+  const { data, error } = await client.functions.invoke("ga4-dashboard", {
+    body: {
+      start_date: range.start,
+      end_date: range.end,
+      timezone: ADMIN_TIMEZONE
+    }
+  });
   if (error || data?.error) {
-    if (websiteAnalyticsStatus) websiteAnalyticsStatus.textContent = "Could not load website analytics: " + (data?.error || error.message);
+    if (websiteAnalyticsStatus) websiteAnalyticsStatus.textContent = "Could not load website analytics: " + (data?.error || error?.message || "Unknown error");
     return;
   }
   const values = data.totals || [];
@@ -311,7 +448,7 @@ async function loadWebsiteAnalytics() {
   renderWebsiteTable(websiteAnalyticsLocations, data.locations, ["Country / region", "Users"]);
   renderWebsiteTable(websiteAnalyticsDevices, data.devices, ["Device / OS", "Users"]);
   renderWebsiteTable(websiteAnalyticsClicks, data.clicks, ["Event / destination", "Clicks"]);
-  if (websiteAnalyticsStatus) websiteAnalyticsStatus.textContent = "Website analytics loaded.";
+  if (websiteAnalyticsStatus) websiteAnalyticsStatus.textContent = `Website analytics loaded for ${formatDateRangeLabel(range)}.`;
 }
 
 function renderWebsiteTable(container, rows, headings) {
@@ -346,11 +483,16 @@ async function isAuthorizedAdminEmail(email) {
   return data === true;
 }
 
-async function loadAnalytics() {
+async function loadAnalytics(range = getDateRange("prayer")) {
+  if (!isValidDateRange(range)) return;
   renderAnalyticsLoading();
-  setAnalyticsStatus("Loading prayer analytics...");
+  setAnalyticsStatus(`Loading prayer analytics for ${formatDateRangeLabel(range)}...`);
 
-  const { data, error } = await client.rpc("get_prayer_analytics_dashboard");
+  const { data, error } = await client.rpc("get_prayer_analytics_dashboard", {
+    p_start_date: range.start,
+    p_end_date: range.end,
+    p_timezone: ADMIN_TIMEZONE
+  });
 
   if (error) {
     setAnalyticsStatus(
@@ -366,16 +508,18 @@ async function loadAnalytics() {
   renderAnalyticsTotals(dashboard.totals || {});
   renderDailyAnalytics(dashboard.daily || []);
   renderMysteryAnalytics(dashboard.mysteries || []);
-  setAnalyticsStatus("Prayer analytics loaded.");
+  setAnalyticsStatus(`Prayer analytics loaded for ${formatDateRangeLabel(range)}.`);
 }
 
-async function loadGrowthAnalytics() {
-  const daysBack = getGrowthAnalyticsDays();
+async function loadGrowthAnalytics(range = getDateRange("growth")) {
+  if (!isValidDateRange(range)) return;
   renderGrowthAnalyticsLoading();
-  setGrowthAnalyticsStatus(`Loading growth funnel for the last ${daysBack} days...`);
+  setGrowthAnalyticsStatus(`Loading growth funnel for ${formatDateRangeLabel(range)}...`);
 
   const { data, error } = await client.rpc("get_growth_funnel_dashboard", {
-    days_back: daysBack
+    p_start_date: range.start,
+    p_end_date: range.end,
+    p_timezone: ADMIN_TIMEZONE
   });
 
   if (error || data?.error) {
@@ -401,13 +545,8 @@ async function loadGrowthAnalytics() {
   renderGrowthAnalyticsOnboarding(dashboard.onboarding_page_totals || dashboard.onboarding_pages || []);
   renderGrowthAnalyticsSources(dashboard.sources || []);
   renderGrowthAnalyticsProducts(dashboard.products || []);
-  renderGrowthAnalyticsFreshness(dashboard.freshness || {}, daysBack);
-  setGrowthAnalyticsStatus("Growth funnel loaded.");
-}
-
-function getGrowthAnalyticsDays() {
-  const daysBack = Number(growthAnalyticsRange ? growthAnalyticsRange.value : 30);
-  return [7, 30, 90].includes(daysBack) ? daysBack : 30;
+  renderGrowthAnalyticsFreshness(dashboard.freshness || {}, range);
+  setGrowthAnalyticsStatus(`Growth funnel loaded for ${formatDateRangeLabel(range)}.`);
 }
 
 function renderGrowthAnalyticsLoading() {
@@ -619,15 +758,15 @@ function renderGrowthAnalyticsTable(container, headings, rows, emptyMessage) {
   `;
 }
 
-function renderGrowthAnalyticsFreshness(freshness, daysBack) {
+function renderGrowthAnalyticsFreshness(freshness, range) {
   if (!growthAnalyticsFreshness) return;
 
   if (!freshness.latest_received_at) {
-    growthAnalyticsFreshness.textContent = `No growth events have been received in the last ${daysBack} days.`;
+    growthAnalyticsFreshness.textContent = `No growth events have been received for ${formatDateRangeLabel(range)}.`;
     return;
   }
 
-  growthAnalyticsFreshness.textContent = `Latest growth event received ${formatDateTime(freshness.latest_received_at)}.`;
+  growthAnalyticsFreshness.textContent = `Latest growth event received ${formatDateTime(freshness.latest_received_at)} for ${formatDateRangeLabel(range)}.`;
 }
 
 function setGrowthAnalyticsStatus(message, isError = false) {
@@ -655,8 +794,8 @@ function renderAnalyticsLoading() {
       + renderAnalyticsCard("...", "Total rosaries")
       + renderAnalyticsCard("...", "Account users")
       + renderAnalyticsCard("...", "Anonymous devices")
-      + renderAnalyticsCard("...", "Prayers this week")
-      + renderAnalyticsCard("...", "Rosaries this week");
+      + renderAnalyticsCard("...", "Prayers in range")
+      + renderAnalyticsCard("...", "Rosaries in range");
   }
 
   if (analyticsDaily) {
@@ -684,8 +823,8 @@ function renderAnalyticsTotals(totals) {
     renderAnalyticsCard(formatNumber(totals.total_rosaries ?? totals.completed_rosaries), "Total rosaries"),
     renderAnalyticsCard(formatNumber(totals.account_users), "Account users"),
     renderAnalyticsCard(formatNumber(totals.anonymous_devices), "Anonymous devices"),
-    renderAnalyticsCard(formatNumber(totals.prayers_this_week), "Prayers this week"),
-    renderAnalyticsCard(formatNumber(totals.rosaries_this_week), "Rosaries this week")
+    renderAnalyticsCard(formatNumber(totals.prayers_in_range ?? totals.prayers_this_week), "Prayers in range"),
+    renderAnalyticsCard(formatNumber(totals.rosaries_in_range ?? totals.rosaries_this_week), "Rosaries in range")
   ].join("");
 }
 
@@ -2055,11 +2194,13 @@ function formatRate(numerator, denominator) {
 function formatDate(value) {
   if (!value) return "Unknown";
 
+  const dateValue = /^\d{4}-\d{2}-\d{2}$/.test(String(value)) ? `${value}T12:00:00` : value;
+
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric"
-  }).format(new Date(value));
+  }).format(new Date(dateValue));
 }
 
 function formatDateTime(value) {

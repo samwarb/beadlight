@@ -36,6 +36,10 @@ async function report(token: string, property: string, body: unknown) {
 
 function rows(data: any) { return (data.rows || []).map((row: any) => ({ dimensions: (row.dimensionValues || []).map((value: any) => value.value), metrics: (row.metricValues || []).map((value: any) => value.value) })); }
 
+function isDateInput(value: unknown): value is string {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: cors });
   try {
@@ -47,10 +51,17 @@ Deno.serve(async (request) => {
     const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin_email", { check_email: user.email.toLowerCase() });
     if (adminError || isAdmin !== true) return json({ error: "Administrator access required" }, 403);
 
+    const body = request.method === "POST" ? await request.json().catch(() => ({})) as Record<string, unknown> : {};
+    const startDate = isDateInput(body.start_date) ? body.start_date : "30daysAgo";
+    const endDate = isDateInput(body.end_date) ? body.end_date : "today";
+    if (isDateInput(startDate) && isDateInput(endDate) && startDate > endDate) {
+      return json({ error: "Start date must be on or before end date." }, 400);
+    }
+
     const credentials = JSON.parse(Deno.env.get("GA4_SERVICE_ACCOUNT_JSON")!);
     const property = Deno.env.get("GA4_PROPERTY_ID")!;
     const token = await accessToken(credentials);
-    const dateRanges = [{ startDate: "30daysAgo", endDate: "today" }];
+    const dateRanges = [{ startDate, endDate }];
     const [totals, sources, pages, locations, devices, clicks] = await Promise.all([
       report(token, property, { dateRanges, metrics: [{ name: "activeUsers" }, { name: "sessions" }, { name: "screenPageViews" }, { name: "eventCount" }] }),
       report(token, property, { dateRanges, dimensions: [{ name: "sessionSource" }, { name: "sessionMedium" }], metrics: [{ name: "sessions" }, { name: "activeUsers" }], limit: 10, orderBys: [{ metric: { metricName: "sessions" }, desc: true }] }),
@@ -59,7 +70,7 @@ Deno.serve(async (request) => {
       report(token, property, { dateRanges, dimensions: [{ name: "deviceCategory" }, { name: "operatingSystem" }], metrics: [{ name: "activeUsers" }], limit: 10, orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }] }),
       report(token, property, { dateRanges, dimensions: [{ name: "eventName" }, { name: "linkDomain" }, { name: "linkUrl" }], metrics: [{ name: "eventCount" }], dimensionFilter: { filter: { fieldName: "eventName", inListFilter: { values: ["click", "ios_store_click", "android_store_click"] } } }, limit: 20, orderBys: [{ metric: { metricName: "eventCount" }, desc: true }] })
     ]);
-    return json({ range: "Last 30 days", totals: rows(totals)[0]?.metrics || [], sources: rows(sources), pages: rows(pages), locations: rows(locations), devices: rows(devices), clicks: rows(clicks) });
+    return json({ range: { start_date: startDate, end_date: endDate }, totals: rows(totals)[0]?.metrics || [], sources: rows(sources), pages: rows(pages), locations: rows(locations), devices: rows(devices), clicks: rows(clicks) });
   } catch (error) {
     return json({ error: error instanceof Error ? error.message : "Analytics unavailable" }, 500);
   }
