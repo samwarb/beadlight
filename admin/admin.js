@@ -152,6 +152,11 @@ function formatDateRangeLabel(range) {
   return `${formatDate(range.start)} – ${formatDate(range.end)}`;
 }
 
+function getWebsiteAnalyticsQueryStartDate(range) {
+  if (range?.preset !== "all_time") return range.start;
+  return getLocalDateInputValue(shiftLocalDate(new Date(), -365));
+}
+
 function isValidDateRange(range) {
   return Boolean(range?.start && range?.end && /^\d{4}-\d{2}-\d{2}$/.test(range.start) && /^\d{4}-\d{2}-\d{2}$/.test(range.end) && range.start <= range.end);
 }
@@ -443,7 +448,7 @@ async function loadWebsiteAnalytics(range = getDateRange("website")) {
   if (websiteAnalyticsStatus) websiteAnalyticsStatus.textContent = `Loading website analytics for ${formatDateRangeLabel(range)}...`;
   const { data, error } = await client.functions.invoke("ga4-dashboard", {
     body: {
-      start_date: range.start,
+      start_date: getWebsiteAnalyticsQueryStartDate(range),
       end_date: range.end,
       timezone: ADMIN_TIMEZONE
     }
