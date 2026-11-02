@@ -67,7 +67,7 @@ Deno.serve(async (request) => {
       if (!isDateInput(startDate) || !isDateInput(endDate)) {
         return json({ error: "Parish campaign reports require calendar dates." }, 400);
       }
-      const [campaignReport, revenuecatResult] = await Promise.all([
+      const [campaignReport, revenuecatResult, androidInstallResult] = await Promise.all([
         report(token, property, {
           dateRanges,
           dimensions: [
@@ -91,6 +91,11 @@ Deno.serve(async (request) => {
           p_end_date: endDate,
           p_timezone: typeof body.timezone === "string" ? body.timezone : "Europe/London",
         }),
+        supabase.rpc("get_parish_campaign_android_installs", {
+          p_start_date: startDate,
+          p_end_date: endDate,
+          p_timezone: typeof body.timezone === "string" ? body.timezone : "Europe/London",
+        }),
       ]);
       const campaignEvents = rows(campaignReport).map((row: any) => ({
         event_name: row.dimensions[0],
@@ -104,6 +109,8 @@ Deno.serve(async (request) => {
         campaign_events: campaignEvents,
         revenuecat_campaigns: revenuecatResult.error ? [] : revenuecatResult.data || [],
         revenuecat_error: revenuecatResult.error?.message || null,
+        android_campaign_installs: androidInstallResult.error ? [] : androidInstallResult.data || [],
+        android_install_error: androidInstallResult.error?.message || null,
         revenuecat_webhook_configured: Boolean(Deno.env.get("RC_PARISH_WEBHOOK_TOKEN")),
       });
     }

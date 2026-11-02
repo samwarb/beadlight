@@ -491,21 +491,27 @@ async function loadParishCampaignAnalytics(range = getDateRange("campaign")) {
     return;
   }
 
-  const campaignRows = mergeParishCampaignRows(data.campaign_events || [], data.revenuecat_campaigns || []);
+  const campaignRows = mergeParishCampaignRows(
+    data.campaign_events || [],
+    data.revenuecat_campaigns || [],
+    data.android_campaign_installs || []
+  );
   const totals = campaignRows.reduce((result, row) => {
     result.landing += row.landing_visits;
     result.apple += row.apple_store_clicks;
     result.google += row.google_play_clicks;
+    result.androidInstalls += row.android_attributed_first_opens;
     result.trials += row.trial_starts;
     result.conversions += row.trial_to_paid;
     return result;
-  }, { landing: 0, apple: 0, google: 0, trials: 0, conversions: 0 });
+  }, { landing: 0, apple: 0, google: 0, androidInstalls: 0, trials: 0, conversions: 0 });
 
   if (parishCampaignTotals) {
     parishCampaignTotals.innerHTML = [
       renderAnalyticsCard(formatNumber(totals.landing), "Landing visits"),
       renderAnalyticsCard(formatNumber(totals.apple), "Apple App Store click-throughs"),
       renderAnalyticsCard(formatNumber(totals.google), "Google Play click-throughs"),
+      renderAnalyticsCard(formatNumber(totals.androidInstalls), "Android attributed first opens"),
       renderAnalyticsCard(formatNumber(totals.trials), "Premium trial starts"),
       renderAnalyticsCard(formatNumber(totals.conversions), "Trial-to-paid conversions")
     ].join("");
@@ -514,17 +520,24 @@ async function loadParishCampaignAnalytics(range = getDateRange("campaign")) {
   renderParishCampaignTable(campaignRows);
   if (parishCampaignStatus) {
     const websiteStatus = `Website and app-store activity loaded for ${formatDateRangeLabel(range)}.`;
+    const statusMessages = [websiteStatus];
     if (!data.revenuecat_webhook_configured) {
-      parishCampaignStatus.textContent = `${websiteStatus} RevenueCat trial and conversion tracking is waiting for its secure webhook connection.`;
+      statusMessages.push("RevenueCat trial and conversion tracking is waiting for its secure webhook connection.");
     } else if (data.revenuecat_error) {
-      parishCampaignStatus.textContent = `${websiteStatus} RevenueCat trial data could not be loaded: ${data.revenuecat_error}`;
+      statusMessages.push(`RevenueCat trial data could not be loaded: ${data.revenuecat_error}`);
     } else {
-      parishCampaignStatus.textContent = `${websiteStatus} RevenueCat subscription events loaded for ${formatDateRangeLabel(range)}.`;
+      statusMessages.push(`RevenueCat subscription events loaded for ${formatDateRangeLabel(range)}.`);
     }
+    if (data.android_install_error) {
+      statusMessages.push(`Android install data could not be loaded: ${data.android_install_error}`);
+    } else {
+      statusMessages.push("Android counts are attributed first app opens from Google Play, not silent installs.");
+    }
+    parishCampaignStatus.textContent = statusMessages.join(" ");
   }
 }
 
-function mergeParishCampaignRows(websiteRows, revenuecatRows) {
+function mergeParishCampaignRows(websiteRows, revenuecatRows, androidInstallRows) {
   const campaigns = new Map();
   const keyFor = (partnerId, campaignId) => `${partnerId || ""}::${campaignId || ""}`;
   const ensure = (partnerId, campaignId) => {
@@ -536,6 +549,7 @@ function mergeParishCampaignRows(websiteRows, revenuecatRows) {
         landing_visits: 0,
         apple_store_clicks: 0,
         google_play_clicks: 0,
+        android_attributed_first_opens: 0,
         trial_starts: 0,
         trial_to_paid: 0
       });
@@ -555,6 +569,10 @@ function mergeParishCampaignRows(websiteRows, revenuecatRows) {
     row.trial_starts += Number(item.trial_starts) || 0;
     row.trial_to_paid += Number(item.trial_to_paid) || 0;
   });
+  (androidInstallRows || []).forEach((item) => {
+    const row = ensure(item.partner_id, item.campaign_id);
+    row.android_attributed_first_opens += Number(item.android_installs) || 0;
+  });
 
   return [...campaigns.values()].sort((a, b) => (a.partner_id || "").localeCompare(b.partner_id || "") || (a.campaign_id || "").localeCompare(b.campaign_id || ""));
 }
@@ -565,8 +583,8 @@ function renderParishCampaignTable(rows) {
     parishCampaignTable.innerHTML = `<div class="analytics-empty">No parish campaigns are available yet.</div>`;
     return;
   }
-  const headings = ["Parish", "Campaign", "Landing visits", "Apple Store click-throughs", "Google Play click-throughs", "Trial starts", "Trial-to-paid"];
-  const body = rows.map((row) => `<tr><td>${escapeHtml(formatParishName(row.partner_id))}</td><td>${escapeHtml(row.campaign_id || "—")}</td><td>${escapeHtml(formatNumber(row.landing_visits))}</td><td>${escapeHtml(formatNumber(row.apple_store_clicks))}</td><td>${escapeHtml(formatNumber(row.google_play_clicks))}</td><td>${escapeHtml(formatNumber(row.trial_starts))}</td><td>${escapeHtml(formatNumber(row.trial_to_paid))}</td></tr>`).join("");
+  const headings = ["Parish", "Campaign", "Landing visits", "Apple Store click-throughs", "Google Play click-throughs", "Android attributed first opens", "Trial starts", "Trial-to-paid"];
+  const body = rows.map((row) => `<tr><td>${escapeHtml(formatParishName(row.partner_id))}</td><td>${escapeHtml(row.campaign_id || "—")}</td><td>${escapeHtml(formatNumber(row.landing_visits))}</td><td>${escapeHtml(formatNumber(row.apple_store_clicks))}</td><td>${escapeHtml(formatNumber(row.google_play_clicks))}</td><td>${escapeHtml(formatNumber(row.android_attributed_first_opens))}</td><td>${escapeHtml(formatNumber(row.trial_starts))}</td><td>${escapeHtml(formatNumber(row.trial_to_paid))}</td></tr>`).join("");
   parishCampaignTable.innerHTML = `<div class="analytics-table-scroll"><table class="analytics-table parish-campaign-table"><thead><tr>${headings.map((heading) => `<th>${escapeHtml(heading)}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div>`;
 }
 
