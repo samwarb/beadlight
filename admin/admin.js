@@ -504,8 +504,8 @@ async function loadParishCampaignAnalytics(range = getDateRange("campaign")) {
   if (parishCampaignTotals) {
     parishCampaignTotals.innerHTML = [
       renderAnalyticsCard(formatNumber(totals.landing), "Landing visits"),
-      renderAnalyticsCard(formatNumber(totals.apple), "Apple App Store clicks"),
-      renderAnalyticsCard(formatNumber(totals.google), "Google Play clicks"),
+      renderAnalyticsCard(formatNumber(totals.apple), "Apple App Store click-throughs"),
+      renderAnalyticsCard(formatNumber(totals.google), "Google Play click-throughs"),
       renderAnalyticsCard(formatNumber(totals.trials), "Premium trial starts"),
       renderAnalyticsCard(formatNumber(totals.conversions), "Trial-to-paid conversions")
     ].join("");
@@ -565,7 +565,7 @@ function renderParishCampaignTable(rows) {
     parishCampaignTable.innerHTML = `<div class="analytics-empty">No parish campaigns are available yet.</div>`;
     return;
   }
-  const headings = ["Parish", "Campaign", "Landing visits", "Apple Store clicks", "Google Play clicks", "Trial starts", "Trial-to-paid"];
+  const headings = ["Parish", "Campaign", "Landing visits", "Apple Store click-throughs", "Google Play click-throughs", "Trial starts", "Trial-to-paid"];
   const body = rows.map((row) => `<tr><td>${escapeHtml(formatParishName(row.partner_id))}</td><td>${escapeHtml(row.campaign_id || "—")}</td><td>${escapeHtml(formatNumber(row.landing_visits))}</td><td>${escapeHtml(formatNumber(row.apple_store_clicks))}</td><td>${escapeHtml(formatNumber(row.google_play_clicks))}</td><td>${escapeHtml(formatNumber(row.trial_starts))}</td><td>${escapeHtml(formatNumber(row.trial_to_paid))}</td></tr>`).join("");
   parishCampaignTable.innerHTML = `<div class="analytics-table-scroll"><table class="analytics-table parish-campaign-table"><thead><tr>${headings.map((heading) => `<th>${escapeHtml(heading)}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div>`;
 }

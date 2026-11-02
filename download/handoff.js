@@ -112,7 +112,7 @@
     }
   }
 
-  if (isCampaignLanding) {
+  function trackCampaignLanding() {
     try {
       if (typeof window.beadlightTrackCampaignLanding === "function") {
         window.beadlightTrackCampaignLanding({ landing_page: landingPage });
@@ -120,13 +120,63 @@
     } catch (error) {
       // The landing page must remain usable when analytics is blocked or unavailable.
     }
-    note.textContent = isSpanish
-      ? "Elige una tienda para descargar Beadlight."
-      : "Choose your app store to download Beadlight.";
-    return;
+  }
+
+  function openCampaignStoreAutomatically(destinationName, destination) {
+    var didNavigate = false;
+    var fallbackTimer = null;
+
+    function continueToStore() {
+      if (didNavigate) return;
+      didNavigate = true;
+      if (fallbackTimer !== null) window.clearTimeout(fallbackTimer);
+      window.location.replace(destination);
+    }
+
+    if (window.beadlightAnalyticsAllowed === false || typeof window.beadlightTrackStoreLink !== "function") {
+      window.setTimeout(continueToStore, 140);
+      return;
+    }
+
+    // Let the consent script initialize its analytics queue before redirecting.
+    window.setTimeout(function () {
+      if (didNavigate) return;
+      fallbackTimer = window.setTimeout(continueToStore, 900);
+      try {
+        window.beadlightTrackStoreLink(eventProperties(destinationName, "automatic"), continueToStore);
+      } catch (error) {
+        continueToStore();
+      }
+    }, 140);
   }
 
   var destination = isAndroid ? googleDestination : (isIOS ? appleDestination : null);
+
+  if (isCampaignLanding) {
+    if (!destination) {
+      window.setTimeout(trackCampaignLanding, 0);
+      note.textContent = isSpanish
+        ? "Elige una tienda para descargar Beadlight."
+        : "Choose your app store to download Beadlight.";
+      return;
+    }
+
+    var destinationName = isAndroid ? "google_play" : "apple";
+    title.textContent = isSpanish ? "Abriendo Beadlight…" : "Opening Beadlight…";
+    message.textContent = isSpanish
+      ? (isAndroid ? "Te llevamos a Google Play." : "Te llevamos al App Store.")
+      : (isAndroid ? "Taking you to Google Play." : "Taking you to the App Store.");
+    note.textContent = isSpanish
+      ? "Si la tienda no se abre, usa uno de los botones de arriba."
+      : "If the store does not open, use one of the buttons above.";
+
+    window.setTimeout(function () {
+      trackCampaignLanding();
+      openCampaignStoreAutomatically(destinationName, destination);
+    }, 0);
+    return;
+  }
+
   if (!destination) {
     note.textContent = isSpanish
       ? "¿No estás en un móvil? Elige una tienda arriba o abre este enlace en tu teléfono."
