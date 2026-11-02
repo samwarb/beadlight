@@ -4,6 +4,7 @@
   const MEASUREMENT_ID = "G-MCC82930DS";
 
   function loadAnalytics() {
+    window.beadlightAnalyticsAllowed = true;
     if (window.gtag) return;
     window.dataLayer = window.dataLayer || [];
     window.gtag = function () { window.dataLayer.push(arguments); };
@@ -19,8 +20,13 @@
     try { return window.localStorage.getItem(CONSENT_KEY); } catch (error) { return null; }
   }
 
+  // Preserve the existing site-wide opt-out behavior and suppress campaign
+  // events after a visitor explicitly rejects analytics.
+  window.beadlightAnalyticsAllowed = getConsent() !== "reject";
+
   function init() {
     const consent = getConsent();
+    window.beadlightAnalyticsAllowed = consent !== "reject";
     if (consent === "reject") return;
     loadAnalytics();
     if (consent === "accept") return;
@@ -40,7 +46,10 @@
       const choice = button.dataset.cookieChoice;
       try { window.localStorage.setItem(CONSENT_KEY, choice); } catch (error) {}
       banner.remove();
-      if (choice === "reject" && window.gtag) window.gtag("consent", "update", { analytics_storage: "denied" });
+      if (choice === "reject") {
+        window.beadlightAnalyticsAllowed = false;
+        if (window.gtag) window.gtag("consent", "update", { analytics_storage: "denied" });
+      }
       addSettingsButton();
     });
   }

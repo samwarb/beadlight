@@ -13,8 +13,18 @@
     callback();
   }
 
-  function track(eventNames, properties = {}) {
-    if (!eventNames) return;
+  function track(eventNames, properties = {}, eventCallback) {
+    if (!eventNames || window.beadlightAnalyticsAllowed === false) {
+      if (typeof eventCallback === "function") eventCallback();
+      return;
+    }
+
+    if (typeof window.gtag !== "function" && document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => {
+        track(eventNames, properties, eventCallback);
+      }, { once: true });
+      return;
+    }
 
     String(eventNames)
       .split(/[\s,]+/)
@@ -26,7 +36,9 @@
         };
 
         if (typeof window.gtag === "function") {
-          window.gtag("event", eventName, payload);
+          window.gtag("event", eventName, eventCallback
+            ? { ...payload, event_callback: eventCallback }
+            : payload);
         }
 
         if (typeof window.plausible === "function") {
@@ -37,9 +49,86 @@
           window.dataLayer.push({ event: eventName, ...payload });
         }
       });
+
+    if (typeof eventCallback === "function" && typeof window.gtag !== "function") {
+      eventCallback();
+    }
+  }
+
+  const campaignContextKeys = [
+    ["campaign_id", "campaign_id"],
+    ["campaign", "campaign_id"],
+    ["utm_campaign", "campaign_id"],
+    ["partner_id", "partner_id"],
+    ["partner", "partner_id"],
+    ["offer_code", "offer_code"],
+    ["offer", "offer_code"],
+    ["utm_source", "utm_source"],
+    ["utm_medium", "utm_medium"],
+    ["utm_content", "utm_content"],
+    ["utm_term", "utm_term"]
+  ];
+
+  function boundedCampaignValue(value) {
+    return String(value || "").trim().replace(/[^A-Za-z0-9._~%+\- ]/g, "").slice(0, 80);
+  }
+
+  function readCampaignContext() {
+    const allowedContextKeys = new Set(campaignContextKeys.map(([, targetKey]) => targetKey));
+    const defaults = window.beadlightCampaignDefaults && typeof window.beadlightCampaignDefaults === "object"
+      ? window.beadlightCampaignDefaults
+      : {};
+    const context = {};
+    const params = new URLSearchParams(window.location.search);
+
+    Object.entries(defaults).forEach(([key, value]) => {
+      if (!allowedContextKeys.has(key)) return;
+      const bounded = boundedCampaignValue(value);
+      if (bounded) context[key] = bounded;
+    });
+
+    campaignContextKeys.forEach(([sourceKey, targetKey]) => {
+      const value = boundedCampaignValue(params.get(sourceKey));
+      if (value) context[targetKey] = value;
+    });
+
+    try {
+      if (window.beadlightAnalyticsAllowed !== false && Object.keys(context).length) {
+        window.sessionStorage.setItem("beadlight_campaign_context", JSON.stringify(context));
+      } else if (window.beadlightAnalyticsAllowed !== false && !Object.keys(context).length) {
+        const stored = JSON.parse(window.sessionStorage.getItem("beadlight_campaign_context") || "{}");
+        if (stored && typeof stored === "object") Object.assign(context, stored);
+      }
+    } catch (error) {
+      // Storage can be unavailable in private browsing; tracking still works without it.
+    }
+
+    return context;
+  }
+
+  const campaignContext = readCampaignContext();
+
+  function trackStoreEvent(eventName, properties = {}, eventCallback) {
+    track(eventName, {
+      ...campaignContext,
+      ...properties
+    }, eventCallback);
   }
 
   window.beadlightTrack = track;
+  window.beadlightCampaignContext = campaignContext;
+  window.beadlightTrackStoreHandoff = (properties = {}) => trackStoreEvent("store_handoff_attempt", {
+    handoff_type: "automatic",
+    ...properties
+  });
+  window.beadlightTrackStoreLink = (properties = {}, eventCallback) => trackStoreEvent("store_link_click", {
+    handoff_type: "manual",
+    ...properties
+  }, eventCallback);
+  window.beadlightTrackCampaignLanding = (properties = {}) => trackStoreEvent("parish_campaign_landing", {
+    handoff_type: "qr_landing",
+    ...properties
+  });
 
   function initAnalyticsDelegation() {
     document.addEventListener("click", (event) => {

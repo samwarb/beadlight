@@ -2,6 +2,7 @@
 <html lang="en" data-site-root="..">
 <head>
 <script src="../cookie-consent.js"></script>
+<script src="../site.js" defer></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
@@ -44,28 +45,6 @@
 
   </main>
 
-  <script>
-    (function () {
-      var appleStore = "https://apps.apple.com/gb/app/beadlight-catholic-rosary/id6773049841";
-      var googlePlay = "https://play.google.com/store/apps/details?id=com.merciandigital.beadlight";
-      var userAgent = navigator.userAgent || navigator.vendor || "";
-      var isAndroid = /Android/i.test(userAgent);
-      var isIOS = /iPad|iPhone|iPod/.test(userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-      var title = document.getElementById("downloadTitle");
-      var message = document.getElementById("downloadMessage");
-      var note = document.getElementById("loadingNote");
-      var destination = isAndroid ? googlePlay : (isIOS ? appleStore : null);
-
-      if (!destination) {
-        note.textContent = "Not on a mobile device? Choose a store above, or open this link on your phone.";
-        return;
-      }
-
-      title.textContent = "Opening Beadlight…";
-      message.textContent = isAndroid ? "Taking you to Google Play." : "Taking you to the App Store.";
-      note.textContent = "If the store does not open, use the buttons above.";
-      window.location.replace(destination);
-    }());
-  </script>
+  <script src="handoff.js" defer></script>
 </body>
 </html>
