@@ -1737,6 +1737,21 @@ textarea:focus {
   font-size: 0.9rem;
 }
 
+.parish-campaign-totals {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.parish-campaign-note {
+  margin: 14px 2px 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.parish-campaign-table {
+  min-width: 860px;
+}
+
 .analytics-tables {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
@@ -2146,6 +2161,7 @@ textarea:focus {
 
 @media (max-width: 860px) {
   .analytics-grid,
+  .parish-campaign-totals,
   .ticket-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2263,6 +2279,7 @@ textarea:focus {
 
 @media (max-width: 560px) {
   .analytics-grid,
+  .parish-campaign-totals,
   .ticket-summary-grid {
     grid-template-columns: 1fr;
   }

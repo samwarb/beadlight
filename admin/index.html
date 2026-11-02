@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Beadlight Admin</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="stylesheet" href="../styles.css?v=20260919-admin-date-ranges-v4">
+  <link rel="stylesheet" href="../styles.css?v=20261102-parish-campaign-v1">
   <link rel="icon" href="../assets/beadlight-icon-v14-192.png">
 </head>
 <body>
@@ -246,6 +246,47 @@
           </div>
           <div id="websiteAnalyticsStatus" class="admin-status"></div>
         </div>
+
+        <div class="admin-section-card parish-campaign-section">
+          <div class="admin-section-heading">
+            <div>
+              <p class="admin-kicker">Parish bulletin tracking</p>
+              <h2>Campaign results</h2>
+              <p>Landing visits and store-link clicks from parish QR codes, followed by attributed Premium trials and trial-to-paid conversions.</p>
+            </div>
+            <div class="admin-section-actions">
+              <div class="admin-date-range" data-date-range="campaign" data-date-range-label="Parish campaign">
+                <div class="admin-date-range-presets" role="group" aria-label="Parish campaign date presets">
+                  <button class="admin-date-preset" type="button" data-date-range-preset="today">Today</button>
+                  <button class="admin-date-preset" type="button" data-date-range-preset="yesterday">Yesterday</button>
+                  <button class="admin-date-preset" type="button" data-date-range-preset="last_7_days">Last 7 days</button>
+                  <button class="admin-date-preset is-active" type="button" data-date-range-preset="last_30_days">Last 30 days</button>
+                  <button class="admin-date-preset" type="button" data-date-range-preset="last_90_days">Last 90 days</button>
+                  <button class="admin-date-preset" type="button" data-date-range-preset="all_time">All time</button>
+                </div>
+                <div class="admin-date-range-custom-label">
+                  <span>Custom range</span>
+                  <small>Click a date field to open the calendar</small>
+                </div>
+                <div class="admin-date-range-fields">
+                  <label><span>From</span><input type="date" title="Choose the start date from the calendar" aria-label="Parish campaign start date" data-date-range-start></label>
+                  <span class="admin-date-range-separator">to</span>
+                  <label><span>To</span><input type="date" title="Choose the end date from the calendar" aria-label="Parish campaign end date" data-date-range-end></label>
+                  <button class="secondary-button" type="button" data-date-range-apply>Apply</button>
+                </div>
+                <p class="admin-date-range-summary" data-date-range-summary aria-live="polite"></p>
+              </div>
+              <button class="secondary-button" id="refreshParishCampaignBtn" type="button">Refresh campaign results</button>
+            </div>
+          </div>
+          <div class="analytics-grid parish-campaign-totals" id="parishCampaignTotals" aria-live="polite"></div>
+          <div class="analytics-table-card parish-campaign-table-card">
+            <h3>Results by parish and campaign</h3>
+            <div id="parishCampaignTable"></div>
+          </div>
+          <p class="parish-campaign-note">Website counts follow analytics consent and may miss visits. Landing visits are not unique people or a guaranteed one-to-one scan count. Trial conversions are counted on the day RevenueCat reports the paid renewal, so they may relate to trials started before the selected period.</p>
+          <div id="parishCampaignStatus" class="admin-status" aria-live="polite"></div>
+        </div>
       </section>
 
       <section class="admin-workspace-section" id="roadmapSection" data-admin-section="roadmap" aria-labelledby="roadmapAdminTitle">
@@ -465,7 +506,7 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../supabase-config.js?v=20260919-admin-date-ranges-v4"></script>
-  <script src="admin.js?v=20260919-admin-date-ranges-v4"></script>
+  <script src="../supabase-config.js?v=20261102-parish-campaign-v1"></script>
+  <script src="admin.js?v=20261102-parish-campaign-v1"></script>
 </body>
 </html>

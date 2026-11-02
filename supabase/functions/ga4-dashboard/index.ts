@@ -62,6 +62,52 @@ Deno.serve(async (request) => {
     const property = Deno.env.get("GA4_PROPERTY_ID")!;
     const token = await accessToken(credentials);
     const dateRanges = [{ startDate, endDate }];
+
+    if (body.campaign_only === true) {
+      if (!isDateInput(startDate) || !isDateInput(endDate)) {
+        return json({ error: "Parish campaign reports require calendar dates." }, 400);
+      }
+      const [campaignReport, revenuecatResult] = await Promise.all([
+        report(token, property, {
+          dateRanges,
+          dimensions: [
+            { name: "eventName" },
+            { name: "customEvent:partner_id" },
+            { name: "customEvent:campaign_id" },
+            { name: "customEvent:store_destination" },
+          ],
+          metrics: [{ name: "eventCount" }],
+          dimensionFilter: {
+            filter: {
+              fieldName: "eventName",
+              inListFilter: { values: ["parish_campaign_landing", "store_link_click"] },
+            },
+          },
+          limit: 100,
+          orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
+        }),
+        supabase.rpc("get_parish_campaign_revenuecat", {
+          p_start_date: startDate,
+          p_end_date: endDate,
+          p_timezone: typeof body.timezone === "string" ? body.timezone : "Europe/London",
+        }),
+      ]);
+      const campaignEvents = rows(campaignReport).map((row: any) => ({
+        event_name: row.dimensions[0],
+        partner_id: ["(not set)", ""].includes(row.dimensions[1]) ? null : row.dimensions[1],
+        campaign_id: ["(not set)", ""].includes(row.dimensions[2]) ? null : row.dimensions[2],
+        store_destination: ["(not set)", ""].includes(row.dimensions[3]) ? null : row.dimensions[3],
+        event_count: Number(row.metrics[0]) || 0,
+      }));
+      return json({
+        range: { start_date: startDate, end_date: endDate },
+        campaign_events: campaignEvents,
+        revenuecat_campaigns: revenuecatResult.error ? [] : revenuecatResult.data || [],
+        revenuecat_error: revenuecatResult.error?.message || null,
+        revenuecat_webhook_configured: Boolean(Deno.env.get("RC_PARISH_WEBHOOK_TOKEN")),
+      });
+    }
+
     const [totals, sources, pages, locations, devices, clicks] = await Promise.all([
       report(token, property, { dateRanges, metrics: [{ name: "activeUsers" }, { name: "sessions" }, { name: "screenPageViews" }, { name: "eventCount" }] }),
       report(token, property, { dateRanges, dimensions: [{ name: "sessionSource" }, { name: "sessionMedium" }], metrics: [{ name: "sessions" }, { name: "activeUsers" }], limit: 10, orderBys: [{ metric: { metricName: "sessions" }, desc: true }] }),

@@ -99,6 +99,9 @@ const websiteAnalyticsLocations = document.getElementById("websiteAnalyticsLocat
 const websiteAnalyticsDevices = document.getElementById("websiteAnalyticsDevices");
 const websiteAnalyticsClicks = document.getElementById("websiteAnalyticsClicks");
 const websiteAnalyticsStatus = document.getElementById("websiteAnalyticsStatus");
+const parishCampaignTotals = document.getElementById("parishCampaignTotals");
+const parishCampaignTable = document.getElementById("parishCampaignTable");
+const parishCampaignStatus = document.getElementById("parishCampaignStatus");
 const ticketSummary = document.getElementById("ticketSummary");
 const ticketSearch = document.getElementById("ticketSearch");
 const ticketStatusFilter = document.getElementById("ticketStatusFilter");
@@ -204,7 +207,8 @@ function applyDateRange(key) {
   const loaders = {
     prayer: loadAnalytics,
     growth: loadGrowthAnalytics,
-    website: loadWebsiteAnalytics
+    website: loadWebsiteAnalytics,
+    campaign: loadParishCampaignAnalytics
   };
   if (loaders[key]) loaders[key](range);
 }
@@ -270,6 +274,7 @@ async function init() {
   const addBtn = document.getElementById("addBtn");
   const refreshAnalyticsBtn = document.getElementById("refreshAnalyticsBtn");
   const refreshWebsiteAnalyticsBtn = document.getElementById("refreshWebsiteAnalyticsBtn");
+  const refreshParishCampaignBtn = document.getElementById("refreshParishCampaignBtn");
   const refreshTicketsBtn = document.getElementById("refreshTicketsBtn");
 
   if (loginBtn) loginBtn.addEventListener("click", sendMagicLink);
@@ -280,6 +285,7 @@ async function init() {
   if (refreshAnalyticsBtn) refreshAnalyticsBtn.addEventListener("click", () => loadAnalytics(getDateRange("prayer")));
   if (refreshGrowthAnalyticsBtn) refreshGrowthAnalyticsBtn.addEventListener("click", () => loadGrowthAnalytics(getDateRange("growth")));
   if (refreshWebsiteAnalyticsBtn) refreshWebsiteAnalyticsBtn.addEventListener("click", () => loadWebsiteAnalytics(getDateRange("website")));
+  if (refreshParishCampaignBtn) refreshParishCampaignBtn.addEventListener("click", () => loadParishCampaignAnalytics(getDateRange("campaign")));
   if (refreshTicketsBtn) refreshTicketsBtn.addEventListener("click", loadTickets);
   if (copyBlogAgentBriefBtn) copyBlogAgentBriefBtn.addEventListener("click", copyBlogAgentBrief);
   setupRoadmapAdminFilters();
@@ -438,6 +444,7 @@ async function showEditor(session) {
     loadAnalytics(getDateRange("prayer")),
     loadGrowthAnalytics(getDateRange("growth")),
     loadWebsiteAnalytics(getDateRange("website")),
+    loadParishCampaignAnalytics(getDateRange("campaign")),
     loadItems(),
     loadTickets()
   ]);
@@ -465,6 +472,108 @@ async function loadWebsiteAnalytics(range = getDateRange("website")) {
   renderWebsiteTable(websiteAnalyticsDevices, data.devices, ["Device / OS", "Users"]);
   renderWebsiteTable(websiteAnalyticsClicks, data.clicks, ["Event / destination", "Clicks"]);
   if (websiteAnalyticsStatus) websiteAnalyticsStatus.textContent = `Website analytics loaded for ${formatDateRangeLabel(range)}.`;
+}
+
+async function loadParishCampaignAnalytics(range = getDateRange("campaign")) {
+  if (!isValidDateRange(range)) return;
+  if (parishCampaignStatus) parishCampaignStatus.textContent = `Loading parish campaign results for ${formatDateRangeLabel(range)}...`;
+
+  const { data, error } = await client.functions.invoke("ga4-dashboard", {
+    body: {
+      campaign_only: true,
+      start_date: getWebsiteAnalyticsQueryStartDate(range),
+      end_date: range.end,
+      timezone: "Europe/London"
+    }
+  });
+  if (error || data?.error) {
+    if (parishCampaignStatus) parishCampaignStatus.textContent = "Could not load parish campaign results: " + (data?.error || error?.message || "Unknown error");
+    return;
+  }
+
+  const campaignRows = mergeParishCampaignRows(data.campaign_events || [], data.revenuecat_campaigns || []);
+  const totals = campaignRows.reduce((result, row) => {
+    result.landing += row.landing_visits;
+    result.apple += row.apple_store_clicks;
+    result.google += row.google_play_clicks;
+    result.trials += row.trial_starts;
+    result.conversions += row.trial_to_paid;
+    return result;
+  }, { landing: 0, apple: 0, google: 0, trials: 0, conversions: 0 });
+
+  if (parishCampaignTotals) {
+    parishCampaignTotals.innerHTML = [
+      renderAnalyticsCard(formatNumber(totals.landing), "Landing visits"),
+      renderAnalyticsCard(formatNumber(totals.apple), "Apple App Store visits"),
+      renderAnalyticsCard(formatNumber(totals.google), "Google Play visits"),
+      renderAnalyticsCard(formatNumber(totals.trials), "Premium trial starts"),
+      renderAnalyticsCard(formatNumber(totals.conversions), "Trial-to-paid conversions")
+    ].join("");
+  }
+
+  renderParishCampaignTable(campaignRows);
+  if (parishCampaignStatus) {
+    const websiteStatus = `Website and app-store activity loaded for ${formatDateRangeLabel(range)}.`;
+    if (!data.revenuecat_webhook_configured) {
+      parishCampaignStatus.textContent = `${websiteStatus} RevenueCat trial and conversion tracking is waiting for its secure webhook connection.`;
+    } else if (data.revenuecat_error) {
+      parishCampaignStatus.textContent = `${websiteStatus} RevenueCat trial data could not be loaded: ${data.revenuecat_error}`;
+    } else {
+      parishCampaignStatus.textContent = `${websiteStatus} RevenueCat subscription events loaded for ${formatDateRangeLabel(range)}.`;
+    }
+  }
+}
+
+function mergeParishCampaignRows(websiteRows, revenuecatRows) {
+  const campaigns = new Map();
+  const keyFor = (partnerId, campaignId) => `${partnerId || ""}::${campaignId || ""}`;
+  const ensure = (partnerId, campaignId) => {
+    const key = keyFor(partnerId, campaignId);
+    if (!campaigns.has(key)) {
+      campaigns.set(key, {
+        partner_id: partnerId,
+        campaign_id: campaignId,
+        landing_visits: 0,
+        apple_store_clicks: 0,
+        google_play_clicks: 0,
+        trial_starts: 0,
+        trial_to_paid: 0
+      });
+    }
+    return campaigns.get(key);
+  };
+
+  ensure("st-anthony-the-abbot", "st-anthony-the-abbot-2026");
+  (websiteRows || []).forEach((item) => {
+    const row = ensure(item.partner_id, item.campaign_id);
+    if (item.event_name === "parish_campaign_landing") row.landing_visits += Number(item.event_count) || 0;
+    if (item.event_name === "store_link_click" && item.store_destination === "apple") row.apple_store_clicks += Number(item.event_count) || 0;
+    if (item.event_name === "store_link_click" && item.store_destination === "google_play") row.google_play_clicks += Number(item.event_count) || 0;
+  });
+  (revenuecatRows || []).forEach((item) => {
+    const row = ensure(item.partner_id, item.campaign_id);
+    row.trial_starts += Number(item.trial_starts) || 0;
+    row.trial_to_paid += Number(item.trial_to_paid) || 0;
+  });
+
+  return [...campaigns.values()].sort((a, b) => (a.partner_id || "").localeCompare(b.partner_id || "") || (a.campaign_id || "").localeCompare(b.campaign_id || ""));
+}
+
+function renderParishCampaignTable(rows) {
+  if (!parishCampaignTable) return;
+  if (!rows?.length) {
+    parishCampaignTable.innerHTML = `<div class="analytics-empty">No parish campaigns are available yet.</div>`;
+    return;
+  }
+  const headings = ["Parish", "Campaign", "Landing visits", "Apple Store", "Google Play", "Trial starts", "Trial-to-paid"];
+  const body = rows.map((row) => `<tr><td>${escapeHtml(formatParishName(row.partner_id))}</td><td>${escapeHtml(row.campaign_id || "—")}</td><td>${escapeHtml(formatNumber(row.landing_visits))}</td><td>${escapeHtml(formatNumber(row.apple_store_clicks))}</td><td>${escapeHtml(formatNumber(row.google_play_clicks))}</td><td>${escapeHtml(formatNumber(row.trial_starts))}</td><td>${escapeHtml(formatNumber(row.trial_to_paid))}</td></tr>`).join("");
+  parishCampaignTable.innerHTML = `<div class="analytics-table-scroll"><table class="analytics-table parish-campaign-table"><thead><tr>${headings.map((heading) => `<th>${escapeHtml(heading)}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+function formatParishName(partnerId) {
+  if (!partnerId) return "Parish not specified";
+  if (partnerId === "st-anthony-the-abbot") return "St Anthony the Abbot Catholic Church";
+  return partnerId.split(/[-_.]+/).filter(Boolean).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ");
 }
 
 function renderWebsiteTable(container, rows, headings) {
