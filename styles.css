@@ -1749,7 +1749,29 @@ textarea:focus {
 }
 
 .parish-campaign-table {
-  min-width: 860px;
+  min-width: 0;
+  table-layout: fixed;
+}
+
+.parish-campaign-table th,
+.parish-campaign-table td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.parish-campaign-table th:nth-child(1),
+.parish-campaign-table td:nth-child(1) {
+  width: 24%;
+}
+
+.parish-campaign-table th:nth-child(2),
+.parish-campaign-table td:nth-child(2) {
+  width: 22%;
+}
+
+.parish-campaign-table th:nth-child(n + 3),
+.parish-campaign-table td:nth-child(n + 3) {
+  width: 10.8%;
 }
 
 .analytics-tables {
@@ -2168,6 +2190,17 @@ textarea:focus {
 
   .analytics-tables {
     grid-template-columns: 1fr;
+  }
+
+  .parish-campaign-table {
+    min-width: 860px;
+    table-layout: auto;
+  }
+
+  .parish-campaign-table th,
+  .parish-campaign-table td {
+    white-space: nowrap;
+    overflow-wrap: normal;
   }
 
   .growth-analytics-tables {
