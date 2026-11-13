@@ -37,6 +37,12 @@ jobs:
               assert 'id="' + item + '"' in studio, item
               assert item in source, item
           assert 'service_role' not in source and 'sb_secret_' not in source
+          for ident in ('pushStudio','pushAudience','pushTitle','pushBody','pushPreview','pushHistory'):
+              assert 'id="' + ident + '"' in studio
+              assert ident in source
+          for item in ('beadlight-push-device','beadlight-push-admin'):
+              assert Path('supabase/functions/' + item + '/index.ts').exists()
+          assert Path('supabase/migrations/20261113214500_beadlight_remote_push.sql').exists()
           for ident in ('signupRows','refreshSignups','signupStatus'):
               assert 'id="' + ident + '"' in studio
           for name in ('get_admin_challenge_signup_counts','set_challenge_count_visibility'):
