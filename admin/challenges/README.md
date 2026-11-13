@@ -12,9 +12,8 @@ The studio uses the existing Supabase email magic-link login. All writes require
 
 1. Merge this branch into main and confirm GitHub Pages deployed the admin/challenges/ path.
 2. In the EXISTING Beadlight Supabase project, run the SQL in supabase/migrations/20261113183000_challenge_admin_studio.sql one time (or apply with your normal reviewed migration process).
-3. In Supabase Authentication > URL Configuration, allow https://beadlight.app/admin/challenges/ as a redirect.
-4. Sign in at https://beadlight.app/admin/challenges/ using the same approved email as your existing admin dashboard.
-5. Test with the Beadlight iOS 1.7.5 Challenge Progress / Images / Reminders project, or later. Older app versions without the catalogue client will not show remote challenges.
+3. Sign in at https://beadlight.app/admin/challenges/ using the same approved email as your existing admin dashboard. The magic link redirects through the already-approved /admin/ page; choose Challenges to return to the studio.
+4. Test with the Beadlight iOS 1.7.5 Challenge Progress / Images / Reminders project, or later. Older app versions without the catalogue client will not show remote challenges.
 
 ## Publishing workflow
 
