@@ -122,3 +122,22 @@ end;
 $$;
 revoke all on function public.set_challenge_count_visibility(text,boolean) from public, anon, authenticated;
 grant execute on function public.set_challenge_count_visibility(text,boolean) to authenticated;
+
+-- Removing a campaign must not leave stale registrations that a future
+-- campaign with the same slug would accidentally inherit.
+create or replace function public.remove_deleted_challenge_signups()
+returns trigger language plpgsql security definer set search_path = ''
+as $$
+begin
+  delete from public.challenge_participations p
+   where p.challenge_slug = old.slug;
+  delete from public.challenge_count_settings s
+   where s.challenge_slug = old.slug;
+  return old;
+end;
+$$;
+drop trigger if exists remove_deleted_challenge_signups on public.rosary_challenges;
+create trigger remove_deleted_challenge_signups
+after delete on public.rosary_challenges
+for each row execute function public.remove_deleted_challenge_signups();
+revoke all on function public.remove_deleted_challenge_signups() from public, anon, authenticated;
