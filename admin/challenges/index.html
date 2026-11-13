@@ -170,6 +170,33 @@
           </div>
         </form>
       </section>
+
+      <section class="panel" id="pushStudio" style="grid-column:1/-1" aria-labelledby="pushStudioTitle">
+        <div class="actions" style="justify-content:space-between">
+          <div><p class="eyebrow">Optional remote notifications</p><h2 id="pushStudioTitle">Send a notification</h2></div>
+          <button class="secondary" id="pushRefresh" type="button">Preview audience</button>
+        </div>
+        <p class="muted">Only iPhones that explicitly opted into this type of announcement are eligible. Notifications are separate from daily prayer reminders. A successful test is required before any broadcast.</p>
+        <div class="fields" style="margin-top:18px">
+          <label>Recipients
+            <select id="pushAudience"><option value="challenge:daily">Daily Rosary Challenge</option><option value="general">Beadlight announcements (separate opt-in)</option></select>
+          </label>
+          <label>Test iPhone ID <input id="pushTestID" placeholder="Copy from the iPhone Challenges screen" autocomplete="off"><small>Only required for a test send.</small></label>
+          <label class="wide">Notification title <input id="pushTitle" maxlength="100" placeholder="Your Advent journey begins soon"></label>
+          <label class="wide">Notification message <textarea id="pushBody" maxlength="240" rows="2" placeholder="Make time for a moment of prayer today."></textarea></label>
+        </div>
+        <div style="margin-top:14px" class="pill" id="pushPreview">Select an audience and preview before sending.</div>
+        <div class="actions" style="margin-top:15px">
+          <button id="pushTest" type="button" class="secondary">Send test to my iPhone</button>
+          <button id="pushSend" type="button" disabled>Send now to eligible devices</button>
+        </div>
+        <p id="pushStatus" class="feedback" role="status" aria-live="polite"></p>
+        <p class="help">An accepted APNs request does not guarantee the notification was displayed. Message scheduling isn't enabled in this version. Apple push credentials must be configured in Supabase Secrets first.</p>
+        <div class="section">
+          <h3>Send history</h3>
+          <div class="list" id="pushHistory"><p class="help">No messages have been sent.</p></div>
+        </div>
+      </section>
     </main>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
