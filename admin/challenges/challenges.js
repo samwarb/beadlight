@@ -19,7 +19,10 @@
     bannerFile: $("bannerFile"), detailFile: $("detailFile"), dailyImages: $("dailyImages"),
     published: $("published"), saveButton: $("saveButton"), resetButton: $("resetButton"),
     deleteButton: $("deleteButton"), saveStatus: $("saveStatus"),
-    signupRows: $("signupRows"), signupStatus: $("signupStatus"), refreshSignups: $("refreshSignups")
+    signupRows: $("signupRows"), signupStatus: $("signupStatus"), refreshSignups: $("refreshSignups"),
+    pushAudience: $("pushAudience"),pushTitle: $("pushTitle"),pushBody: $("pushBody"),pushTestID: $("pushTestID"),
+    pushPreview: $("pushPreview"),pushStatus: $("pushStatus"),pushHistory: $("pushHistory"),
+    pushRefresh: $("pushRefresh"),pushSend: $("pushSend"),pushTest: $("pushTest")
   };
   const client = (window.supabase && cfg.url && cfg.anonKey)
     ? window.supabase.createClient(cfg.url, cfg.anonKey) : null;
@@ -35,6 +38,8 @@
   let authorised = false;
   let signupStats = [];
   let countsLoading = false;
+  let pushPreview = null;
+  let pushBusy = false;
 
   function report(message, error) {
     el.saveStatus.textContent = message || "";
@@ -295,12 +300,117 @@
     });
   }
 
+
+  function pushMessage(message, error=false) {
+    el.pushStatus.textContent = message || "";
+    el.pushStatus.classList.toggle("error",error);
+  }
+  function selectedPushAudience() {
+    const value=el.pushAudience.value;
+    if (value === "general") return { audience:"general",challenge_slug:null };
+    return { audience:"challenge",challenge_slug:value.replace(/^challenge:/,"") };
+  }
+  async function invokePush(payload) {
+    const {data,error}=await client.functions.invoke("beadlight-push-admin",{body:payload});
+    if(error){
+      const reason=await error.context?.json?.().catch(()=>null);
+      throw Error(reason?.error || error.message || "Request failed");
+    }
+    if (data?.error) throw Error(data.error);
+    return data;
+  }
+  function fillPushAudience() {
+    const selected=el.pushAudience.value;
+    el.pushAudience.replaceChildren();
+    const opts=[{value:"challenge:daily",text:"Daily Rosary Challenge"},
+      ...allChallenges.filter(x=>x.is_published).map(x=>({value:"challenge:"+x.slug,text:x.title_en})),
+      {value:"general",text:"Beadlight news and offers (opted-in users)"}];
+    for(const option of opts){
+      const elOption=document.createElement("option");
+      elOption.value=option.value;elOption.textContent=option.text;
+      el.pushAudience.append(elOption);
+    }
+    if(opts.some(x=>x.value===selected))el.pushAudience.value=selected;
+    pushPreview=null;el.pushSend.disabled=true;
+  }
+  async function refreshPushPreview() {
+    if(!authorised || pushBusy)return;
+    pushBusy=true; el.pushRefresh.disabled=true; el.pushSend.disabled=true;
+    el.pushPreview.textContent="Checking eligible devices and Apple push configuration…";
+    try {
+      const result=await invokePush({action:"preview",...selectedPushAudience()});
+      pushPreview=result;
+      el.pushPreview.textContent=result.eligible_devices+" opted-in device(s) · Apple push "+
+        (result.apns_configured?"configured":"credentials missing")+" · "+
+        (result.successful_test_recorded?"test completed":"test send required");
+      el.pushSend.disabled=!result.ready_to_send || !result.eligible_devices;
+      pushMessage(result.limited?"Audience exceeds current safe send limit.":"");
+    }catch(error){
+      pushPreview=null;el.pushPreview.textContent="Audience preview unavailable";
+      pushMessage(error.message,true);
+    }finally{pushBusy=false;el.pushRefresh.disabled=false;}
+  }
+  async function loadPushHistory() {
+    if(!authorised)return;
+    try {
+      const result=await invokePush({action:"history"});
+      el.pushHistory.replaceChildren();
+      const history=result.history||[];
+      if(!history.length){
+        const msg=document.createElement("p");msg.className="help";
+        msg.textContent="No messages sent yet.";el.pushHistory.append(msg);
+      }
+      for(const item of history){
+        const entry=document.createElement("div");
+        entry.className="item";
+        const heading=document.createElement("strong");heading.textContent=(item.is_test?"Test: ":"")+item.title;
+        const summary=document.createElement("small");
+        summary.textContent=[new Date(item.sent_at).toLocaleString(),
+          item.audience==="challenge"?(item.challenge_slug||"Challenge"):"All opted-in announcements",
+          item.status, (item.delivered_count||0)+" accepted by Apple",
+          (item.failed_count||0)+" failed"].join(" · ");
+        const body=document.createElement("span");body.textContent=item.body;
+        entry.append(heading,body,summary);
+        el.pushHistory.append(entry);
+      }
+    }catch(error){pushMessage("History: "+error.message,true);}
+  }
+  async function submitPush(test=false) {
+    if(!authorised || pushBusy)return;
+    const {audience,challenge_slug}=selectedPushAudience();
+    const title=el.pushTitle.value.trim(),body=el.pushBody.value.trim();
+    if(!title || !body)return pushMessage("Enter a title and message.",true);
+    if(title.length>100 || body.length>240)return pushMessage("Title/message too long.",true);
+    const testID=el.pushTestID.value.trim();
+    if(test && !/^[0-9a-f-]{36}$/i.test(testID))return pushMessage("Copy the test ID from Beadlight's challenge settings on your iPhone.",true);
+    if(!test && (!pushPreview?.ready_to_send || !pushPreview?.eligible_devices))
+      return pushMessage("Preview the audience, configure APNs, and complete a successful test before a broadcast.",true);
+    const audienceLabel=el.pushAudience.selectedOptions[0]?.textContent||audience;
+    const confirmation=test
+      ?"Send this test notification to the specified opted-in iPhone?"
+      :"Send to "+pushPreview.eligible_devices+" eligible devices in "+audienceLabel+"? This cannot be undone.";
+    if(!window.confirm(confirmation))return;
+    if(window.prompt("Type SEND to confirm your message:")!=="SEND")return;
+    pushBusy=true;el.pushSend.disabled=true;el.pushTest.disabled=true;
+    pushMessage("Sending…");
+    try{
+      const result=await invokePush({action:test?"test":"send",audience,challenge_slug,
+        title,body,test_installation_id:test?testID:null,confirm:true,confirmation_phrase:"SEND"});
+      pushMessage(result.accepted_by_apns+" accepted by APNs; "+result.failed+" failed. Check your device for the test message.");
+      await loadPushHistory();
+    }catch(error){pushMessage(error.message,true);}
+    finally{pushBusy=false;el.pushTest.disabled=false;await refreshPushPreview();}
+  }
+
   async function loadAll(focus) {
     const { data, error } = await client.from("rosary_challenges")
       .select("*").order("starts_on", { ascending: false });
     if (error) throw Error(error.message + " — Run the Challenges admin SQL migration if it has not been installed.");
     allChallenges = data || [];
+    fillPushAudience();
     await loadSignupCounts();
+    await refreshPushPreview();
+    await loadPushHistory();
     if (focus) {
       const row = allChallenges.find((r) => r.slug === focus);
       if (row) startEditing(row); else startNew();
@@ -468,6 +578,10 @@
     el.endsOn.addEventListener("change", renderDayImages);
     el.newButton.addEventListener("click", startNew);
     el.refreshSignups.addEventListener("click", loadSignupCounts);
+    el.pushAudience.addEventListener("change", refreshPushPreview);
+    el.pushRefresh.addEventListener("click", refreshPushPreview);
+    el.pushTest.addEventListener("click", () => submitPush(true));
+    el.pushSend.addEventListener("click", () => submitPush(false));
     el.search.addEventListener("input", renderList);
     el.form.addEventListener("submit", save);
     el.deleteButton.addEventListener("click", removeChallenge);
