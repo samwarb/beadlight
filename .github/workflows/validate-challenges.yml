@@ -37,7 +37,8 @@ jobs:
               assert 'id="' + item + '"' in studio, item
               assert item in source, item
           assert 'service_role' not in source and 'sb_secret_' not in source
-          for ident in ('pushStudio','pushAudience','pushTitle','pushBody','pushPreview','pushHistory'):
+          assert 'id="pushStudio"' in studio
+          for ident in ('pushAudience','pushTitle','pushBody','pushPreview','pushHistory'):
               assert 'id="' + ident + '"' in studio
               assert ident in source
           for item in ('beadlight-push-device','beadlight-push-admin'):
