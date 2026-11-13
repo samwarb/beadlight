@@ -1,0 +1,42 @@
+name: Validate Challenge Studio
+
+on:
+  pull_request:
+    paths:
+      - 'admin/challenges/**'
+      - 'admin/index.html'
+      - 'supabase/migrations/*challenge*'
+      - '.github/workflows/validate-challenges.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'admin/challenges/**'
+      - 'admin/index.html'
+      - 'supabase/migrations/*challenge*'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JavaScript syntax
+        run: node --check admin/challenges/challenges.js
+      - name: Validate HTML wiring
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          admin = Path('admin/index.html').read_text()
+          studio = Path('admin/challenges/index.html').read_text()
+          source = Path('admin/challenges/challenges.js').read_text()
+          assert 'href="./challenges/"' in admin
+          for item in ('challengeForm', 'loginButton', 'bannerFile', 'detailFile', 'dailyImages', 'published'):
+              assert 'id="' + item + '"' in studio, item
+              assert item in source, item
+          assert 'service_role' not in source and 'sb_secret_' not in source
+          assert Path('supabase/migrations/20261113183000_challenge_admin_studio.sql').exists()
+          print('Challenge editor links and inputs validated')
+          PY
