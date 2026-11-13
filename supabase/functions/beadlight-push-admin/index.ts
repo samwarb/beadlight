@@ -84,7 +84,7 @@ async function deliver(device:Device,title:string,body:string,slug:string|null,j
   }catch{return {delivered:false,error:"APNs gateway unreachable"};}
 }
 Deno.serve(async(request:Request)=>{
-  if(request.method==="OPTIONS")return reply(204,{});
+  if(request.method==="OPTIONS")return new Response(null,{status:204,headers:{"Access-Control-Allow-Origin":"https://beadlight.app","Access-Control-Allow-Headers":"authorization,apikey,content-type","Access-Control-Allow-Methods":"POST,OPTIONS"}});
   if(request.method!=="POST")return reply(405,{error:"POST required"});
   try {
     const user=await admin(request);
