@@ -264,10 +264,10 @@
     }
     el.loginButton.disabled = true;
     reportLogin("Sending sign-in link…");
-    const redirect = window.location.origin + "/admin/challenges/";
+    const redirect = window.location.origin + "/admin/"; // Reuse the existing approved Supabase Auth redirect.
     const { error } = await client.auth.signInWithOtp({ email, options: { emailRedirectTo: redirect } });
     el.loginButton.disabled = false;
-    reportLogin(error ? error.message : "If the address is approved, a sign-in link will arrive by email.", !!error);
+    reportLogin(error ? error.message : "If the address is approved, a sign-in link will arrive by email. The link opens the main admin dashboard; select Challenges to return here.", !!error);
   }
   function collect() {
     const slug = el.slug.value.trim();
