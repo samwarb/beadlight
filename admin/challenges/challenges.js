@@ -307,6 +307,10 @@
   }
   function selectedPushAudience() {
     const value=el.pushAudience.value;
+    if(value.startsWith("segment:")){
+      const saved=window.BeadlightAudienceBuilder?.get(value.slice(8));
+      if(saved)return {audience:saved.audience,challenge_slug:saved.challenge_slug,segment_id:saved.id};
+    }
     if (value === "general") return { audience:"general",challenge_slug:null };
     return { audience:"challenge",challenge_slug:value.replace(/^challenge:/,"") };
   }
@@ -330,7 +334,13 @@
       elOption.value=option.value;elOption.textContent=option.text;
       el.pushAudience.append(elOption);
     }
-    if(opts.some(x=>x.value===selected))el.pushAudience.value=selected;
+    window.BeadlightAudienceBuilder?.options().forEach(seg=>{
+      const opt=document.createElement("option");
+      opt.value="segment:"+seg.id;
+      opt.textContent="Saved audience · "+seg.name;
+      el.pushAudience.append(opt);
+    });
+    if([...el.pushAudience.options].some(x=>x.value===selected))el.pushAudience.value=selected;
     pushPreview=null;el.pushSend.disabled=true;
   }
   async function refreshPushPreview() {
@@ -344,7 +354,11 @@
         (result.apns_configured?"configured":"credentials missing")+" · "+
         (result.successful_test_recorded?"test completed":"test send required");
       el.pushSend.disabled=!result.ready_to_send || !result.eligible_devices;
-      pushMessage(result.limited?"Audience exceeds current safe send limit.":"");
+      if(result.requires_subscription_verification && !result.subscription_verification_configured){
+        pushMessage("RevenueCat verification isn't configured; subscriber-targeted sends are blocked.",true);
+      }else{
+        pushMessage(result.limited?"Audience exceeds current safe send limit.":"");
+      }
     }catch(error){
       pushPreview=null;el.pushPreview.textContent="Audience preview unavailable";
       pushMessage(error.message,true);
@@ -377,7 +391,8 @@
   }
   async function submitPush(test=false) {
     if(!authorised || pushBusy)return;
-    const {audience,challenge_slug}=selectedPushAudience();
+    const target=selectedPushAudience();
+    const {audience,challenge_slug}=target;
     const title=el.pushTitle.value.trim(),body=el.pushBody.value.trim();
     if(!title || !body)return pushMessage("Enter a title and message.",true);
     if(title.length>100 || body.length>240)return pushMessage("Title/message too long.",true);
@@ -395,6 +410,7 @@
     pushMessage("Sending…");
     try{
       const result=await invokePush({action:test?"test":"send",audience,challenge_slug,
+        segment_id:target.segment_id||null,
         title,body,test_installation_id:test?testID:null,confirm:true,confirmation_phrase:"SEND"});
       pushMessage(result.accepted_by_apns+" accepted by APNs; "+result.failed+" failed. Check your device for the test message.");
       await loadPushHistory();
@@ -563,6 +579,7 @@
     });
   }
   function init() {
+    window.beadlightAdminClient=client;
     bindImage("banner", el.bannerFile, el.bannerPreview);
     bindImage("detail", el.detailFile, el.detailPreview);
     document.querySelectorAll("[data-clear-image]").forEach((button) => {
