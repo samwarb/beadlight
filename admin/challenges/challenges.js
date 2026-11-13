@@ -18,7 +18,8 @@
     bannerPreview: $("bannerPreview"), detailPreview: $("detailPreview"),
     bannerFile: $("bannerFile"), detailFile: $("detailFile"), dailyImages: $("dailyImages"),
     published: $("published"), saveButton: $("saveButton"), resetButton: $("resetButton"),
-    deleteButton: $("deleteButton"), saveStatus: $("saveStatus")
+    deleteButton: $("deleteButton"), saveStatus: $("saveStatus"),
+    signupRows: $("signupRows"), signupStatus: $("signupStatus"), refreshSignups: $("refreshSignups")
   };
   const client = (window.supabase && cfg.url && cfg.anonKey)
     ? window.supabase.createClient(cfg.url, cfg.anonKey) : null;
@@ -32,6 +33,8 @@
   const tempURLs = new Map();
   let busy = false;
   let authorised = false;
+  let signupStats = [];
+  let countsLoading = false;
 
   function report(message, error) {
     el.saveStatus.textContent = message || "";
@@ -216,11 +219,88 @@
       el.list.append(p);
     }
   }
+
+  function showSignupStatus(message, isError = false) {
+    el.signupStatus.textContent = message || "";
+    el.signupStatus.classList.toggle("error", Boolean(isError));
+  }
+
+  // Admin-only aggregate RPC. The underlying registrations are never readable
+  // directly from the browser, and switching visibility off hides public RPC output.
+  async function loadSignupCounts() {
+    if (!authorised || countsLoading) return;
+    countsLoading = true;
+    el.refreshSignups.disabled = true;
+    showSignupStatus("Refreshing participation counts…");
+    try {
+      const { data, error } = await client.rpc("get_admin_challenge_signup_counts");
+      if (error) throw Error(error.message);
+      signupStats = data || [];
+      renderSignupCounts();
+      showSignupStatus("Counts updated. Switches save immediately.");
+    } catch (error) {
+      showSignupStatus("Could not load sign-ups: " + error.message, true);
+    } finally {
+      countsLoading = false;
+      el.refreshSignups.disabled = false;
+    }
+  }
+
+  function renderSignupCounts() {
+    el.signupRows.replaceChildren();
+    signupStats.forEach((record) => {
+      const row = document.createElement("div");
+      row.className = "signup-row";
+      const text = document.createElement("div");
+      const name = document.createElement("div");
+      name.className = "signup-name";
+      const corresponding = allChallenges.find((c) => c.slug === record.challenge_slug);
+      name.textContent = record.challenge_slug === "daily"
+        ? "Daily Rosary Challenge" : (corresponding?.title_en || record.challenge_slug);
+      const detail = document.createElement("small");
+      detail.textContent = record.challenge_slug === "daily"
+        ? "Ongoing, free challenge" : (corresponding?.is_published ? "Published" : "Draft");
+      text.append(name, detail);
+      const total = document.createElement("div");
+      total.className = "signup-total";
+      total.textContent = Number(record.signup_count || 0).toLocaleString();
+      total.setAttribute("aria-label", total.textContent + " registered app installations");
+      const label = document.createElement("label");
+      label.className = "signup-switch";
+      const toggle = document.createElement("input");
+      toggle.type = "checkbox";
+      toggle.checked = Boolean(record.show_to_users);
+      toggle.setAttribute("aria-label", "Show sign-up count to users for " + name.textContent);
+      const span = document.createElement("span");
+      span.textContent = "Show in app";
+      label.append(toggle, span);
+      toggle.addEventListener("change", async () => {
+        const intended = toggle.checked;
+        toggle.disabled = true;
+        showSignupStatus("Updating visibility for " + name.textContent + "…");
+        try {
+          const { error } = await client.rpc("set_challenge_count_visibility", {
+            p_slug: record.challenge_slug, p_show_to_users: intended
+          });
+          if (error) throw Error(error.message);
+          record.show_to_users = intended;
+          showSignupStatus(name.textContent + ": count " + (intended ? "visible to app users." : "hidden from app users."));
+        } catch (error) {
+          toggle.checked = !intended;
+          showSignupStatus("Could not update visibility: " + error.message, true);
+        } finally { toggle.disabled = false; }
+      });
+      row.append(text, total, label);
+      el.signupRows.append(row);
+    });
+  }
+
   async function loadAll(focus) {
     const { data, error } = await client.from("rosary_challenges")
       .select("*").order("starts_on", { ascending: false });
     if (error) throw Error(error.message + " — Run the Challenges admin SQL migration if it has not been installed.");
     allChallenges = data || [];
+    await loadSignupCounts();
     if (focus) {
       const row = allChallenges.find((r) => r.slug === focus);
       if (row) startEditing(row); else startNew();
@@ -387,6 +467,7 @@
     el.startsOn.addEventListener("change", renderDayImages);
     el.endsOn.addEventListener("change", renderDayImages);
     el.newButton.addEventListener("click", startNew);
+    el.refreshSignups.addEventListener("click", loadSignupCounts);
     el.search.addEventListener("input", renderList);
     el.form.addEventListener("submit", save);
     el.deleteButton.addEventListener("click", removeChallenge);
