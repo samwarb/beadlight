@@ -38,3 +38,14 @@ Deletion removes the challenge row but deliberately keeps previously uploaded im
 Test: create draft, edit, publish, upload and replace artwork, use Spanish content, try 1-day/90-day challenges, verify App Store/TestFlight app receives content, and verify redirect and signed-out access.
 
 No secret API keys belong in this public GitHub repository.
+
+
+## Sign-up totals and public visibility (13 November 2026)
+
+The Challenge Studio now shows an **approximate registration count for every challenge**, including the ongoing Daily Rosary Challenge. Counts are distinct *app installations* that explicitly enrolled; they are not verified unique people. They begin when users update to an iOS build containing ChallengeSignupMetrics.
+
+Each challenge has a **Show in app** switch. All switches default to OFF, including Daily and Advent. When OFF, the public count endpoint returns no row for that challenge. Admin counts are visible regardless. Flip the switch at any time without publishing an app update. The app checks while opening/resuming the Challenges screen and can manually refresh by pulling down. Counts are not initially backfilled for previous builds.
+
+Enrollment, pre-registration and cancellation are mirrored asynchronously to Supabase, with retries when the app next opens after a network failure. Joining more than one challenge counts one installation in each challenge, including Daily (which is the base enrolment). Leaving removes a registration. No personal prayer history, names or email addresses are uploaded for this feature.
+
+The backend migration is `supabase/migrations/20261113203000_challenge_signup_counts.sql`. It creates the private participation and visibility tables and narrowly scoped public/admin RPC functions. Direct table SELECT/UPDATE grants are revoked; this is not a real-user authentication system, so malicious clients could create artificial registration IDs. Use counts as *directional engagement*, not audited identity metrics. Test with TestFlight before trusting numbers.
