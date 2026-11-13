@@ -175,7 +175,11 @@ Deno.serve(async(request:Request)=>{
     if(action==="preview")return reply(200,{
 
       eligible_devices:result.total??recipients.length,limited:result.limited,apns_configured:ready,
-      successful_test_recorded:tested,ready_to_send:ready&&tested&&!result.limited
+      subscription_verification_configured:Boolean(Deno.env.get("REVENUECAT_SECRET_API_KEY")),
+      requires_subscription_verification:Boolean(savedSegment&&savedSegment.subscription_filter!=="any"),
+      successful_test_recorded:tested,ready_to_send:ready&&tested&&!result.limited&&
+        Boolean(savedSegment||audience==="challenge")&&
+        Boolean(!savedSegment||savedSegment.subscription_filter==="any"||Deno.env.get("REVENUECAT_SECRET_API_KEY"))
     });
     const title=String(input.title||"").trim(),body=String(input.body||"").trim();
     if(title.length<1||title.length>100||body.length<1||body.length>240)
