@@ -177,6 +177,41 @@
           <button class="secondary" id="pushRefresh" type="button">Preview audience</button>
         </div>
         <p class="muted">Only iPhones that explicitly opted into this type of announcement are eligible. Notifications are separate from daily prayer reminders. A successful test is required before any broadcast.</p>
+        <section class="section" id="audienceBuilder" aria-labelledby="audienceBuilderTitle">
+          <div class="actions" style="justify-content:space-between">
+            <div><h3 id="audienceBuilderTitle">Audience Builder</h3><p class="help">Save combinations of filters, then select the audience below to preview and send. The rules can change without an iPhone app update.</p></div>
+            <button class="secondary" id="audienceNew" type="button">+ New audience</button>
+          </div>
+          <div class="fields">
+            <label>Saved audiences <select id="audienceSaved"><option value="">New audience</option></select></label>
+            <label>Audience name <input id="audienceName" maxlength="90" placeholder="Monthly subscribers after 60 days"></label>
+            <label>Notification category <select id="audienceType">
+                <option value="general">General Beadlight announcements (explicit opt-in)</option>
+                <option value="challenge">Challenge updates (joined and opted-in)</option>
+              </select></label>
+            <label id="audienceChallengeLabel" class="hidden">Challenge <select id="audienceChallenge"></select></label>
+            <label>Subscription status <select id="audienceSubscription">
+                <option value="any">Any / don't filter by plan</option>
+                <option value="free">Verified Free</option>
+                <option value="trial">Verified Trial</option>
+                <option value="monthly">Verified Monthly Premium</option>
+                <option value="annual">Verified Annual Premium</option>
+                <option value="lifetime">Verified Lifetime Premium</option>
+                <option value="expired">Verified Expired</option>
+              </select></label>
+            <label>App installation at least (days) <input id="audienceAppAge" type="number" min="0" max="3650" value="0"></label>
+            <label>Inactive at least (days) <input id="audienceInactive" type="number" min="0" max="3650" value="0"></label>
+            <label>Inactive no more than (days, optional) <input id="audienceInactiveMax" type="number" min="0" max="3650" placeholder="No maximum"></label>
+            <label>Subscriber for at least (days) <input id="audienceSubscriptionAge" type="number" min="0" max="3650" value="0"></label>
+          </div>
+          <div class="actions" style="margin-top:14px">
+            <button id="audienceSave" type="button">Save audience</button>
+            <button id="audiencePreview" type="button" class="secondary">Preview matching devices</button>
+            <button id="audienceDelete" type="button" class="danger">Delete audience</button>
+          </div>
+          <p class="help">Results are installations, not verified people. App-age and inactivity tracking begin with the updated iPhone build. Subscription filters only match recent RevenueCat-verified data. Marketing messages are limited to once every seven days per installation.</p>
+          <p class="feedback" id="audienceStatus" role="status" aria-live="polite"></p>
+        </section>
         <div class="fields" style="margin-top:18px">
           <label>Recipients
             <select id="pushAudience"><option value="challenge:daily">Daily Rosary Challenge</option><option value="general">Beadlight announcements (separate opt-in)</option></select>
@@ -202,5 +237,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../../supabase-config.js"></script>
   <script src="./challenges.js"></script>
+  <script src="./audience-builder.js"></script>
 </body>
 </html>

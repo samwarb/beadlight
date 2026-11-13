@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate JavaScript syntax
-        run: node --check admin/challenges/challenges.js
+        run: node --check admin/challenges/challenges.js && node --check admin/challenges/audience-builder.js
       - name: Validate HTML wiring
         run: |
           python3 - <<'PY'
@@ -44,6 +44,9 @@ jobs:
           for item in ('beadlight-push-device','beadlight-push-admin'):
               assert Path('supabase/functions/' + item + '/index.ts').exists()
           assert Path('supabase/migrations/20261113214500_beadlight_remote_push.sql').exists()
+          for ident in ('audienceBuilder','audienceSaved','audienceSubscription','audienceSave','audiencePreview'):
+              assert 'id="' + ident + '"' in studio
+          assert Path('supabase/migrations/20261113221500_push_audience_builder.sql').exists()
           for ident in ('signupRows','refreshSignups','signupStatus'):
               assert 'id="' + ident + '"' in studio
           for name in ('get_admin_challenge_signup_counts','set_challenge_count_visibility'):

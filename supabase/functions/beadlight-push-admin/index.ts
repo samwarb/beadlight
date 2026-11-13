@@ -97,9 +97,57 @@ Deno.serve(async(request:Request)=>{
       const history=await db("beadlight_push_campaigns?select=id,audience,challenge_slug,title,body,is_test,intended_count,delivered_count,failed_count,status,created_by,sent_at&order=sent_at.desc&limit=30");
       return history.ok?reply(200,{history:history.data}):reply(503,{error:"Could not fetch history"});
     }
+
+    if(action==="segments_list"){
+      const result=await db("beadlight_push_segments?select=*&order=created_at.desc&limit=100");
+      return result.ok?reply(200,{segments:result.data}):reply(503,{error:"Could not load saved audiences"});
+    }
+    if(action==="segment_delete"){
+      if(!uuid(input.segment_id))return reply(400,{error:"Invalid audience"});
+      const result=await db("beadlight_push_segments?id=eq."+input.segment_id,"DELETE");
+      return result.ok?reply(200,{deleted:true}):reply(503,{error:"Could not delete audience"});
+    }
+    if(action==="segment_save"){
+      const name=String(input.name||"").trim();
+      const group=input.segment_audience;
+      const challenge=group==="challenge"?input.challenge_slug:null;
+      const filter=String(input.subscription_filter||"any");
+      const age=Number(input.min_app_age_days??0);
+      const inactive=Number(input.inactive_min_days??0);
+      const maxInactive=input.inactive_max_days==null?null:Number(input.inactive_max_days);
+      const subscribed=Number(input.min_subscription_days??0);
+      const validNum=(n:number)=>Number.isInteger(n)&&n>=0&&n<=3650;
+      if(name.length<2||name.length>90||!["general","challenge"].includes(group)||
+        !["any","free","trial","monthly","annual","lifetime","expired"].includes(filter)||
+        (group==="challenge"&&!allowedSlug(challenge))||
+        ![age,inactive,subscribed].every(validNum)||
+        (maxInactive!==null&&(!validNum(maxInactive)||maxInactive<inactive)))
+        return reply(400,{error:"Invalid audience rule"});
+      const record={
+        name,audience:group,challenge_slug:challenge,subscription_filter:filter,
+        min_app_age_days:age,inactive_min_days:inactive,inactive_max_days:maxInactive,
+        min_subscription_days:subscribed
+      };
+      if(input.segment_id && !uuid(input.segment_id))return reply(400,{error:"Invalid audience identifier"});
+      const existing=input.segment_id ? await db("beadlight_push_segments?id=eq."+input.segment_id+"&select=id") : null;
+      if(existing&&!existing.data?.length)return reply(404,{error:"Audience not found"});
+      const result=existing
+        ?await db("beadlight_push_segments?id=eq."+input.segment_id,"PATCH",record)
+        :await db("beadlight_push_segments","POST",{...record,created_by:user});
+      return result.ok&&result.data?.[0]?reply(200,{segment:result.data[0]}):reply(503,{error:"Failed to save audience"});
+    }
     if(!["preview","test","send"].includes(action))return reply(400,{error:"Invalid action"});
-    const audience=input.audience;
-    const slug=audience==="challenge"?input.challenge_slug:null;
+
+    const segmentID=input.segment_id??null;
+    if(segmentID!==null && !uuid(segmentID))return reply(400,{error:"Invalid saved audience"});
+    let savedSegment:any=null;
+    if(segmentID){
+      const saved=await db("beadlight_push_segments?id=eq."+segmentID+"&select=*&limit=1");
+      if(!saved.ok||saved.data.length!==1)return reply(404,{error:"Saved audience not found"});
+      savedSegment=saved.data[0];
+    }
+    const audience=savedSegment?.audience??input.audience;
+    const slug=audience==="challenge"?(savedSegment?.challenge_slug??input.challenge_slug):null;
     if(!["challenge","general"].includes(audience)|| (audience==="challenge"&&!allowedSlug(slug)))
       return reply(400,{error:"Choose a valid audience and challenge"});
     if(slug){
@@ -109,14 +157,29 @@ Deno.serve(async(request:Request)=>{
     }
     const testID=action==="test"?input.test_installation_id:null;
     if(action==="test"&&!uuid(testID))return reply(400,{error:"Enter a valid iPhone test device ID"});
-    const result=await eligible(audience,slug,testID);
+
+    let result:{devices:Device[];limited:boolean;total?:number};
+    if(savedSegment && action!=="test"){
+      const found=await db("rpc/beadlight_push_segment_candidates","POST",{p_segment_id:segmentID});
+      if(!found.ok||!found.data)return reply(503,{error:"Audience evaluation unavailable"});
+      const data=found.data;
+      result={devices:data.devices||[],limited:Number(data.total_count)>150,
+        total:Number(data.total_count)};
+    } else {
+      result=await eligible(audience,slug,testID);
+    }
     const recipients=result.devices;
     const ready=configured(creds());
     const recentTest=await db("beadlight_push_campaigns?is_test=eq.true&delivered_count=gt.0&select=id&limit=1");
     const tested=recentTest.ok && recentTest.data.length>0;
     if(action==="preview")return reply(200,{
-      eligible_devices:recipients.length,limited:result.limited,apns_configured:ready,
-      successful_test_recorded:tested,ready_to_send:ready&&tested&&!result.limited
+
+      eligible_devices:result.total??recipients.length,limited:result.limited,apns_configured:ready,
+      subscription_verification_configured:Boolean(Deno.env.get("REVENUECAT_SECRET_API_KEY")),
+      requires_subscription_verification:Boolean(savedSegment&&savedSegment.subscription_filter!=="any"),
+      successful_test_recorded:tested,ready_to_send:ready&&tested&&!result.limited&&
+        Boolean(savedSegment||audience==="challenge")&&
+        Boolean(!savedSegment||savedSegment.subscription_filter==="any"||Deno.env.get("REVENUECAT_SECRET_API_KEY"))
     });
     const title=String(input.title||"").trim(),body=String(input.body||"").trim();
     if(title.length<1||title.length>100||body.length<1||body.length>240)
@@ -125,26 +188,43 @@ Deno.serve(async(request:Request)=>{
       return reply(400,{error:"Explicit send confirmation required"});
     if(!ready)return reply(409,{error:"APNs secrets not configured. Configure Apple key, team and bundle ID first."});
     if(result.limited||recipients.length>150)return reply(409,{error:"Audience is too large for the current 150-device synchronous sender. Batch delivery is required."});
+
     if(action==="send"&&!tested)return reply(409,{error:"Send one successful test notification before broadcasting."});
+    if(action==="send"&&audience==="general"&&!savedSegment)
+      return reply(409,{error:"Choose a saved audience to apply the weekly marketing frequency cap."});
+    if(action==="send"&&savedSegment?.subscription_filter!=="any"&&
+       !Deno.env.get("REVENUECAT_SECRET_API_KEY"))
+      return reply(409,{error:"Configure server-side RevenueCat verification before targeting subscription types."});
     if(!recipients.length)return reply(409,{error:"No devices eligible for this message. Check app opt-in and challenge registration."});
     const token=await providerJWT(creds());
     // Log the send before doing external I/O to keep an audit trail.
     const written=await db("beadlight_push_campaigns","POST",{
+
       audience,challenge_slug:slug,title,body,is_test:action==="test",
-      intended_count:recipients.length,created_by:user,status:"sending"
+      segment_id:segmentID,intended_count:recipients.length,created_by:user,status:"sending"
     });
     if(!written.ok||!written.data[0]?.id)return reply(503,{error:"Could not log the send; no notifications sent"});
     const id=written.data[0].id;
+
     let ok=0,failed=0;
+    const acceptedInstallations:string[]=[];
     const failures:Record<string,number>={};
     // Send in batches of 10 to avoid saturating the APNs server.
     for(let i=0;i<recipients.length;i+=10){
-      const slice=await Promise.all(recipients.slice(i,i+10)
-        .map(d=>deliver(d,title,body,slug,token,creds().topic)));
-      for(const output of slice){
-        if(output.delivered)ok++;
+
+      const batch=recipients.slice(i,i+10);
+      const slice=await Promise.all(batch.map(d=>deliver(d,title,body,slug,token,creds().topic)));
+      for(let j=0;j<slice.length;j++){
+        const output=slice[j];
+        if(output.delivered){ok++;acceptedInstallations.push(batch[j].installation_id);}
         else {failed++;const reason=output.error||"Unknown";failures[reason]=(failures[reason]||0)+1;}
       }
+    }
+
+    if(action==="send"&&audience==="general"&&acceptedInstallations.length){
+      const rows=acceptedInstallations.map(installation_id=>({campaign_id:id,installation_id}));
+      const recorded=await db("beadlight_push_deliveries","POST",rows);
+      if(!recorded.ok)return reply(503,{error:"APNs accepted messages, but delivery frequency audit could not be recorded. Pause additional sends and investigate."});
     }
     const status=failed===0?"sent":ok>0?"partial":"failed";
     await db("beadlight_push_campaigns?id=eq."+id,"PATCH",{delivered_count:ok,failed_count:failed,status});
