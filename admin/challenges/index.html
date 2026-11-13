@@ -58,6 +58,16 @@
     .feedback.error { color:var(--danger); }
     .pill { background:#e9f3ea; border-radius:8px; padding:7px 10px; font-size:12px; color:#38674c; }
     @media(max-width:800px){ .work { grid-template-columns:1fr; } .fields { grid-template-columns:1fr; } .day-image { grid-template-columns:48px 1fr; } }
+    .signup-rows { display:grid; gap:9px; margin-top:14px; }
+    .signup-row { display:grid; grid-template-columns:minmax(0,1fr) 120px 190px; align-items:center; gap:14px; border:1px solid var(--border); border-radius:12px; padding:13px 16px; }
+    .signup-name { font-weight:650; }
+    .signup-total { font-size:23px; font-variant-numeric:tabular-nums; font-weight:750; }
+    .signup-switch { display:flex; gap:9px; align-items:center; cursor:pointer; font-weight:600; }
+    .signup-switch input { appearance:none; width:40px; height:24px; border-radius:14px; background:#cbd5ce; position:relative; cursor:pointer; flex:0 0 auto; transition:background .18s; border:1px solid #aec5b1; }
+    .signup-switch input:checked { background:#3a6b51; }
+    .signup-switch input:before { content:''; position:absolute; top:3px; left:3px; background:white; width:16px; height:16px; border-radius:50%; transition:transform .18s; }
+    .signup-switch input:checked:before { transform:translateX(16px); }
+    @media(max-width:700px) { .signup-row { grid-template-columns:1fr auto; } .signup-switch { grid-column:1/-1; } }
   </style>
 </head>
 <body>
@@ -76,6 +86,16 @@
     </section>
 
     <main id="studio" class="work hidden">
+      <section class="panel" style="grid-column:1/-1" aria-labelledby="signupHeading">
+        <div class="actions" style="justify-content:space-between">
+          <h2 id="signupHeading" style="margin:0">Challenge sign-ups</h2>
+          <button class="secondary" type="button" id="refreshSignups">Refresh counts</button>
+        </div>
+        <p class="muted">See the number of distinct app installations registered for each challenge, including the ongoing daily challenge. Counts are private until you switch one on.</p>
+        <p class="help">The number is approximate, not a count of verified individuals. It starts tracking when users install a version with challenge sign-up reporting.</p>
+        <div id="signupRows" class="signup-rows" aria-live="polite"></div>
+        <p id="signupStatus" class="feedback" role="status"></p>
+      </section>
       <aside class="panel">
         <div class="actions" style="justify-content:space-between"><h2 style="margin:0">Challenges</h2><button type="button" id="newButton">+ New</button></div>
         <p class="help">Drafts are private. Publish when the challenge is ready for app users.</p>
