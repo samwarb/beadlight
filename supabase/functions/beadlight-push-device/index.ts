@@ -48,7 +48,17 @@ Deno.serve(async(request:Request)=>{
       apns_environment:environment,challenge_updates:data.challenge_updates,
       general_announcements:data.general_announcements,last_seen_at:new Date().toISOString()
     };
-    const write=await store(existing ? path : "beadlight_push_devices",existing ? "PATCH" : "POST",values);
+    let write=await store(existing ? path : "beadlight_push_devices",existing ? "PATCH" : "POST",values);
+    // APNs may issue the same token after an app reinstall. Ownership of the
+    // unpredictable token permits reattaching it to the new installation.
+    if(!existing && !write.ok && write.status===409){
+      const oldToken=await store("beadlight_push_devices?apns_token=eq."+encodeURIComponent(token)+"&select=installation_id");
+      if(oldToken.ok && oldToken.data?.length===1){
+        const stale=String(oldToken.data[0].installation_id);
+        const removed=await store("beadlight_push_devices?installation_id=eq."+encodeURIComponent(stale),"DELETE");
+        if(removed.ok)write=await store("beadlight_push_devices","POST",values);
+      }
+    }
     if(!write.ok) return reply(write.status===409?409:503,{error:write.status===409?"A push token is already registered":"Could not store push preferences"});
     return reply(200,{ok:true,challenge_updates:values.challenge_updates,general_announcements:values.general_announcements});
   } catch {
