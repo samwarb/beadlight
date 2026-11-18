@@ -60,7 +60,7 @@
     <section class="roadmap-hero">
       <p class="eyebrow">Beadlight</p>
       <h1>Política de Privacidad</h1>
-      <p class="lead">Última actualización: 28 de julio de 2026</p>
+      <p class="lead">Última actualización: 18 de noviembre de 2026</p>
     </section>
 
     <section class="admin-panel legal-content">
@@ -167,6 +167,65 @@
         eventos de oración limitados pueden utilizar un identificador de instalación generado
         aleatoriamente para los totales agregados de oración y la fiabilidad. Beadlight no publica el
         historial de oración de ningún usuario individual.
+      </p>
+
+      <h3>Participación opcional en retos de oración</h3>
+      <p>
+        Si te unes al Reto Diario del Rosario o a un reto por tiempo limitado, Beadlight envía
+        a Supabase el identificador del reto y un identificador de instalación generado
+        aleatoriamente. Registramos cuándo te uniste para calcular un total aproximado de
+        inscripciones, evitar duplicados y retirar tu inscripción cuando abandones el reto.
+        Tu nombre, correo electrónico, intenciones, textos de devociones e historial individual
+        de oración quedan fuera de estos registros.
+      </p>
+      <p>
+        Podemos mostrar recuentos agregados de inscripciones en la aplicación. Estos recuentos
+        se basan en instalaciones y pueden verse afectados si reinstalas Beadlight. Puedes
+        retirar tu inscripción en la aplicación. Si estás sin conexión, volveremos a intentarlo
+        cuando la aplicación se conecte.
+      </p>
+
+      <h3>Avisos opcionales según tu actividad y suscripción</h3>
+      <p>
+        Si activas los avisos y ofertas de Beadlight, podemos usar la fecha en que registramos
+        por primera vez tu instalación, la fecha de su última conexión y el tipo y la fecha
+        de inicio de tu suscripción, verificados por RevenueCat, para elegir mensajes
+        pertinentes. Estos pueden incluir invitaciones ocasionales para volver a la aplicación,
+        ofertas de Premium o información sobre suscripciones anuales. Excluimos de estas
+        decisiones los textos de tus oraciones, intenciones y devociones.
+      </p>
+      <p>
+        Para este fin, nuestros servidores usan el identificador de instalación de la aplicación
+        y tu identificador de cliente de RevenueCat. Si inicias sesión, el identificador de
+        RevenueCat puede estar asociado a tu cuenta de Beadlight. Cuando Apple acepta una
+        notificación promocional, registramos el identificador de instalación, el aviso y la
+        hora de envío para limitar la frecuencia de las ofertas. El estado de tu suscripción
+        y la lista de destinatarios son privados.
+      </p>
+
+      <h3>Notificaciones push opcionales</h3>
+      <p>
+        En el iPhone puedes elegir si quieres recibir novedades de los retos de oración en los
+        que participas y, por separado, si quieres recibir avisos y ofertas de Beadlight.
+        Los avisos y ofertas están desactivados de forma predeterminada. El permiso del sistema
+        del iPhone solo permite que Beadlight muestre notificaciones. Los recordatorios locales
+        de oración diaria y de cuenta atrás de los retos tienen sus propios ajustes.
+      </p>
+      <p>
+        Si activas una de estas opciones, almacenamos en Supabase un token de dispositivo del
+        servicio de notificaciones push de Apple (APNs), un identificador de instalación de la
+        aplicación, una credencial de registro protegida mediante hash, el entorno de notificaciones
+        y las categorías que elegiste. Usamos estos datos para proteger tu registro, contar los
+        destinatarios que pueden recibir cada aviso y enviarte los mensajes que elijas. Apple
+        se encarga de la entrega. Tus intenciones, tu historial de oración y tu correo
+        electrónico se excluyen de los datos que enviamos a Apple con las notificaciones.
+      </p>
+      <p>
+        Puedes desactivar cualquiera de las dos categorías en la sección de avisos del Reto del
+        Rosario. Si estás sin conexión, Beadlight sincronizará tu elección cuando la aplicación
+        pueda conectarse de nuevo. Conservamos el registro y tus preferencias en el servidor para
+        aplicar tus elecciones. También puedes bloquear todas las notificaciones de Beadlight
+        en los ajustes del iPhone.
       </p>
 
       <h3>Analítica del producto e identificadores de la aplicación</h3>
@@ -291,6 +350,7 @@
 
       <ul>
         <li>para proporcionar las funciones de Rosario, devociones, intenciones, audio, recordatorios y accesibilidad que solicites;</li>
+        <li>para enviar novedades opcionales de los retos y, con tu consentimiento por separado, avisos y ofertas de Beadlight;</li>
         <li>para crear, autenticar, proteger y eliminar cuentas;</li>
         <li>para almacenar y sincronizar contenido privado de la cuenta entre dispositivos en los que hayas iniciado sesión;</li>
         <li>para mostrar rachas, totales, historial y progreso de oración;</li>
@@ -327,7 +387,7 @@
       <ul>
         <li><a href="https://supabase.com/privacy">Supabase</a>, para la autenticación, el almacenamiento de bases de datos, la sincronización, las funciones en la nube, los registros de oración, el soporte y la administración restringida;</li>
         <li><a href="https://www.revenuecat.com/privacy">RevenueCat</a>, para el estado de las compras, las suscripciones, la restauración y los beneficios Premium;</li>
-        <li><a href="https://www.apple.com/legal/privacy/">Apple</a>, para la distribución en App Store, la facturación y Sign in with Apple;</li>
+        <li><a href="https://www.apple.com/legal/privacy/">Apple</a>, para la distribución en App Store, la facturación, Sign in with Apple y la entrega de notificaciones push en el iPhone;</li>
         <li><a href="https://policies.google.com/privacy">Google</a>, para la distribución y facturación en Google Play, el inicio de sesión de Google y las fuentes del sitio web;</li>
         <li><a href="https://resend.com/legal/privacy-policy">Resend</a>, para el envío de correos relacionados con el soporte;</li>
         <li><a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub</a>, para el alojamiento del sitio web público.</li>

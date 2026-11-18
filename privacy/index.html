@@ -60,7 +60,7 @@
     <section class="roadmap-hero">
       <p class="eyebrow">Beadlight</p>
       <h1>Privacy Policy</h1>
-      <p class="lead">Last updated: 13 November 2026</p>
+      <p class="lead">Last updated: 18 November 2026</p>
     </section>
 
     <section class="admin-panel legal-content">
@@ -181,36 +181,41 @@
 
       <h3>Optional audience-based notifications</h3>
       <p>
-        If you separately opt in to general Beadlight announcements, we may use
-        your app installation date, last app activity date and RevenueCat-verified
-        subscription category to determine whether a particular message is relevant.
-        This may include occasional re-engagement messages, free-to-Premium offers
-        or information for monthly subscribers about annual subscriptions.
-        We do not use the text of your prayers, intentions or devotions for marketing
-        audiences. You can turn general announcements off in Beadlight at any time.
+        If you turn on Beadlight announcements and offers, we may use the date we first registered
+        your app installation, when it last checked in, and your RevenueCat-verified subscription
+        type and start date to choose relevant messages. These may include occasional messages
+        inviting you back to the app, Premium offers or information about annual subscriptions.
+        We exclude prayer, intention and devotion text from these decisions.
       </p>
       <p>
-        We process an app-installation identifier and RevenueCat customer identifier
-        for this purpose within our protected backend, and only use verified
-        subscription information for subscription-based targeting. We do not publish
-        personal subscription status or a recipient list.
+        Our backend uses your app-installation identifier and RevenueCat customer identifier
+        for this purpose. The RevenueCat identifier may be associated with your Beadlight account
+        if you sign in. When Apple accepts a promotional push, we record the installation
+        identifier, the announcement and the send time to limit how often we send offers.
+        Your subscription status and the recipient list are private.
       </p>
 
       <h3>Optional remote push notifications</h3>
       <p>
-        Remote push announcements are a separate, opt-in feature from local daily prayer
-        and challenge countdown reminders. You can choose challenge updates and optional
-        general Beadlight announcements independently, and turn either off in the app.
-        Allowing iPhone notification permission alone does not subscribe you to either.
+        On iPhone, you can choose to receive updates about prayer challenges you have joined
+        and choose separately whether to receive Beadlight announcements and offers.
+        The announcements and offers option is off by default. The iPhone’s system permission only
+        allows Beadlight to display notifications. Local daily prayer and challenge countdown
+        reminders have their own settings.
       </p>
       <p>
-        If you opt in, Beadlight stores an Apple Push Notification service (APNs) device
-        token, an app-installation identifier, a pseudonymous registration proof, notification
-        environment and your category choices in Supabase. We use them solely to deliver
-        messages you have opted to receive and count eligible recipients; we do not send
-        your prayer intentions, prayer history or email address to Apple with notifications.
-        Apple handles push delivery. You can withdraw by switching the category off
-        in the app or blocking Beadlight notifications in iPhone Settings.
+        If you opt in, we store an Apple Push Notification service (APNs) device token,
+        an app-installation identifier, a hashed registration credential, the notification
+        environment and your category choices in Supabase. We use these details to secure
+        your registration, count eligible recipients and deliver the messages you choose.
+        Apple handles delivery. Your prayer intentions, prayer history and email address
+        are excluded from the data we send to Apple with notifications.
+      </p>
+      <p>
+        You can switch either category off under Challenge announcements in the Rosary Challenge
+        screen. If you are offline, Beadlight syncs that choice when the app can connect again.
+        We keep your registration and preferences on the server to apply your choices. You can also
+        block all Beadlight notifications in iPhone Settings.
       </p>
 
       <h3>Product analytics and app identifiers</h3>
@@ -326,6 +331,7 @@
 
       <ul>
         <li>to provide the Rosary, devotion, intention, audio, reminder and accessibility features you request;</li>
+        <li>to send optional challenge updates and, with your separate consent, Beadlight announcements and offers;</li>
         <li>to create, authenticate, secure and delete accounts;</li>
         <li>to store and sync private account content across signed-in devices;</li>
         <li>to show prayer streaks, totals, history and progress;</li>
@@ -360,7 +366,7 @@
       <ul>
         <li><a href="https://supabase.com/privacy">Supabase</a>, for authentication, database storage, synchronization, cloud functions, prayer records, support and restricted administration;</li>
         <li><a href="https://www.revenuecat.com/privacy">RevenueCat</a>, for purchase status, subscriptions, restoration and Premium entitlements;</li>
-        <li><a href="https://www.apple.com/legal/privacy/">Apple</a>, for App Store distribution, billing and Sign in with Apple;</li>
+        <li><a href="https://www.apple.com/legal/privacy/">Apple</a>, for App Store distribution, billing, Sign in with Apple and iPhone push notification delivery;</li>
         <li><a href="https://policies.google.com/privacy">Google</a>, for Google Play distribution and billing, Google sign-in and website fonts;</li>
         <li><a href="https://resend.com/legal/privacy-policy">Resend</a>, for support-related email delivery;</li>
         <li><a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub</a>, for public website hosting.</li>
