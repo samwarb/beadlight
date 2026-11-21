@@ -18,14 +18,19 @@ const ST_PAULS_CHESHUNT_CAMPAIGN = {
   campaignId: "st-pauls-cheshunt-2026",
   partnerId: "st-pauls-cheshunt",
 };
+const SACRED_HEART_SHEFFIELD_CAMPAIGN = {
+  campaignId: "sacred-heart-sheffield-2026",
+  partnerId: "sacred-heart-sheffield",
+};
 
-// Store events may report the code or the offer's reference name.
+// Apple can send the same reference name for several parish codes on a shared
+// offer. Only use codes and reference names that identify one campaign.
 const PARISH_OFFER_CAMPAIGNS = new Map([
   ["abbot", ST_ANTHONY_CAMPAIGN],
   ["abb0t", ST_ANTHONY_CAMPAIGN],
-  ["stanthonytheabbotabbot", ST_ANTHONY_CAMPAIGN],
   ["cheshunt", ST_PAULS_CHESHUNT_CAMPAIGN],
   ["stpaulscheshuntcheshunt", ST_PAULS_CHESHUNT_CAMPAIGN],
+  ["sacredheart", SACRED_HEART_SHEFFIELD_CAMPAIGN],
 ]);
 
 function constantTimeEqual(left: string, right: string) {
