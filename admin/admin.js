@@ -559,6 +559,7 @@ function mergeParishCampaignRows(websiteRows, revenuecatRows, androidInstallRows
 
   ensure("st-anthony-the-abbot", "st-anthony-the-abbot-2026");
   ensure("sacred-heart-sheffield", "sacred-heart-sheffield-2026");
+  ensure("st-pauls-cheshunt", "st-pauls-cheshunt-2026");
   (websiteRows || []).forEach((item) => {
     const row = ensure(item.partner_id, item.campaign_id);
     if (item.event_name === "parish_campaign_landing") row.landing_visits += Number(item.event_count) || 0;
@@ -593,6 +594,7 @@ function formatParishName(partnerId) {
   if (!partnerId) return "Parish not specified";
   if (partnerId === "st-anthony-the-abbot") return "St Anthony the Abbot Catholic Church";
   if (partnerId === "sacred-heart-sheffield") return "Sacred Heart Church, Sheffield";
+  if (partnerId === "st-pauls-cheshunt") return "St Paul’s Catholic Church, Cheshunt";
   return partnerId.split(/[-_.]+/).filter(Boolean).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ");
 }
 
