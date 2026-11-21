@@ -10,6 +10,23 @@ const ALLOWED_PRODUCTION_APPS = new Set([
   "app5cac88adf6", // Beadlight (App Store)
 ]);
 const ALLOWED_EVENT_TYPES = new Set(["INITIAL_PURCHASE", "RENEWAL"]);
+const ST_ANTHONY_CAMPAIGN = {
+  campaignId: "st-anthony-the-abbot-2026",
+  partnerId: "st-anthony-the-abbot",
+};
+const ST_PAULS_CHESHUNT_CAMPAIGN = {
+  campaignId: "st-pauls-cheshunt-2026",
+  partnerId: "st-pauls-cheshunt",
+};
+
+// Store events may report the code or the offer's reference name.
+const PARISH_OFFER_CAMPAIGNS = new Map([
+  ["abbot", ST_ANTHONY_CAMPAIGN],
+  ["abb0t", ST_ANTHONY_CAMPAIGN],
+  ["stanthonytheabbotabbot", ST_ANTHONY_CAMPAIGN],
+  ["cheshunt", ST_PAULS_CHESHUNT_CAMPAIGN],
+  ["stpaulscheshuntcheshunt", ST_PAULS_CHESHUNT_CAMPAIGN],
+]);
 
 function constantTimeEqual(left: string, right: string) {
   const encoder = new TextEncoder();
@@ -29,6 +46,18 @@ function safeCampaignAttribute(attributes: Record<string, unknown>, name: string
   if (typeof value !== "string") return null;
   const normalized = value.trim().toLowerCase();
   return /^[a-z0-9][a-z0-9._-]{0,79}$/.test(normalized) ? normalized : null;
+}
+
+function safeOfferCode(value: unknown) {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 && trimmed.length <= 160 ? trimmed : null;
+}
+
+function parishCampaignFromOfferCode(offerCode: string | null) {
+  if (!offerCode) return undefined;
+  const normalized = offerCode.toLowerCase().replace(/[^a-z0-9]/g, "");
+  return PARISH_OFFER_CAMPAIGNS.get(normalized);
 }
 
 function isoTimestamp(value: unknown) {
@@ -85,8 +114,10 @@ Deno.serve(async (request) => {
   const attributes = event.subscriber_attributes && typeof event.subscriber_attributes === "object"
     ? event.subscriber_attributes as Record<string, unknown>
     : {};
-  const campaignId = safeCampaignAttribute(attributes, "campaign_id");
-  const partnerId = safeCampaignAttribute(attributes, "partner_id");
+  const offerCode = safeOfferCode(event.offer_code);
+  const offerCampaign = parishCampaignFromOfferCode(offerCode);
+  const campaignId = safeCampaignAttribute(attributes, "campaign_id") ?? offerCampaign?.campaignId ?? null;
+  const partnerId = safeCampaignAttribute(attributes, "partner_id") ?? offerCampaign?.partnerId ?? null;
   if (!campaignId && !partnerId) return json({ received: true, attributed: false });
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -104,6 +135,7 @@ Deno.serve(async (request) => {
     period_type: typeof event.period_type === "string" ? event.period_type.toUpperCase().slice(0, 30) : null,
     campaign_id: campaignId,
     partner_id: partnerId,
+    offer_code: offerCode,
     is_trial_conversion: event.is_trial_conversion === true,
     is_sandbox: false,
     event_timestamp_at: eventTimestamp,
