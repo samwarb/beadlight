@@ -247,7 +247,11 @@
         }
 
         supportForm.reset();
-        showSupportStatus("Ticket sent. Thank you — we’ll review it as soon as possible.", false);
+        const reference = result.ticketReference ? ` Reference: ${result.ticketReference}.` : "";
+        const successMessage = result.warning
+          ? `Ticket saved.${reference} ${result.warning}`
+          : `Ticket sent. Thank you — we’ll review it as soon as possible.${reference}`;
+        showSupportStatus(successMessage, false);
       } catch (error) {
         showSupportStatus(
           error.message || "Something went wrong. Please try again later.",
