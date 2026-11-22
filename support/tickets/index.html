@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en" data-site-root="../..">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My support tickets | Beadlight</title>
+  <meta name="description" content="View and reply to your Beadlight support tickets securely.">
+  <link rel="canonical" href="https://beadlight.app/support/tickets/">
+  <link rel="icon" href="../../assets/beadlight-icon-v14-192.png">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="../../marketing.css">
+  <style>
+    .portal-wrap{max-width:900px;margin:2rem auto 5rem;padding:0 1.25rem}
+    .portal-panel{background:#fffdf9;border:1px solid #e5d7bc;border-radius:18px;padding:1.5rem;margin:1rem 0;color:#24222a}
+    .portal-panel h2{margin:0 0 .65rem}.portal-panel p{line-height:1.65}
+    .portal-panel label{display:block;font-weight:600;margin:1rem 0 .4rem}
+    .portal-panel input,.portal-panel textarea{width:100%;box-sizing:border-box;padding:.85rem;border:1px solid #b5a58f;border-radius:10px;font:inherit}
+    .portal-panel textarea{min-height:110px}
+    .portal-actions{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;margin-top:1rem}
+    .portal-actions button{cursor:pointer;border-radius:9px;padding:.75rem 1rem;border:1px solid #6b5637;background:#5c452d;color:white}
+    .portal-actions button.secondary{background:#fff;color:#3c3023}
+    .portal-actions button:disabled{opacity:.5;cursor:not-allowed}
+    .portal-status{margin-top:.75rem;min-height:1.5rem}
+    .portal-status.error{color:#9b2727}
+    .ticket-choice{width:100%;background:#fff;border:1px solid #ddd0bc;border-radius:12px;padding:1rem;text-align:left;cursor:pointer;margin:.55rem 0}
+    .ticket-choice:hover,.ticket-choice:focus{border-color:#8b6f42}
+    .ticket-choice strong{display:block;margin-bottom:.3rem}
+    .ticket-choice small{color:#645c52}
+    .portal-message{background:#fff;border:1px solid #e6dbc7;border-radius:12px;padding:1rem;margin:.8rem 0;overflow-wrap:anywhere;white-space:pre-wrap}
+    .portal-message.outbound{background:#fdf3de}
+    .portal-message small{display:block;color:#655e56;margin-bottom:.55rem}
+    .portal-hidden{display:none!important}
+    a{overflow-wrap:anywhere}
+  </style>
+</head>
+<body class="marketing-page support-public-page">
+<header class="site-header marketing-header">
+  <a class="brand" href="../../"><img src="../../assets/beadlight-icon-v14-192.png" alt="" width="50" height="50"><span><strong>Beadlight</strong><small>Rosary prayer companion</small></span></a>
+  <nav class="site-nav" aria-label="Support navigation"><a href="../">Contact support</a><a href="../../privacy/">Privacy</a></nav>
+</header>
+<main class="portal-wrap" id="main">
+  <p class="eyebrow">Beadlight Support</p>
+  <h1>My support tickets</h1>
+  <p>Access conversations with Beadlight Support, even when notification emails are delayed or undeliverable. Only tickets linked to your verified email address will appear.</p>
+  <section class="portal-panel" id="portalSignIn">
+    <h2>Verify your email</h2>
+    <p>We'll send a secure sign-in link. Opening it confirms you can receive email at this address and gives you access to your tickets. If you don't already have an account, this creates a free support sign-in; it does not change your Premium subscription.</p>
+    <form id="portalAuthForm">
+      <label for="portalEmail">Email address</label>
+      <input id="portalEmail" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com">
+      <div class="portal-actions"><button type="submit" id="portalAuthButton">Send verification link</button></div>
+    </form>
+    <p class="portal-status" id="portalAuthStatus" role="status" aria-live="polite"></p>
+  </section>
+  <section id="portalAccount" class="portal-hidden">
+    <div class="portal-panel">
+      <h2>Signed in</h2>
+      <p id="portalIdentity"></p>
+      <div class="portal-actions"><button id="portalRefresh" type="button">Refresh tickets</button><button id="portalSignOut" type="button" class="secondary">Sign out</button><a href="../">Create a support ticket</a></div>
+      <p class="portal-status" id="portalStatus" role="status" aria-live="polite"></p>
+    </div>
+    <div class="portal-panel">
+      <h2>Your tickets</h2>
+      <div id="portalTickets"></div>
+    </div>
+    <div class="portal-panel portal-hidden" id="portalConversation">
+      <h2 id="portalThreadTitle">Conversation</h2>
+      <div id="portalMessages"></div>
+      <form id="portalReplyForm">
+        <label for="portalReplyText">Reply to Beadlight Support</label>
+        <textarea id="portalReplyText" maxlength="10000" required placeholder="Write your message..."></textarea>
+        <div class="portal-actions"><button type="submit" id="portalReplyButton">Send reply</button></div>
+      </form>
+      <p class="portal-status" id="portalReplyStatus" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+</main>
+<footer class="site-footer"><p class="copyright">&copy; 2026 Beadlight · <a href="../">Support</a> · <a href="../../privacy/">Privacy</a></p></footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../supabase-config.js"></script>
+<script>
+(() => {
+  const config = window.BEADLIGHT_SUPABASE || {};
+  const $ = id => document.getElementById(id);
+  const status = (id, text, error = false) => { $(id).textContent = text; $(id).classList.toggle('error', error); };
+  if (!window.supabase || !config.url || !config.anonKey) {
+    status('portalAuthStatus','The support portal is temporarily unavailable.',true);return;
+  }
+  const client = window.supabase.createClient(config.url,config.anonKey);
+  let selectedTicketId = null;
+
+  async function api(action, extra = {}) {
+    const { data: { session } } = await client.auth.getSession();
+    if (!session) throw new Error('Your session has expired. Please verify your email again.');
+    const response = await fetch(config.url + '/functions/v1/support-portal', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'apikey':config.anonKey, 'Authorization':'Bearer ' + session.access_token },
+      body: JSON.stringify({ action, ...extra })
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.error || 'The request could not be completed.');
+    return body;
+  }
+  async function refresh() {
+    status('portalStatus','Loading your support tickets...');
+    try {
+      const data = await api('list');
+      const list = $('portalTickets'); list.replaceChildren();
+      if (!data.tickets.length) {
+        const p=document.createElement('p');p.textContent='No tickets found for this verified email address. You can create one using the Contact support link.';list.appendChild(p);
+      }
+      for (const ticket of data.tickets) {
+        const b=document.createElement('button');b.type='button';b.className='ticket-choice';
+        const title=document.createElement('strong');title.textContent=ticket.subject || 'Support request';
+        const small=document.createElement('small');small.textContent=ticket.ticket_reference+' · '+ticket.status.replaceAll('_',' ')+' · '+new Date(ticket.created_at).toLocaleDateString();
+        b.append(title,small); b.addEventListener('click',()=>openTicket(ticket.id));list.appendChild(b);
+      }
+      status('portalStatus',data.tickets.length+' ticket(s) found.');
+      if(selectedTicketId && data.tickets.some(t=>t.id===selectedTicketId)) await openTicket(selectedTicketId);
+    } catch(e) { status('portalStatus',e.message,true); }
+  }
+  function renderMessage(container, who, message, when, outbound=false) {
+    const article=document.createElement('article');article.className='portal-message'+(outbound?' outbound':'');
+    const sub=document.createElement('small');sub.textContent=who+' · '+new Date(when).toLocaleString();
+    const body=document.createElement('div');body.textContent=message || '';
+    article.append(sub,body);container.appendChild(article);
+  }
+  async function openTicket(id) {
+    selectedTicketId=id;status('portalReplyStatus','');
+    try {
+      const data=await api('thread',{ticketId:id});
+      $('portalThreadTitle').textContent=(data.ticket.subject||'Support request')+' · '+data.ticket.ticket_reference;
+      $('portalConversation').classList.remove('portal-hidden');
+      const conversation=$('portalMessages');conversation.replaceChildren();
+      renderMessage(conversation,'You',data.ticket.message,data.ticket.created_at);
+      for(const r of data.replies) {
+        renderMessage(conversation,r.direction==='outbound'?'Beadlight Support':'You',r.message,r.sent_at||r.received_at||r.created_at,r.direction==='outbound');
+      }
+    } catch(e) {status('portalReplyStatus',e.message,true);}
+  }
+  async function updateAuth() {
+    const {data:{session}} = await client.auth.getSession();
+    $('portalSignIn').classList.toggle('portal-hidden',!!session);
+    $('portalAccount').classList.toggle('portal-hidden',!session);
+    if(session) {
+      $('portalIdentity').textContent='Verified account: '+(session.user.email||'');
+      await refresh();
+    } else {$('portalConversation').classList.add('portal-hidden');selectedTicketId=null;}
+  }
+  $('portalAuthForm').addEventListener('submit',async event=>{
+    event.preventDefault();
+    const email=$('portalEmail').value.trim().toLowerCase();
+    $('portalAuthButton').disabled=true;
+    status('portalAuthStatus','Sending verification link...');
+    try {
+      const {error}=await client.auth.signInWithOtp({email,options:{emailRedirectTo:'https://beadlight.app/support/tickets/'}});
+      if(error)throw error;
+      status('portalAuthStatus','Check your inbox and open the newest link to verify your address.');
+    }catch(e){status('portalAuthStatus',e.message,true);}
+    finally{$('portalAuthButton').disabled=false;}
+  });
+  $('portalRefresh').addEventListener('click',refresh);
+  $('portalSignOut').addEventListener('click',async()=>{await client.auth.signOut();await updateAuth();});
+  $('portalReplyForm').addEventListener('submit',async event=>{
+    event.preventDefault();if(!selectedTicketId)return;
+    const message=$('portalReplyText').value.trim();if(!message)return;
+    $('portalReplyButton').disabled=true;status('portalReplyStatus','Saving your reply...');
+    try {
+      await api('reply',{ticketId:selectedTicketId,message});
+      $('portalReplyText').value='';await openTicket(selectedTicketId);
+      status('portalReplyStatus','Reply saved. The Beadlight team can now see it.');
+    }catch(e){status('portalReplyStatus',e.message,true);}
+    finally{$('portalReplyButton').disabled=false;}
+  });
+  client.auth.onAuthStateChange((_event,session)=>{
+    if (session && $('portalAccount').classList.contains('portal-hidden')) setTimeout(updateAuth,0);
+  });
+  updateAuth();
+})();
+</script>
+</body>
+</html>
