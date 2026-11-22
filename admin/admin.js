@@ -1878,6 +1878,7 @@ function openTicket(ticketId) {
 
   const replySubject = `Re: Beadlight ticket ${ticket.ticket_reference} — ${ticket.subject || "Support request"}`;
   const fallbackSubject = encodeURIComponent(replySubject);
+  const customerEmailValid = isValidCustomerEmail(ticket.email);
 
   ticketDetail.innerHTML = `
     <div class="ticket-detail-head">
@@ -1885,7 +1886,7 @@ function openTicket(ticketId) {
         <span class="ticket-reference-label">${escapeHtml(ticket.ticket_reference)}</span>
         <h3>${escapeHtml(ticket.subject || "No subject")}</h3>
       </div>
-      <a class="secondary-button ticket-reply-button" href="mailto:${escapeAttr(ticket.email)}?subject=${fallbackSubject}">Open in email app</a>
+      ${customerEmailValid ? `<a class="secondary-button ticket-reply-button" href="mailto:${escapeAttr(ticket.email)}?subject=${fallbackSubject}">Open in email app</a>` : ""}
     </div>
 
     <div class="ticket-detail-meta">
@@ -1896,6 +1897,8 @@ function openTicket(ticketId) {
       <div><span>Device</span><strong>${escapeHtml(ticket.device_details || "Not provided")}</strong></div>
       <div><span>Last replied</span><strong>${escapeHtml(ticket.last_replied_at ? formatDateTime(ticket.last_replied_at) : "Not yet")}</strong></div>
     </div>
+
+    ${customerEmailValid ? "" : `<p class="admin-status error-text">This customer's email address is invalid, so replies cannot be delivered. Verify the correct address before updating it in Ticket details.</p>`}
 
     <div class="ticket-message-block">
       <span>Customer message</span>
@@ -1948,7 +1951,7 @@ function openTicket(ticketId) {
 
       <div class="ticket-send-row">
         <p>Reply-to address: <strong>beadlight@merciandigital.co.uk</strong></p>
-        <button class="primary-button" id="sendTicketReplyBtn" type="button" data-ticket-id="${escapeAttr(ticket.id)}">Send reply</button>
+        <button class="primary-button" id="sendTicketReplyBtn" type="button" data-ticket-id="${escapeAttr(ticket.id)}" ${customerEmailValid ? "" : "disabled"}>Send reply</button>
       </div>
 
       <div class="admin-status" id="ticketReplyStatus"></div>
@@ -1957,6 +1960,10 @@ function openTicket(ticketId) {
     <div class="ticket-edit-divider"></div>
 
     <div class="ticket-edit-grid">
+      <label class="wide">
+        Customer email (confirm any correction with the customer)
+        <input id="ticketEditEmail" type="email" maxlength="254" value="${escapeAttr(ticket.email)}">
+      </label>
       <label>
         Ticket status
         <select id="ticketEditStatus">${statusOptions}</select>
@@ -2145,13 +2152,34 @@ function setInlineStatus(element, message, isError = false) {
   element.classList.toggle("error-text", isError);
 }
 
+function isValidCustomerEmail(address) {
+  const value = String(address || "").trim();
+  if (value.length > 254 || /\s/.test(value)) return false;
+  const atIndex = value.lastIndexOf("@");
+  if (atIndex <= 0 || atIndex !== value.indexOf("@")) return false;
+  const local = value.slice(0, atIndex);
+  const labels = value.slice(atIndex + 1).split(".");
+  if (local.length > 64 || !/^[A-Z0-9.!#$%&'*+/=?^_`{|}~-]+$/i.test(local) ||
+      local.startsWith(".") || local.endsWith(".") || local.includes("..")) return false;
+  return labels.length >= 2 && labels.every(label =>
+    label.length <= 63 && /^[A-Z0-9](?:[A-Z0-9-]*[A-Z0-9])?$/i.test(label));
+}
+
 async function saveTicket(ticketId) {
   const statusInput = document.getElementById("ticketEditStatus");
+  const emailInput = document.getElementById("ticketEditEmail");
   const priorityInput = document.getElementById("ticketEditPriority");
   const notesInput = document.getElementById("ticketEditNotes");
   const saveStatus = document.getElementById("ticketSaveStatus");
 
-  if (!ticketId || !statusInput || !priorityInput || !notesInput) return;
+  if (!ticketId || !statusInput || !emailInput || !priorityInput || !notesInput) return;
+
+  const currentTicket = tickets.find(ticket => ticket.id === ticketId);
+  const email = emailInput.value.trim().toLowerCase();
+  if (email !== String(currentTicket?.email || "").toLowerCase() && !isValidCustomerEmail(email)) {
+    setInlineStatus(saveStatus, "Please enter a valid customer email address before saving.", true);
+    return;
+  }
 
   setInlineStatus(saveStatus, "Saving ticket...");
 
@@ -2159,6 +2187,7 @@ async function saveTicket(ticketId) {
     .from("support_tickets")
     .update({
       status: statusInput.value,
+      email,
       priority: priorityInput.value,
       admin_notes: notesInput.value.trim() || null
     })
