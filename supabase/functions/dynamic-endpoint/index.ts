@@ -216,7 +216,7 @@ Subject: ${subject}
 Your message:
 ${message}
 
-You can reply to this email if you need to add anything else.
+You can reply to this email, or visit https://beadlight.app/support/tickets/ to view your support conversation.
 
 Thank you,
 Beadlight Support
@@ -261,7 +261,7 @@ Beadlight Support
         </p>
 
         <p>
-          You can reply to this email if you need to add anything else.
+          You can reply to this email, or visit https://beadlight.app/support/tickets/ to view your support conversation.
         </p>
 
         <p>
@@ -299,17 +299,8 @@ Beadlight Support
                   delivery_last_error: String(supportEmailResult.payload?.error || "Notification send failed").slice(0,1000) })
         .eq("id", createdTicket.id);
 
-      return jsonResponse(
-        {
-          success: true,
-          ticketCreated: true,
-          ticketId: createdTicket.id,
-          ticketReference,
-          warning:
-            "Your ticket was saved, but the support notification could not be delivered. The team can still see your ticket in the admin dashboard."
-        },
-        200
-      );
+      // Still attempt the customer's acknowledgement; the two deliveries
+      // must be independent so a notification outage does not mask a ticket.
     }
 
     const acknowledgementResult = await sendEmail({
@@ -344,9 +335,10 @@ Beadlight Support
           ticketCreated: true,
           ticketId: createdTicket.id,
           ticketReference,
-          supportEmailId: supportEmailResult.payload.id,
-          warning:
-            "Your ticket was saved, but the acknowledgement email could not be sent. Please keep the ticket reference for your records."
+          supportEmailId: supportEmailResult.ok ? supportEmailResult.payload.id : null,
+          warning: supportEmailResult.ok
+            ? "Your ticket was saved, but the acknowledgement email could not be sent. Please keep the ticket reference for your records."
+            : "Your ticket was saved, but both support notification and acknowledgement email failed. Please keep the reference."
         },
         200
       );
@@ -358,9 +350,10 @@ Beadlight Support
         ticketCreated: true,
         ticketId: createdTicket.id,
         ticketReference,
-        supportEmailId: supportEmailResult.payload.id,
-        acknowledgementEmailId:
-          acknowledgementResult.payload.id
+        supportEmailId: supportEmailResult.ok ? supportEmailResult.payload.id : null,
+        acknowledgementEmailId: acknowledgementResult.payload.id,
+        warning: supportEmailResult.ok ? null
+          : "Your ticket was saved and acknowledged, but the admin notification could not be delivered."
       },
       200
     );
