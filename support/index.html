@@ -68,6 +68,15 @@
     </section>
 
     <section class="support-layout">
+      <div class="support-form-card" style="margin-bottom:1.25rem">
+        <h2>Verify your email address</h2>
+        <p>Before sending a request, confirm you can receive email at this address. This creates a free support sign-in and does not change your Premium subscription.</p>
+        <label for="verifySupportEmail">Email address</label>
+        <input id="verifySupportEmail" type="email" autocomplete="email" placeholder="you@example.com" maxlength="254">
+        <div class="support-actions"><button id="supportVerifyButton" type="button" class="secondary-button">Send verification link</button></div>
+        <p id="supportVerifyStatus" class="support-status" role="status" aria-live="polite">Verify your email before sending a support ticket.</p>
+        <p><a href="tickets/">View my tickets and replies</a></p>
+      </div>
       <form id="supportForm" class="support-form-card">
         <div class="form-head">
           <p class="eyebrow">Send a ticket</p>
@@ -183,6 +192,7 @@
     <p class="copyright">&copy; 2026 Beadlight. Beadlight is operated by Sam Warburton, trading as Mercian Digital.</p>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
   <a class="mobile-download-bar" href="../download/" data-analytics-event="download_click">Download Beadlight free</a>
 
@@ -192,6 +202,52 @@
     const supportForm = document.getElementById("supportForm");
     const supportStatus = document.getElementById("supportStatus");
     const supportSubmitBtn = document.getElementById("supportSubmitBtn");
+
+    const supportClient = window.supabase && window.BEADLIGHT_SUPABASE
+      ? window.supabase.createClient(window.BEADLIGHT_SUPABASE.url, window.BEADLIGHT_SUPABASE.anonKey)
+      : null;
+    const verifyField = document.getElementById("verifySupportEmail");
+    const emailField = document.getElementById("ticketEmail");
+    const verifyButton = document.getElementById("supportVerifyButton");
+    const verifyStatus = document.getElementById("supportVerifyStatus");
+    async function syncVerification() {
+      const { data: { session } } = supportClient
+        ? await supportClient.auth.getSession()
+        : { data: { session: null } };
+      const verified = !!(session?.user?.email && session.user.email_confirmed_at);
+      supportSubmitBtn.disabled = !verified;
+      emailField.readOnly = verified;
+      if (verified) {
+        emailField.value = session.user.email;
+        verifyField.value = session.user.email;
+        verifyField.readOnly = true;
+        verifyButton.disabled = true;
+        verifyStatus.textContent = "Verified email: " + session.user.email;
+      } else {
+        verifyStatus.textContent = "Please verify your email before submitting a support request.";
+        verifyField.readOnly = false;
+        verifyButton.disabled = false;
+      }
+    }
+    verifyButton.addEventListener("click", async function () {
+      if (!supportClient) return;
+      const email = verifyField.value.trim().toLowerCase();
+      if (!verifyField.checkValidity() || !email) {
+        verifyStatus.textContent = "Enter a valid email address."; return;
+      }
+      verifyButton.disabled = true;
+      try {
+        const { error } = await supportClient.auth.signInWithOtp({
+          email, options: { emailRedirectTo: "https://beadlight.app/support/" }
+        });
+        if (error) throw error;
+        verifyStatus.textContent = "Check your inbox and open the verification link. Then complete your support request.";
+      } catch (error) {
+        verifyStatus.textContent = error.message || "Could not send verification link.";
+      } finally { verifyButton.disabled = false; }
+    });
+    if (supportClient) supportClient.auth.onAuthStateChange(() => setTimeout(syncVerification, 0));
+    syncVerification();
 
     supportForm.addEventListener("submit", async function (event) {
       event.preventDefault();
@@ -219,6 +275,15 @@
         return;
       }
 
+      const { data: { session } } = supportClient
+        ? await supportClient.auth.getSession()
+        : { data: { session: null } };
+      if (!session?.user?.email_confirmed_at ||
+          session.user.email?.toLowerCase() !== payload.email.toLowerCase()) {
+        showSupportStatus("Please verify this email address before submitting your ticket.", true);
+        return;
+      }
+
       supportSubmitBtn.disabled = true;
       supportSubmitBtn.textContent = "Sending…";
       showSupportStatus("Sending your ticket…", false);
@@ -228,7 +293,7 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + anonKey,
+            "Authorization": "Bearer " + session.access_token,
             "apikey": anonKey
           },
           body: JSON.stringify(payload)
@@ -247,6 +312,7 @@
         }
 
         supportForm.reset();
+        await syncVerification();
         const reference = result.ticketReference ? ` Reference: ${result.ticketReference}.` : "";
         const successMessage = result.warning
           ? `Ticket saved.${reference} ${result.warning}`
