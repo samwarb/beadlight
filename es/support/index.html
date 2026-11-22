@@ -68,6 +68,15 @@
     </section>
 
     <section class="support-layout">
+      <div class="support-form-card" style="margin-bottom:1.25rem">
+        <h2>Verifica tu correo electrónico</h2>
+        <p>Antes de enviar una solicitud, confirma que puedes recibir mensajes en tu dirección. Esto crea un acceso gratuito de soporte y no cambia tu suscripción Premium.</p>
+        <label for="verifySupportEmail">Tu correo electrónico</label>
+        <input id="verifySupportEmail" type="email" autocomplete="email" placeholder="tu@ejemplo.com" maxlength="254">
+        <div class="support-actions"><button id="supportVerifyButton" type="button" class="secondary-button">Enviar enlace de verificación</button></div>
+        <p id="supportVerifyStatus" class="support-status" role="status" aria-live="polite">Debes verificar tu correo para enviar una solicitud.</p>
+        <p><a href="../../support/tickets/">Ver mis solicitudes y respuestas</a></p>
+      </div>
       <form id="supportForm" class="support-form-card">
         <div class="form-head">
           <p class="eyebrow">Enviar una solicitud</p>
@@ -183,6 +192,7 @@
     <p class="copyright">&copy; 2026 Beadlight. Beadlight está operada por Sam Warburton, que trabaja con el nombre comercial Mercian Digital.</p>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../../supabase-config.js"></script>
   <a class="mobile-download-bar" href="../download/" data-analytics-event="download_click">Descarga Beadlight gratis</a>
 
@@ -192,6 +202,52 @@
     const supportForm = document.getElementById("supportForm");
     const supportStatus = document.getElementById("supportStatus");
     const supportSubmitBtn = document.getElementById("supportSubmitBtn");
+
+    const supportClient = window.supabase && window.BEADLIGHT_SUPABASE
+      ? window.supabase.createClient(window.BEADLIGHT_SUPABASE.url, window.BEADLIGHT_SUPABASE.anonKey)
+      : null;
+    const verifyField = document.getElementById("verifySupportEmail");
+    const emailField = document.getElementById("ticketEmail");
+    const verifyButton = document.getElementById("supportVerifyButton");
+    const verifyStatus = document.getElementById("supportVerifyStatus");
+    async function syncVerification() {
+      const { data: { session } } = supportClient
+        ? await supportClient.auth.getSession()
+        : { data: { session: null } };
+      const verified = !!(session?.user?.email && session.user.email_confirmed_at);
+      supportSubmitBtn.disabled = !verified;
+      emailField.readOnly = verified;
+      if (verified) {
+        emailField.value = session.user.email;
+        verifyField.value = session.user.email;
+        verifyField.readOnly = true;
+        verifyButton.disabled = true;
+        verifyStatus.textContent = "Correo verificado: " + session.user.email;
+      } else {
+        verifyStatus.textContent = "Verifica tu correo antes de enviar una solicitud.";
+        verifyField.readOnly = false;
+        verifyButton.disabled = false;
+      }
+    }
+    verifyButton.addEventListener("click", async function () {
+      if (!supportClient) return;
+      const email = verifyField.value.trim().toLowerCase();
+      if (!verifyField.checkValidity() || !email) {
+        verifyStatus.textContent = "Introduce una dirección de correo válida."; return;
+      }
+      verifyButton.disabled = true;
+      try {
+        const { error } = await supportClient.auth.signInWithOtp({
+          email, options: { emailRedirectTo: "https://beadlight.app/es/support/" }
+        });
+        if (error) throw error;
+        verifyStatus.textContent = "Comprueba tu correo y abre el enlace de verificación. Después, completa tu solicitud.";
+      } catch (error) {
+        verifyStatus.textContent = error.message || "No se pudo enviar el enlace.";
+      } finally { verifyButton.disabled = false; }
+    });
+    if (supportClient) supportClient.auth.onAuthStateChange(() => setTimeout(syncVerification, 0));
+    syncVerification();
 
     supportForm.addEventListener("submit", async function (event) {
       event.preventDefault();
@@ -219,6 +275,79 @@
         return;
       }
 
+      const { data: { session } } = supportClient
+        ? await supportClient.auth.getSession()
+        : { data: { session: null } };
+      const verified = !!(session?.user?.email && session.user.email_confirmed_at);
+      supportSubmitBtn.disabled = !verified;
+      emailField.readOnly = verified;
+      if (verified) {
+        emailField.value = session.user.email;
+        verifyField.value = session.user.email;
+        verifyField.readOnly = true;
+        verifyButton.disabled = true;
+        verifyStatus.textContent = "Verified email: " + session.user.email;
+      } else {
+        verifyStatus.textContent = "Please verify your email before submitting a support request.";
+        verifyField.readOnly = false;
+        verifyButton.disabled = false;
+      }
+    }
+    verifyButton.addEventListener("click", async function () {
+      if (!supportClient) return;
+      const email = verifyField.value.trim().toLowerCase();
+      if (!verifyField.checkValidity() || !email) {
+        verifyStatus.textContent = "Enter a valid email address."; return;
+      }
+      verifyButton.disabled = true;
+      try {
+        const { error } = await supportClient.auth.signInWithOtp({
+          email, options: { emailRedirectTo: "https://beadlight.app/support/" }
+        });
+        if (error) throw error;
+        verifyStatus.textContent = "Check your inbox and open the verification link. Then complete your support request.";
+      } catch (error) {
+        verifyStatus.textContent = error.message || "Could not send verification link.";
+      } finally { verifyButton.disabled = false; }
+    });
+    if (supportClient) supportClient.auth.onAuthStateChange(() => setTimeout(syncVerification, 0));
+    syncVerification();
+
+    supportForm.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const config = window.BEADLIGHT_SUPABASE || {};
+      const anonKey = config.anonKey;
+
+      if (!anonKey) {
+        showSupportStatus("Support form is missing the Supabase public key. Please check supabase-config.js.", true);
+        return;
+      }
+
+      const payload = {
+        name: document.getElementById("ticketName").value.trim(),
+        email: document.getElementById("ticketEmail").value.trim(),
+        type: document.getElementById("ticketType").value,
+        priority: document.getElementById("ticketPriority").value,
+        subject: document.getElementById("ticketSubject").value.trim(),
+        message: document.getElementById("ticketMessage").value.trim(),
+        device: document.getElementById("ticketDevice").value.trim()
+      };
+
+      if (!payload.name || !payload.email || !payload.type || !payload.subject || !payload.message) {
+        showSupportStatus("Please complete all required fields before sending.", true);
+        return;
+      }
+
+      const { data: { session } } = supportClient
+        ? await supportClient.auth.getSession()
+        : { data: { session: null } };
+      if (!session?.user?.email_confirmed_at ||
+          session.user.email?.toLowerCase() !== payload.email.toLowerCase()) {
+        showSupportStatus("Debes verificar la misma dirección de correo antes de enviar tu solicitud.", true);
+        return;
+      }
+
       supportSubmitBtn.disabled = true;
       supportSubmitBtn.textContent = "Enviando…";
       showSupportStatus("Enviando tu solicitud…", false);
@@ -228,7 +357,7 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + anonKey,
+            "Authorization": "Bearer " + session.access_token,
             "apikey": anonKey
           },
           body: JSON.stringify(payload)
@@ -247,6 +376,7 @@
         }
 
         supportForm.reset();
+        await syncVerification();
         const reference = result.ticketReference ? ` Referencia: ${result.ticketReference}.` : "";
         const successMessage = result.warning
           ? `Solicitud guardada.${reference} ${result.warning}`
