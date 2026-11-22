@@ -2127,14 +2127,16 @@ async function sendTicketReply(ticketId) {
   }
 
   messageInput.value = "";
-  setTicketStatus(`Reply sent to ${data.recipientEmail || "the customer"}.`);
+  setTicketStatus(data.emailAccepted === false
+    ? "Reply saved to the ticket, but the customer email could not be sent."
+    : `Reply accepted for ${data.recipientEmail || "the customer"}; awaiting delivery confirmation.`);
 
   await loadTickets();
 
   const refreshedReplyStatus = document.getElementById("ticketReplyStatus");
   setInlineStatus(
     refreshedReplyStatus,
-    data.warning ? `Reply sent. ${data.warning}` : "Reply sent successfully."
+    data.warning ? data.warning : "Reply submitted to the email provider. Delivery is not yet confirmed."
   );
 }
 
