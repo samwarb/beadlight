@@ -423,6 +423,7 @@
       .select("*").order("starts_on", { ascending: false });
     if (error) throw Error(error.message + " — Run the Challenges admin SQL migration if it has not been installed.");
     allChallenges = data || [];
+    window.BeadlightAndroidPush?.setContext(client, allChallenges);
     fillPushAudience();
     await loadSignupCounts();
     await refreshPushPreview();
@@ -440,6 +441,7 @@
   async function authorize(session) {
     if (!session || !session.user || !session.user.email) {
       authorised = false;
+      window.BeadlightAndroidPush?.setContext(null, []);
       el.loginPanel.classList.remove("hidden");
       el.studio.classList.add("hidden");
       el.signOut.classList.add("hidden");
@@ -457,6 +459,7 @@
       await loadAll();
     } catch (error) {
       authorised = false;
+      window.BeadlightAndroidPush?.setContext(null, []);
       reportLogin(error.message, true);
       el.studio.classList.add("hidden");
       el.loginPanel.classList.remove("hidden");

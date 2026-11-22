@@ -49,3 +49,13 @@ For errors, inspect Supabase Edge Functions → Logs for `beadlight-push-admin`.
 If Apple reports `BadDeviceToken` or `DeviceTokenNotForTopic`, check the app signing environment, team, and bundle ID. The app uses sandbox for Debug and production for TestFlight/App Store.
 
 No notifications have been sent as part of this change. Only send to opted-in recipients after the test succeeds.
+
+## Android notifications
+
+1. Open **Send a notification → Android** in Challenge Studio. Android uses the Beadlight Android Firebase project and separate opt-ins, recipient counts and history.
+2. Supabase must have the Android push migration and both `beadlight-android-push-*` Edge Functions. The sender reads `FCM_SERVICE_ACCOUNT_JSON` from Edge Function Secrets. Use a dedicated service account from the `beadlight-android` Firebase project with the Firebase Cloud Messaging API Admin role to send messages.
+3. On an updated Android build, open **Challenges → Announcements**, enable the category you want to test, grant Android notification permission, and copy the test device ID.
+4. In Challenge Studio, choose the corresponding recipient category, enter the device ID and message, and send a test. Check that it arrives on the device and that tapping a challenge message opens that challenge. The sender requires a successful test before a broadcast.
+5. General news recipients can receive at most one send attempt every seven days. The Android tab supports published challenge groups and general opt-in announcements. The iOS Audience Builder remains in the iOS tab.
+
+Only the public Android Firebase app configuration belongs in `app/google-services.json`. Keep the service account JSON in Supabase Secrets and never include it in the Android app or GitHub.

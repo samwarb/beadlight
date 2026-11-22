@@ -172,8 +172,14 @@
       </section>
 
       <section class="panel" id="pushStudio" style="grid-column:1/-1" aria-labelledby="pushStudioTitle">
+        <h2 id="pushStudioTitle">Send a notification</h2>
+        <div class="actions" role="tablist" aria-label="Notification platform" style="margin:14px 0">
+          <button type="button" id="pushTabIos" role="tab" aria-controls="pushIosPane" aria-selected="true">iOS</button>
+          <button type="button" id="pushTabAndroid" class="secondary" role="tab" aria-controls="pushAndroidPane" aria-selected="false" tabindex="-1">Android</button>
+        </div>
+        <div id="pushIosPane" role="tabpanel" aria-labelledby="pushTabIos">
         <div class="actions" style="justify-content:space-between">
-          <div><p class="eyebrow">Optional remote notifications</p><h2 id="pushStudioTitle">Send a notification</h2></div>
+          <h3>iOS notifications</h3>
           <button class="secondary" id="pushRefresh" type="button">Preview audience</button>
         </div>
         <p class="muted">Only iPhones that explicitly opted into this type of announcement are eligible. Notifications are separate from daily prayer reminders. A successful test is required before any broadcast.</p>
@@ -231,11 +237,36 @@
           <h3>Send history</h3>
           <div class="list" id="pushHistory"><p class="help">No messages have been sent.</p></div>
         </div>
+        </div>
+        <div id="pushAndroidPane" role="tabpanel" aria-labelledby="pushTabAndroid" hidden>
+          <div class="actions" style="justify-content:space-between">
+            <h3>Android notifications</h3>
+            <button class="secondary" id="androidPushRefresh" type="button">Preview audience</button>
+          </div>
+          <p class="muted">Challenge updates go to Android users who joined that challenge and opted in. Beadlight news has its own opt-in and a seven-day limit per installation.</p>
+          <div class="fields" style="margin-top:18px">
+            <label>Recipients <select id="androidPushAudience"><option value="challenge:daily">Daily Rosary Challenge</option></select></label>
+            <label>Test Android device ID <input id="androidPushTestId" autocomplete="off"><small>In Beadlight, open Challenges → Announcements → Copy test device ID.</small></label>
+            <label class="wide">Notification title <input id="androidPushTitle" maxlength="100"></label>
+            <label class="wide">Notification message <textarea id="androidPushBody" maxlength="240" rows="2"></textarea></label>
+          </div>
+          <div style="margin-top:14px" class="pill" id="androidPushPreview" role="status">Select an audience and preview before sending.</div>
+          <div class="actions" style="margin-top:15px">
+            <button id="androidPushTest" type="button" class="secondary" disabled>Send test to my Android device</button>
+            <button id="androidPushSend" type="button" disabled>Send now to eligible devices</button>
+          </div>
+          <p id="androidPushStatus" class="feedback" role="status" aria-live="polite"></p>
+          <div class="section">
+            <h3>Android send history</h3>
+            <div class="list" id="androidPushHistory"><p class="help">No messages have been sent.</p></div>
+          </div>
+        </div>
       </section>
     </main>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../../supabase-config.js"></script>
+  <script src="./android-push.js"></script>
   <script src="./challenges.js"></script>
   <script src="./audience-builder.js"></script>
 </body>
