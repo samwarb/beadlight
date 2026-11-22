@@ -332,12 +332,25 @@ serve(async (req) => {
         })
         .eq("id", replyRecord.id);
 
-      return jsonResponse(
-        {
-          error: resendError
-        },
-        resendResponse.status || 502
-      );
+      // The reply has already been saved to the ticket. It remains visible
+      // in the verified customer portal even when Resend rejects the email.
+      const savedAt = new Date().toISOString();
+      const ticketUpdates: Record<string, string | boolean> = {
+        last_replied_at: savedAt,
+        has_unread_customer_reply: false
+      };
+      if (statusAfterSend !== "keep") ticketUpdates.status = statusAfterSend;
+      const { error: failedTicketUpdate } = await supabaseAdmin.from("support_tickets")
+        .update(ticketUpdates).eq("id", ticket.id);
+      if (failedTicketUpdate) console.error("Could not update ticket after a failed email", failedTicketUpdate);
+      return jsonResponse({
+        success: true,
+        emailAccepted: false,
+        ticketReference: ticket.ticket_reference,
+        recipientEmail: ticket.email,
+        replyId: replyRecord.id,
+        warning: "Your reply was saved to the support conversation, but the email was rejected: " + resendError
+      });
     }
 
     const sentAt =
@@ -419,6 +432,7 @@ serve(async (req) => {
 
     return jsonResponse({
       success: true,
+      emailAccepted: true,
       ticketReference:
         ticket.ticket_reference,
       recipientEmail: ticket.email,
