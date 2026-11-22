@@ -143,10 +143,11 @@ serve(async (req) => {
     const { data: outbound, error: replyFindError } = await db.from("support_ticket_replies")
       .select("id,delivery_status").eq("resend_email_id", outgoingId).maybeSingle();
     if (replyFindError) return jsonResponse({ error: "Delivery reply lookup failed." }, 500);
-    if (outbound && !(outbound.delivery_status === "failed" && !isFailure)) {
+    if (outbound && !(terminal.has(outbound.delivery_status) &&
+                      outbound.delivery_status !== eventStatus)) {
       const { error: replyUpdateError } = await db.from("support_ticket_replies")
         .update({
-          delivery_status: isFailure ? "failed" : "sent",
+          delivery_status: eventStatus,
           error_message: isFailure ? (errorText || "Email delivery failed") : null
         }).eq("id", outbound.id);
       if (replyUpdateError) return jsonResponse({ error: "Reply delivery update failed." }, 500);
