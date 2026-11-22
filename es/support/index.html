@@ -247,7 +247,11 @@
         }
 
         supportForm.reset();
-        showSupportStatus("Solicitud enviada. Gracias; la revisaremos lo antes posible.", false);
+        const reference = result.ticketReference ? ` Referencia: ${result.ticketReference}.` : "";
+        const successMessage = result.warning
+          ? `Solicitud guardada.${reference} ${result.warning}`
+          : `Solicitud enviada. Gracias; la revisaremos lo antes posible.${reference}`;
+        showSupportStatus(successMessage, false);
       } catch (error) {
         showSupportStatus(
           error.message || "Algo salió mal. Inténtalo de nuevo más tarde.",
