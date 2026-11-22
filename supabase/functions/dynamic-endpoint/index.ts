@@ -75,6 +75,24 @@ serve(async (req) => {
     const message = clean(body.message);
     const device = clean(body.device || "Not provided");
 
+    // Only Supabase Auth can confirm an email address. Never trust a
+    // verified flag sent by the browser or the mobile app.
+    let verifiedUserId: string | null = null;
+    const bearer = (req.headers.get("Authorization") || "")
+      .replace(/^Bearer\s+/i, "").trim();
+    if (bearer && bearer.split(".").length === 3) {
+      const { data: auth, error: authError } = await supabaseAdmin.auth.getUser(bearer);
+      if (authError || !auth?.user) {
+        return jsonResponse({ error: "Your support session has expired. Please verify your email again." }, 401);
+      }
+      if (!auth.user.email_confirmed_at ||
+          auth.user.email?.trim().toLowerCase() !== email ||
+          auth.user.is_anonymous) {
+        return jsonResponse({ error: "Please verify the email address you are using to contact support." }, 403);
+      }
+      verifiedUserId = auth.user.id;
+    }
+
     if (!name || !email || !type || !subject || !message) {
       return jsonResponse(
         {
@@ -113,7 +131,11 @@ serve(async (req) => {
           message,
           device_details: device,
           status: "open",
-          priority
+          priority,
+          customer_user_id: verifiedUserId,
+          email_verified: Boolean(verifiedUserId),
+          notification_delivery_status: "pending",
+          acknowledgement_delivery_status: "pending"
         })
         .select("id, ticket_reference")
         .single();
@@ -252,17 +274,30 @@ Beadlight Support
     const supportEmailResult = await sendEmail({
       from: SUPPORT_FROM_EMAIL,
       to: [SUPPORT_TO_EMAIL],
-      reply_to: email,
+      // Keep admin notification delivery independent of the customer address.
+      // Admins reply from the Beadlight ticket dashboard instead.
+      reply_to: SUPPORT_TO_EMAIL,
       subject: supportEmailSubject,
       text: supportTextBody,
       html: supportHtmlBody
     });
+
+    if (supportEmailResult.ok) {
+      const { error: emailLogError } = await supabaseAdmin.from("support_tickets")
+        .update({ notification_email_id: supportEmailResult.payload.id || null,
+                  notification_delivery_status: "sent" }).eq("id", createdTicket.id);
+      if (emailLogError) console.error("Notification status update failed", emailLogError);
+    }
 
     if (!supportEmailResult.ok) {
       console.error(
         "Support email failed:",
         supportEmailResult.payload
       );
+      await supabaseAdmin.from("support_tickets")
+        .update({ notification_delivery_status: "failed",
+                  delivery_last_error: String(supportEmailResult.payload?.error || "Notification send failed").slice(0,1000) })
+        .eq("id", createdTicket.id);
 
       return jsonResponse(
         {
@@ -280,17 +315,28 @@ Beadlight Support
     const acknowledgementResult = await sendEmail({
       from: SUPPORT_FROM_EMAIL,
       to: [email],
-      reply_to: SUPPORT_TO_EMAIL,
+      reply_to: `${ticketReference}@yeeerkoul.resend.app`,
       subject: userEmailSubject,
       text: userTextBody,
       html: userHtmlBody
     });
+
+    if (acknowledgementResult.ok) {
+      const { error: acknowledgementLogError } = await supabaseAdmin.from("support_tickets")
+        .update({ acknowledgement_email_id: acknowledgementResult.payload.id || null,
+                  acknowledgement_delivery_status: "sent" }).eq("id", createdTicket.id);
+      if (acknowledgementLogError) console.error("Acknowledgement status update failed", acknowledgementLogError);
+    }
 
     if (!acknowledgementResult.ok) {
       console.error(
         "Acknowledgement email failed:",
         acknowledgementResult.payload
       );
+      await supabaseAdmin.from("support_tickets")
+        .update({ acknowledgement_delivery_status: "failed",
+                  delivery_last_error: String(acknowledgementResult.payload?.error || "Acknowledgement send failed").slice(0,1000) })
+        .eq("id", createdTicket.id);
 
       return jsonResponse(
         {
