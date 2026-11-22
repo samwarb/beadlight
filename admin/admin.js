@@ -1739,7 +1739,7 @@ async function loadTickets() {
 
   const { data, error } = await client
     .from("support_tickets")
-    .select("id,ticket_reference,name,email,ticket_type,subject,message,device_details,status,priority,admin_notes,created_at,updated_at,resolved_at,last_replied_at")
+    .select("id,ticket_reference,name,email,ticket_type,subject,message,device_details,status,priority,admin_notes,created_at,updated_at,resolved_at,last_replied_at,email_verified,notification_delivery_status,acknowledgement_delivery_status,delivery_last_error")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -1896,9 +1896,14 @@ function openTicket(ticketId) {
       <div><span>Received</span><strong>${escapeHtml(formatDateTime(ticket.created_at))}</strong></div>
       <div><span>Device</span><strong>${escapeHtml(ticket.device_details || "Not provided")}</strong></div>
       <div><span>Last replied</span><strong>${escapeHtml(ticket.last_replied_at ? formatDateTime(ticket.last_replied_at) : "Not yet")}</strong></div>
+      <div><span>Address verified</span><strong>${ticket.email_verified ? "Yes" : "Not confirmed"}</strong></div>
+      <div><span>Admin notification</span><strong>${escapeHtml(titleCase(ticket.notification_delivery_status || "unknown"))}</strong></div>
+      <div><span>Customer confirmation email</span><strong>${escapeHtml(titleCase(ticket.acknowledgement_delivery_status || "unknown"))}</strong></div>
     </div>
 
     ${customerEmailValid ? "" : `<p class="admin-status error-text">This customer's email address is invalid, so replies cannot be delivered. Verify the correct address before updating it in Ticket details.</p>`}
+
+    ${ticket.delivery_last_error ? `<p class="admin-status error-text">Email delivery warning: ${escapeHtml(ticket.delivery_last_error)}</p>` : ""}
 
     <div class="ticket-message-block">
       <span>Customer message</span>
