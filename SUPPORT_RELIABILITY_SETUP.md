@@ -11,7 +11,7 @@ This rollout contains a verified-email website support submission flow, a signed
 - `support/index.html`, `es/support/index.html` — request verification via a magic-link email before website support submission; authenticated tickets record verified identity. Fallback: help@beadlight.app.
 - `support/tickets/index.html` — customer ticket history and reply interface.
 - `admin/admin.js` — shows ticket verification and delivery states, including failures.
-- `supabase/migrations/20261122180000_support_delivery_and_verified_portal.sql` and `20261122182500_support_reply_delivery_event_statuses.sql`.
+- `supabase/migrations/20261122162401_support_delivery_and_verified_portal.sql` and `20261122163029_support_reply_delivery_event_statuses.sql`.
 
 ## Required one-time setup (not automated)
 
